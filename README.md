@@ -1,6 +1,6 @@
-# Zymomona
+# Zymomona - FAIMS
 
-Nitrogen Fixation Experiment (March 2020) - lead with Julia Martien 
+Over Expression Proteins Zymomona mobilis (Jan 2020) - lead with Anji Trujillo 
 
 OBJECTIVE  
 This project investigates the proteomic remodeling associated with N2 fixation and NH4+ assimilation in Zymomona mobilis. Previous work has elucidated the metabolic and proteomic response of Zymomona mobilis during steady state N2 fixation only. These experiments examine the proteomic profile during the dynamic shift of N2 and NH4+ provide an additional dimension for studying metabolic remodeling during the increased energy and redox demands imposed by expression of biofuel-producing pathways.  

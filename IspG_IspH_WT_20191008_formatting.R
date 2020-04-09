@@ -3,6 +3,7 @@ library(installr) # for is.empty function
 library(pcaMethods)
 library(ggplot2)
 library(plotly)
+library(reshape2)
 
 #browseVignettes("pcaMethods")
 
@@ -24,6 +25,8 @@ rownames(merged_drb_impute) <- merged_drb_impute$Majority.protein.ID
 #### ISPG Protein #####
 #subset the protein groups that are associated to the ISPG gene
 
+ISPG_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0180", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
+
 ISPG_reformat_uniprot <- function(gene,strain,df){
   ISPG_data <- df[grep(gene, df$Fasta.headers),]
   ISPG_lfq <- ISPG_data[grep(strain, ISPG_data$Fasta.headers),c(1,grep("LFQ",colnames(ISPG_data)))]
@@ -35,12 +38,25 @@ ISPG_reformat_uniprot <- function(gene,strain,df){
 
 
 #df <- merged_drb_impute
-ISPG_reformat_ZM4 <- function(gene,df){
+#df_peptide <- ISIPG_peptides
+ISPG_reformat_ZM4 <- function(gene,df, peptide,df_peptide){
   ISPG_data <- df[grep(gene, df$Protein.IDs),]
   ISPG_lfq <- ISPG_data[, c(1,grep("LFQ", colnames(ISPG_data)))]
+
+  for(i in 1:length(peptide))
+  {
+    ISPG_peptide_lfq <- df_peptide[which(df_peptide$Sequence == peptide[i]),grep("Intensity", colnames(df_peptide))] 
+    ISPG_peptide_lfq <- ISPG_peptide_lfq[,-grep("new", colnames(ISPG_peptide_lfq))]
+    assign(paste(peptide[i],"_lfq",sep = ""), vapply(ISPG_peptide_lfq[1,-1], paste, collapse = ",", character(1L)))
+
+  }
+  
   Sample <- sub("LFQ.intensity.", "", colnames(ISPG_lfq[,-1]))
   Intensity <- unlist(ISPG_lfq[2:ncol(ISPG_lfq)])
   ISPG_lfq <- data.frame("Sample" = Sample, "Intensity" = Intensity)
+  ISPG_lfq$VSLSADPEQEVR <- as.numeric(VSLSADPEQEVR_lfq)
+  ISPG_lfq$ETDIGVTGGGQGK <- as.numeric(ETDIGVTGGGQGK_lfq)
+  ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK <- as.numeric(AVDCPLHLGITEAGGLIGGTVK_lfq)
   ISPG_lfq$Type <- c("ISPG","ISPG","ISPG","ISPH","ISPH","ISPH","WT","WT","WT")
   
   v = vector()
@@ -51,16 +67,44 @@ ISPG_reformat_ZM4 <- function(gene,df){
       if(length(grep(i,ISPG_lfq$Sample[j])) != 0){
         v <- append(v,ISPG_lfq$Intensity[j]/WT_lfq[i])
         print(v)
+        }
       }
-    }
     }
   ISPG_lfq$FC <- v
   return(ISPG_lfq)
 }
 
+# df <- ISPG_lfq
+# colnum will be 3,4,5
+peptide_FC <- function(colnum,df){
+  v = numeric(0)
+  WT_lfq <- as.numeric(df[grep("WT",rownames(df)),colnum])
+  
+  for (j in 1:nrow(df)) {
+    for (i in 1:3) {
+      if(length(grep(i,df$Sample[j])) != 0){
+        v <- append(v,(as.numeric(df[j,colnum])/WT_lfq[i]))
+        print(v)
+      }
+    }
+  }
+  
+  return(v)
+}
 
+
+
+peptide <- c("VSLSADPEQEVR", "ETDIGVTGGGQGK", "AVDCPLHLGITEAGGLIGGTVK")
 # Apply function to ISPG gene "ZMO0180"
-ISPG_lfq <- ISPG_reformat_ZM4("ZMO0180", merged_drb_impute)
+ISPG_lfq <- ISPG_reformat_ZM4("ZMO0180", merged_drb_impute, peptide, ISPG_peptides)
+
+ISPG_lfq$VSLSADPEQEVR_FC <- peptide_FC(3,ISPG_lfq)
+ISPG_lfq$ETDIGVTGGGQGK_FC <- peptide_FC(4,ISPG_lfq)
+ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC <- peptide_FC(5,ISPG_lfq)
+
+ISPG_lfq$VSLSADPEQEVR_FC_log2 <- log2(ISPG_lfq$VSLSADPEQEVR_FC)
+ISPG_lfq$ETDIGVTGGGQGK_FC__log2 <- log2(ISPG_lfq$ETDIGVTGGGQGK_FC)
+ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC__log2 <- log2(ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC)
 
 #### ISPG Plotting ####
 
@@ -94,8 +138,6 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log
 #### ISPG Peptides ####
 #subset zymo peptides for protein Q5NR50 or ZMO0180
 
-ISPG_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0180", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
-
 ISPG_peptides_averages <- ISPG_peptides[,c(42,grep("IspG", colnames(ISPG_peptides)))]
 sub_ISPG_peptides_avg <- ISPG_peptides_averages[,c(1,11:13)]
 colnames(sub_ISPG_peptides_avg) <- c("PEP","ISPG-1", "ISPG-2", "ISPG-3")
@@ -122,6 +164,9 @@ ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
 
 str(ISPG_peptides_abundance)
 ISPG_peptides_abundance$Peptide
+
+
+long_ISPG_Lfq <- melt(ISPG_lfq, id.vars = c("Sample"))
 
 # ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) + 
 #   geom_point(aes(size = PEP)) +
@@ -151,7 +196,17 @@ ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg)) +
 # theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 
-#### ISPH peptides #####
+
+type.colors = as.numeric(factor(ISPG_lfq$Type))
+q <- ggplot(ISPG_lfq, aes(x=Type, y=VSLSADPEQEVR_FC, fill=Type)) +
+  geom_boxplot()+
+  geom_boxplot(data = ISPG_lfq, aes(x=Type, y = ETDIGVTGGGQGK_FC, fill = Type))+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG protein", 
+                                                                    subtitle = "Over Expression (OE) Strain",
+                                                                    y = "Fold Change (OE/WT)")
+#### ISPH Protein #####
 
 #gene <- "GN=ispH"
 #strain <- "ZM4"
@@ -219,12 +274,12 @@ q <- ggplot(ISPH_lfq, aes(x=Type, y=log2(Intensity), fill=Type)) +
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log2(Abundance) ISPH protein", 
                                                                     subtitle = "Across sample types in triplicate",
                                                                     y = "Log2(Intensity)")
-
-#subset zymo peptides for protein Q5NR50
-ISPH_peptides <- peptides_Zymo_Eclipse45min[grep("Q5NP61", peptides_Zymo_Eclipse45min$Proteins),]
+#### ISPH Peptide ####
+#subset zymo peptides for protein Q5NR50 or "ZMO0875"
+ISPH_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0875", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
 
 ISPH_peptides_averages <- ISPH_peptides[,c(42,grep("IspH", colnames(ISPH_peptides)))]
-sub_ISPH_peptides_avg <- ISPH_peptides_averages[,c(1,9:11)]
+sub_ISPH_peptides_avg <- ISPH_peptides_averages[,c(1,8:10)]
 colnames(sub_ISPH_peptides_avg) <- c("PEP","ISPH-1", "ISPH-2", "ISPH-3")
 rownames(sub_ISPH_peptides_avg) <- ISPH_peptides$Sequence
 
@@ -269,17 +324,6 @@ ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2Avg)) +
   coord_flip()
 # theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-
-# ISPH averaged intensities with intensities greater than 33
-sub_ISPH_peptides_avg$sequence <- rownames(sub_ISPH_peptides_avg)
-
-ggplot(sub_ISPH_peptides_avg, aes(x=rownames(sub_ISPH_peptides_avg), y= Log2Avg)) + 
-  geom_point() +
-  #ylim(20,36) +
-  geom_text(data = subset(sub_ISPH_peptides_avg, Log2Avg > 32),
-            aes(x=sequence, y= Log2Avg, label= sequence)) +
-  theme_light()+
-  labs(title = "Average Peptide Abundances" ,subtitle = "IspH Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides")
 
 #### DXS2 peptides #####
 #subset the protein groups that are associated to the ISPH gene

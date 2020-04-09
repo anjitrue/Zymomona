@@ -13,13 +13,19 @@ palette(c("#5ABCB2", "#D6F8D6","#D6F8D6" ,"mediumorchid2","darkgoldenrod1",
 # data.frame of Eclipse 45 min runs using HP column. Searched with new aliqouts to confirm intensity trends 
 proteinGroups_Zymo_Eclipse45min <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/proteinGroups.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
+proteinGroups_Zymo_Eclipse45min_ZM4tag <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/proteinGroups_ISPH_ISPG_OE_Mehmet_ZM4tagDatabase_20200404.csv", 
+                                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
 proteinGroups_Zymo_Eclipse60min <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/txt_60min_combinedSearch/proteinGroups.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 peptides_Zymo_Eclipse45min <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/peptides.csv", 
                                        header = TRUE, sep = ",",stringsAsFactors = FALSE) 
+peptides_Zymo_Eclipse45min_ZM4tag <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/peptides_ISPH_ISPG_OE_Mehmet_ZM4tagDatabase_20200404.csv", 
+                                              header = TRUE, sep = ",",stringsAsFactors = FALSE) 
 
-DRB_imputed_data <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/DRB_imputed_data.csv")
+DRB_imputed_data <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/Zymo_OE_ZM4tag_proteinGroups.csv")
+#DRB_imputed_data <- read.csv("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/DRB_imputed_data.csv")
 rownames(DRB_imputed_data) <- DRB_imputed_data$Majority.protein.ID
 
 #### Data Formating #####
@@ -47,7 +53,7 @@ subsetLFQ <- function(x){
 }
 
 # Perform subset function
-subset_df <- subsetLFQ(proteinGroups_Zymo_Eclipse45min)
+subset_df <- subsetLFQ(proteinGroups_Zymo_Eclipse45min_ZM4tag)
 
 # remove the new aliqout runs - these were purely for confirming the crazy inverted trend
 subset_df <- subset_df[,-grep("new",colnames(subset_df))]
@@ -142,7 +148,7 @@ drb_merged <- DRB_imputed_data[which(DRB_imputed_data$Majority.protein.ID %in% f
 
 # Bind together meta data and data
 ready_to_impute <- cbind(filtered_meta,clean_df)
-merged_drb_impute <- cbind(filtered_meta, drb_merged)
+merged_drb_impute <- cbind(filtered_meta, drb_merged[,-1])
 
 #### Statistics ####
 
@@ -192,12 +198,15 @@ merged_drb_impute$t.test.Isph <- apply(cbind(IspH_average[1:3], WT_average[1:3])
 merged_drb_impute$Protein.IDs <- vapply(merged_drb_impute$Protein.IDs, paste, collapse = ",", character(1L))
 merged_drb_impute$Majority.protein.IDs <- vapply(merged_drb_impute$Majority.protein.IDs, paste, collapse = ",", character(1L))
 
+ready_to_impute$Protein.IDs <- vapply(ready_to_impute$Protein.IDs, paste, collapse = ", ", character(1L))
+ready_to_impute$Majority.protein.IDs <- vapply(ready_to_impute$Majority.protein.IDs, paste, collapse = ", ", character(1L))
+
 # Write out cv
 #write.csv(merged_drb_impute, "P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/Zymo20200406_UniprotDatabase_Mean_STD_FC_proteinGroups.csv")
-#write.csv(ready_to_impute, "P:/EAT_20190926_Zymomona/txt_Eclipse_45min/EAT_50percentfiltered_proteinGroups.csv")
+write.csv(ready_to_impute, "P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/EAT_50percentfiltered_proteinGroups_ZM4tag.csv")
 
 
 save(merged_drb_impute,
-     proteinGroups_Zymo_Eclipse45min,
-     peptides_Zymo_Eclipse45min,
-     file= "P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/txt_Eclipse_45min/OE_45minLCMSMS_Eclipse_AbundanceImputed_20200420.RData")
+     proteinGroups_Zymo_Eclipse45min_ZM4tag,
+     peptides_Zymo_Eclipse45min_ZM4tag,
+     file= "P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/OEZM4tag_45minLCMSMS_Eclipse_AbundanceImputed_20200420.RData")

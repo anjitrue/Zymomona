@@ -1,0 +1,268 @@
+---
+title: "ISPG proteins and peptides"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+require(knitr)
+opts_knit$set(root.dir = "G:/Projects/Proteomics/Zymomona")
+knitr::opts_chunk$set(root.dir = "G:/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
+```
+
+```{r install_packages, echo=FALSE}
+library(pcaMethods)
+library(ggplot2)
+library(plotly)
+library(reshape2)
+library(plyr)
+
+```
+
+```{r load_data, echo=FALSE}
+# Read in MaxQuant output proteingroups, peptides as well as DRB imputed dataframe in Data_Formatting_Functions
+load("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/OEZM4tag_45minLCMSMS_Eclipse_AbundanceImputed_20200420.RData")
+
+
+```
+
+I reformatted both the protein and peptide MaxQuant .csv files to extract ISPG data and the three associated peptides **VSLSADPEQEVR**, **ETDIGVTGGGQGK**, and **AVDCPLHLGITEAGGLIGGTVK**
+
+I built the following functions that utilized certain data to output formatted data frames.  
+1. *ISPG_reformat_ZM4* function takes in gene = ZMO0180, the filtered and imputed protein intensities, and the peptide intensities. The output is ISPG abundance table in wide format that contains abundances for the peptides of interest.  
+2. *peptide_FC* function takes in the column number associated with the peptide of interest and ISPG abundance table. This function will produce the fold changes of the proteins and peptides relative to what was measured in the WT.  
+
+
+```{r ISPG_data_formating, echo=FALSE}
+#df <- merged_drb_impute
+#df_peptide <- ISPG_peptides
+
+ISPG_reformat_ZM4 <- function(gene,df, peptide,df_peptide){
+  ISPG_data <- df[grep(gene, df$Protein.IDs),]
+  ISPG_lfq <- ISPG_data[, c(1,grep("LFQ", colnames(ISPG_data)))]
+
+  for(i in 1:length(peptide))
+  {
+    ISPG_peptide_lfq <- df_peptide[which(df_peptide$Sequence == peptide[i]),grep("Intensity", colnames(df_peptide))] 
+    ISPG_peptide_lfq <- ISPG_peptide_lfq[,-grep("new", colnames(ISPG_peptide_lfq))]
+    assign(paste(peptide[i],"_lfq",sep = ""), vapply(ISPG_peptide_lfq[1,-1], paste, collapse = ",", character(1L)))
+
+  }
+  
+  Sample <- sub("LFQ.intensity.", "", colnames(ISPG_lfq[,-1]))
+  Intensity <- unlist(ISPG_lfq[2:ncol(ISPG_lfq)])
+  ISPG_lfq <- data.frame("Sample" = Sample, "Intensity" = Intensity)
+  ISPG_lfq$VSLSADPEQEVR <- as.numeric(VSLSADPEQEVR_lfq)
+  ISPG_lfq$ETDIGVTGGGQGK <- as.numeric(ETDIGVTGGGQGK_lfq)
+  ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK <- as.numeric(AVDCPLHLGITEAGGLIGGTVK_lfq)
+  ISPG_lfq$Type <- c("ISPG","ISPG","ISPG","ISPH","ISPH","ISPH","WT","WT","WT")
+  
+  v = vector()
+  WT_lfq <- ISPG_lfq[grep("WT",rownames(ISPG_lfq)),2]
+  
+    for (j in 1:nrow(ISPG_lfq)) {
+      for (i in 1:3) {
+      if(length(grep(i,ISPG_lfq$Sample[j])) != 0){
+        v <- append(v,ISPG_lfq$Intensity[j]/WT_lfq[i])
+        #print(v)
+        }
+      }
+    }
+  ISPG_lfq$FC <- v
+  return(ISPG_lfq)
+}
+
+# df <- ISPG_lfq
+# colnum will be 3,4,5
+peptide_FC <- function(colnum,df){
+  v = numeric(0)
+  WT_lfq <- as.numeric(df[grep("WT",rownames(df)),colnum])
+  
+  for (j in 1:nrow(df)) {
+    for (i in 1:3) {
+      if(length(grep(i,df$Sample[j])) != 0){
+        v <- append(v,(as.numeric(df[j,colnum])/WT_lfq[i]))
+        #print(v)
+      }
+    }
+  }
+  
+  return(v)
+}
+
+ISPG_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0180", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
+
+# Peptides to keep track of
+peptide <- c("VSLSADPEQEVR", "ETDIGVTGGGQGK", "AVDCPLHLGITEAGGLIGGTVK")
+# Apply ISPG_function to ISPG gene "ZMO0180"
+ISPG_lfq <- ISPG_reformat_ZM4("ZMO0180", merged_drb_impute, peptide, ISPG_peptides)
+
+# Apply peptide_FC function to each peptide
+ISPG_lfq$VSLSADPEQEVR_FC <- peptide_FC(3,ISPG_lfq)
+ISPG_lfq$ETDIGVTGGGQGK_FC <- peptide_FC(4,ISPG_lfq)
+ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC <- peptide_FC(5,ISPG_lfq)
+
+# Fold Change transformed to Log2
+ISPG_lfq$VSLSADPEQEVR_FC_log2 <- log2(ISPG_lfq$VSLSADPEQEVR_FC)
+ISPG_lfq$ETDIGVTGGGQGK_FC__log2 <- log2(ISPG_lfq$ETDIGVTGGGQGK_FC)
+ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC__log2 <- log2(ISPG_lfq$AVDCPLHLGITEAGGLIGGTVK_FC)
+
+```
+
+#### **Plot1**  
+**ISPG Intensity:**  
+Intensity of ISPG protein across strain. Each strain was analyzed in triplicate. 
+```{r, echo=FALSE}
+type.colors = as.numeric(factor(ISPG_lfq$Type))
+q <- ggplot(ISPG_lfq, aes(x=Sample, y=log2(Intensity), fill=Type)) +
+  geom_bar(stat = "identity")+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log2(ISPG protein)", 
+                                                                    subtitle = "Across sample types in triplicate",
+                                                                    y = "Log2(Intensity)")
+```
+
+#### **Plot1 version 2**  
+**ISPG Fold Change :**  
+Log2 transformed of ISPG protein across strain. Boxplot contains triplicate analysis.
+```{r, echo=FALSE}
+type.colors = as.numeric(factor(ISPG_lfq$Type))
+q <- ggplot(ISPG_lfq, aes(x=Type, y=log2(Intensity), fill=Type)) +
+  geom_boxplot()+
+  #geom_point(data = ISPG_lfq, aes(x= Type, y= log2(Intensity)), size = 3, color = "#6D696F", alpha = 0.5) +
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log2(Abundance) ISPG protein", 
+                                                                    subtitle = "Across sample types in triplicate",
+                                                                    y = "Log2(Intensity)")
+```
+
+#### **Plot2**  
+**ISPG Fold Change**  
+Fold Change of ISPG protein across strain. Boxplot contains triplicate analysis. 
+```{r, echo=FALSE}
+type.colors = as.numeric(factor(ISPG_lfq$Type))
+q <- ggplot(ISPG_lfq, aes(x=Type, y=FC, fill=Type)) +
+  geom_boxplot()+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG protein", 
+                                                                    subtitle = "Over Expression (OE) Strain",
+                                                                    y = "Fold Change (OE/WT)")
+```
+
+#### The following analysis will consider the intensities associated to individual peptides and how the fold changes compare to protein fold changes relative to WT.   
+```{r ISPG_peptides, echo=FALSE}
+ISPG_peptides_averages <- ISPG_peptides[,c(42,grep("IspG", colnames(ISPG_peptides)))]
+sub_ISPG_peptides_avg <- ISPG_peptides_averages[,c(1,11:13)]
+colnames(sub_ISPG_peptides_avg) <- c("PEP","ISPG-1", "ISPG-2", "ISPG-3")
+rownames(sub_ISPG_peptides_avg) <- ISPG_peptides$Sequence
+
+sub_ISPG_peptides_avg$Avg <- rowMeans(sub_ISPG_peptides_avg[,2:ncol(sub_ISPG_peptides_avg)])
+sub_ISPG_peptides_avg$Log2Avg <- log2(sub_ISPG_peptides_avg$Avg)
+sub_ISPG_peptides_avg$Std <- apply(sub_ISPG_peptides_avg[,2:4],1,function(x) sd(log2(x)))
+
+
+v <- vector()
+#subset peptides with abundance greater than log2
+for(i in 1:nrow(sub_ISPG_peptides_avg)){
+  if(0 %in% sub_ISPG_peptides_avg[i,2:4])
+    v <- append(v,i) 
+}
+
+ISPG_peptides_abundance <- sub_ISPG_peptides_avg[-v,]
+ISPG_peptides_abundance <- ISPG_peptides_abundance[order(ISPG_peptides_abundance$Log2Avg),]
+ISPG_peptides_abundance$Peptide <- rownames(ISPG_peptides_abundance)
+
+ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
+  mutate(Peptide = factor(Peptide, level = rownames(ISPG_peptides_abundance)))
+
+#str(ISPG_peptides_abundance)
+#ISPG_peptides_abundance$Peptide
+```
+
+```{r long_format, echo=FALSE}
+# reforat ISPG wide format to long
+long_ISPG_Lfq <- melt(ISPG_lfq, id.vars = c("Sample"))
+
+variable2 <- long_ISPG_Lfq$variable[long_ISPG_Lfq$variable != "Type"]
+long_ISPG_Lfq <- long_ISPG_Lfq[which(long_ISPG_Lfq$variable  %in% variable2),]
+
+long_ISPG_Lfq$value <- as.numeric(long_ISPG_Lfq$value)
+
+
+long_ISPG_Lfq$variable <- revalue(long_ISPG_Lfq$variable, c("Intensity" = "ISPG","FC" ="ISPG_FC"))
+long_ISPG_Lfq$Type <- rep(c("ISPG","ISPH","WT"), times = 11, each=3)
+
+```
+
+#### **Plot 3 version 1**  
+**ISPG peptides Ranked Intensities:**  
+Dot plot of peptide intensities were averaged (n=3) and then ranked from most abundant to least abundant quantified in the ISPG samples.
+```{r, echo=FALSE}
+ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) +
+  geom_point() +
+  theme_light()+
+  labs(title = "Average Peptide Abundances" ,subtitle = "IspG Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
+  coord_flip()
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#### **Plot 3 version2**  
+**ISPG peptides Ranked Intensities :**  
+Bar graph of peptide intensities were averaged (n=3) to produce the bar, error bars are provided for standard deviation. Overlaid are the intensities from each replicate. The peptides are ranked from most abundant to least abundant that were quantified in the ISPG samples.
+```{r, echo=FALSE}
+ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg)) + 
+  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
+  geom_errorbar(aes(ymin=Log2Avg, ymax=Log2Avg+Std) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  geom_point(data = ISPG_peptides_abundance, aes(x=Peptide, y = log2(ISPG_peptides_abundance$`ISPG-1`)), size = 3, color = "#6D696F", alpha = 0.5) +
+  geom_point(data = ISPG_peptides_abundance, aes(x= Peptide, y= log2(ISPG_peptides_abundance$`ISPG-2`)), size = 3, color = "#6D696F", alpha = 0.5) +
+  geom_point(data = ISPG_peptides_abundance, aes(x= Peptide, y= log2(ISPG_peptides_abundance$`ISPG-3`)), size = 3, color = "#6D696F", alpha = 0.5) +
+  theme_light()+
+  labs(title = "Peptide Abundances" ,subtitle = "IspG Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
+  coord_flip()
+# theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+
+#### **Plot 4**  
+**ISPG protein and peptides Log2 transformed Intensities:**  
+Box plot of log2 transformed intensities from ISPG protein and associated peptides. There are 3 measurements per boxplot. 
+```{r, echo=FALSE}
+q <- ggplot(long_ISPG_Lfq[1:36,], aes(x=variable, y=log2(value), fill=Type)) +
+  geom_boxplot()+
+  #scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Intensity across strains", 
+                                                                    subtitle = "ISPG and associted peptides in Over Expression (OE) Strain",
+                                                                    y = "Log2(Intensity)")
+```
+
+#### **Plot 5**  
+**ISPG protein and peptides Log2 transformed fold change: **  
+Box plot of fold changes relative to WT for ISPG and the three peptides of interest. This is the most important plot for considering using peptides to monitor over expression at the peptide level versus the protein level.  
+```{r, echo=FALSE}
+q <- ggplot(long_ISPG_Lfq[37:72,], aes(x=variable, y=log2(value), fill=Type)) +
+  geom_boxplot()+
+  #scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 
+                                                                    subtitle = "ISPG and associted peptides in Over Expression (OE) Strain",
+                                                                    y = "Log2(Fold Change relative to WT)", x = "")
+
+
+```
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

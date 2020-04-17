@@ -155,25 +155,30 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fol
 
 #### The following analysis will consider the intensities associated to individual peptides and how the fold changes compare to protein fold changes relative to WT.   
 ```{r ISPG_peptides, echo=FALSE}
-ISPG_peptides_averages <- ISPG_peptides[,c(42,grep("IspG", colnames(ISPG_peptides)))]
-sub_ISPG_peptides_avg <- ISPG_peptides_averages[,c(1,11:13)]
-colnames(sub_ISPG_peptides_avg) <- c("PEP","ISPG-1", "ISPG-2", "ISPG-3")
+ISPG_peptides_averages <- ISPG_peptides[,c(42,grep("Intensity.IspG",colnames(ISPG_peptides)),grep("Intensity.WT",colnames(ISPG_peptides)))]
+
+sub_ISPG_peptides_avg <- ISPG_peptides_averages[,c(1,3,4:6,8,9)]
+colnames(sub_ISPG_peptides_avg) <- c("PEP","ISPG-1", "ISPG-2", "ISPG-3", "WT-1", "WT-2","WT-3")
 rownames(sub_ISPG_peptides_avg) <- ISPG_peptides$Sequence
 
-sub_ISPG_peptides_avg$Avg <- rowMeans(sub_ISPG_peptides_avg[,2:ncol(sub_ISPG_peptides_avg)])
-sub_ISPG_peptides_avg$Log2Avg <- log2(sub_ISPG_peptides_avg$Avg)
-sub_ISPG_peptides_avg$Std <- apply(sub_ISPG_peptides_avg[,2:4],1,function(x) sd(log2(x)))
+
+sub_ISPG_peptides_avg$ISPGAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("ISPG",colnames(sub_ISPG_peptides_avg))])
+sub_ISPG_peptides_avg$WTAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("WT",colnames(sub_ISPG_peptides_avg))])
+sub_ISPG_peptides_avg$Log2ISPGAvg <- log2(sub_ISPG_peptides_avg$ISPGAvg)
+sub_ISPG_peptides_avg$Log2WTAvg <- log2(sub_ISPG_peptides_avg$WTAvg)
+sub_ISPG_peptides_avg$ISPGStd <- apply(sub_ISPG_peptides_avg[,grep("ISPG",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
+sub_ISPG_peptides_avg$WTStd <- apply(sub_ISPG_peptides_avg[,grep("WT",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
 
 
 v <- vector()
 #subset peptides with abundance greater than log2
 for(i in 1:nrow(sub_ISPG_peptides_avg)){
-  if(0 %in% sub_ISPG_peptides_avg[i,2:4])
+  if(0 %in% sub_ISPG_peptides_avg[i,2:7])
     v <- append(v,i) 
 }
 
 ISPG_peptides_abundance <- sub_ISPG_peptides_avg[-v,]
-ISPG_peptides_abundance <- ISPG_peptides_abundance[order(ISPG_peptides_abundance$Log2Avg),]
+ISPG_peptides_abundance <- ISPG_peptides_abundance[order(ISPG_peptides_abundance$Log2ISPGAvg),]
 ISPG_peptides_abundance$Peptide <- rownames(ISPG_peptides_abundance)
 
 ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
@@ -182,6 +187,124 @@ ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
 #str(ISPG_peptides_abundance)
 #ISPG_peptides_abundance$Peptide
 ```
+
+```{r peptideRanges_withMeanNotAveraged, echo=FALSE}
+t_ISPG_peptides_abundance <-t(ISPG_peptides_abundance[,2:7])
+Range_ISPG_peptides <- cbind(ISPG_lfq[c(grep("ISPG",ISPG_lfq$Type),grep("WT", ISPG_lfq$Type)),2],t_ISPG_peptides_abundance)
+colnames(Range_ISPG_peptides) <- c("ISPG", colnames(t_ISPG_peptides_abundance))
+
+
+peptide_FC <- function(df){ 
+  
+  df_FC <- data.frame(matrix(NA, nrow = nrow(df), ncol = ncol(df)))
+  
+  for(k in 1:ncol(df)){
+    v = numeric(0)
+    #print(c("k=",k))
+    WT_lfq <- as.numeric(df[grep("WT",rownames(df)),k])
+        
+    for (j in 1:nrow(df)) {
+      #print(c("j=",j))
+      for (i in 1:3) {
+        #print(c("i=",i))
+        if(length(grep(i,rownames(df)[j])) != 0){
+          v <- append(v,(as.numeric(df[j,k])/WT_lfq[i]))
+          #print(v)
+        }
+      }
+    }
+    
+   df_FC[,k] <- v
+   
+  }
+  
+  colnames(df_FC) <- colnames(df)
+  rownames(df_FC) <- rownames(df)
+
+  return(df_FC)
+}
+
+Range_ISPG_peptides_FC <- peptide_FC(Range_ISPG_peptides)
+Range_ISPG_peptides_FC <- data.frame(matrix(unlist(Range_ISPG_peptides_FC), nrow = length(Range_ISPG_peptides_FC), byrow = T), stringsAsFactors = FALSE)
+Range_ISPG_peptides_FC <- Range_ISPG_peptides_FC[,1:3]
+rownames(Range_ISPG_peptides_FC) <- colnames(Range_ISPG_peptides)
+colnames(Range_ISPG_peptides_FC) <- rownames(Range_ISPG_peptides[1:3,])
+Range_ISPG_peptides_FC$AVG_FC <- rowMeans(Range_ISPG_peptides_FC) 
+Range_ISPG_peptides_FC$Std_FC <- apply(Range_ISPG_peptides_FC[,1:3],1, FUN = sd)
+Range_ISPG_peptides_FC$error <- apply(Range_ISPG_peptides_FC[,1:3],1, function(x) qt(0.975, df=length(x)-1)*sd(x)/sqrt(length(x)))
+```
+
+```{r peptide_FC_AveragedWT, echo=FALSE}
+peptide_FC_averagedWT <- function(df){
+  
+  df_FC <- data.frame(matrix(NA, nrow = nrow(df), ncol = ncol(df)))
+  
+  for(k in 1:ncol(df)){
+    v = numeric(0)
+    #print(c("k=",k))
+    WT_lfq <- mean(as.numeric(df[grep("WT",rownames(df)),k]))
+    
+        
+    for (j in 1:nrow(df)) {
+      #print(c("j=",j))
+      for (i in 1:3) {
+        #print(c("i=",i))
+        if(length(grep(i,rownames(df)[j])) != 0){
+          v <- append(v,(as.numeric(df[j,k])/WT_lfq))
+          #print(v)
+        }
+      }
+    }
+    
+   df_FC[,k] <- v
+  }
+  colnames(df_FC) <- colnames(df)
+  rownames(df_FC) <- rownames(df)
+  return(df_FC)
+}
+
+Range_ISPG_peptides_FC_AveragedWT <- peptide_FC_averagedWT(Range_ISPG_peptides)
+Range_ISPG_peptides_FC_AveragedWT <- data.frame(matrix(unlist(Range_ISPG_peptides_FC_AveragedWT), nrow = length(Range_ISPG_peptides_FC_AveragedWT), byrow = T), stringsAsFactors = FALSE)
+#Range_ISPG_peptides_FC_AveragedWT <- Range_ISPG_peptides_FC_AveragedWT[,1:3]
+rownames(Range_ISPG_peptides_FC_AveragedWT) <- colnames(Range_ISPG_peptides)
+colnames(Range_ISPG_peptides_FC_AveragedWT) <- rownames(Range_ISPG_peptides)
+
+Range_ISPG_peptides_FC_AveragedWT$AVG_FC <- rowMeans(Range_ISPG_peptides_FC_AveragedWT[,1:3]) 
+Range_ISPG_peptides_FC_AveragedWT$AVG_WT_FC <- rowMeans(Range_ISPG_peptides_FC_AveragedWT[,4:6]) 
+
+Range_ISPG_peptides_FC_AveragedWT$Std_FC <- apply(Range_ISPG_peptides_FC_AveragedWT[,1:3],1, FUN = sd)
+Range_ISPG_peptides_FC_AveragedWT$Std_WT_FC <- apply(Range_ISPG_peptides_FC_AveragedWT[,4:6],1, FUN = sd)
+
+Range_ISPG_peptides_FC_AveragedWT$error <- apply(Range_ISPG_peptides_FC_AveragedWT[,1:3],1, 
+                                                 function(x) qt(0.975, df=length(x)-1)*sd(x)/sqrt(length(x)))
+Range_ISPG_peptides_FC_AveragedWT$WT_error <- apply(Range_ISPG_peptides_FC_AveragedWT[,4:6],1, 
+                                                    function(x) qt(0.975, df=length(x)-1)*sd(x)/sqrt(length(x)))
+
+Range_ISPG_peptides_FC_AveragedWT <- Range_ISPG_peptides_FC_AveragedWT[c(1,nrow(Range_ISPG_peptides_FC_AveragedWT):2),]
+Range_ISPG_peptides_FC_AveragedWT$BioMolecule <- rownames(Range_ISPG_peptides_FC_AveragedWT)
+
+Range_ISPG_peptides_FC_AveragedWT<- Range_ISPG_peptides_FC_AveragedWT %>% 
+  mutate(BioMolecule = factor(BioMolecule, level = rev(rownames(Range_ISPG_peptides_FC_AveragedWT))))
+```
+
+```{r,echo=FALSE}
+
+ggplot(Range_ISPG_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
+  geom_point() +
+  geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,1], color = "grey") +
+  geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,2], color = "grey") +
+  geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,3], color = "grey") +
+  geom_errorbar(aes(ymin=AVG_FC-error, ymax=AVG_FC+error) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  theme_light()+
+  labs(title = "Peptide Fold Changes" ,subtitle = "ISPG and ISPG associated peptides", y = "Fold Change", x ="Peptides") +
+  coord_flip() +
+  geom_hline(yintercept = 17.77184)+
+  geom_hline(yintercept = 24.72152)
+  
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
 
 ```{r long_format, echo=FALSE}
 # reforat ISPG wide format to long
@@ -234,12 +357,12 @@ Box plot of log2 transformed intensities from ISPG protein and associated peptid
 ```{r, echo=FALSE}
 q <- ggplot(long_ISPG_Lfq[1:36,], aes(x=variable, y=log2(value), fill=Type)) +
   geom_boxplot()+
-  #scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Intensity across strains", 
                                                                     subtitle = "ISPG and associted peptides in Over Expression (OE) Strain",
-                                                                    y = "Log2(Intensity)")
+                                                                    y = "Log2(Intensity)", x= "")
 ```
 
 #### **Plot 5**  
@@ -248,7 +371,7 @@ Box plot of fold changes relative to WT for ISPG and the three peptides of inter
 ```{r, echo=FALSE}
 q <- ggplot(long_ISPG_Lfq[37:72,], aes(x=variable, y=log2(value), fill=Type)) +
   geom_boxplot()+
-  #scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 

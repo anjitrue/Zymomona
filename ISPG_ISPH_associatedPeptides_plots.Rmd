@@ -162,12 +162,12 @@ colnames(sub_ISPG_peptides_avg) <- c("PEP","ISPG-1", "ISPG-2", "ISPG-3", "WT-1",
 rownames(sub_ISPG_peptides_avg) <- ISPG_peptides$Sequence
 
 
-sub_ISPG_peptides_avg$ISPGAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("ISPG",colnames(sub_ISPG_peptides_avg))])
-sub_ISPG_peptides_avg$WTAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("WT",colnames(sub_ISPG_peptides_avg))])
+sub_ISPG_peptides_avg$ISPGAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("ISPG-",colnames(sub_ISPG_peptides_avg))])
+sub_ISPG_peptides_avg$WTAvg <- rowMeans(sub_ISPG_peptides_avg[,grep("WT-",colnames(sub_ISPG_peptides_avg))])
 sub_ISPG_peptides_avg$Log2ISPGAvg <- log2(sub_ISPG_peptides_avg$ISPGAvg)
 sub_ISPG_peptides_avg$Log2WTAvg <- log2(sub_ISPG_peptides_avg$WTAvg)
-sub_ISPG_peptides_avg$ISPGStd <- apply(sub_ISPG_peptides_avg[,grep("ISPG",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
-sub_ISPG_peptides_avg$WTStd <- apply(sub_ISPG_peptides_avg[,grep("WT",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
+sub_ISPG_peptides_avg$ISPGStd <- apply(sub_ISPG_peptides_avg[,grep("ISPG-",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
+sub_ISPG_peptides_avg$WTStd <- apply(sub_ISPG_peptides_avg[,grep("WT-",colnames(sub_ISPG_peptides_avg))],1,function(x) sd(log2(x)))
 
 
 v <- vector()
@@ -325,7 +325,7 @@ long_ISPG_Lfq$Type <- rep(c("ISPG","ISPH","WT"), times = 11, each=3)
 **ISPG peptides Ranked Intensities:**  
 Dot plot of peptide intensities were averaged (n=3) and then ranked from most abundant to least abundant quantified in the ISPG samples.
 ```{r, echo=FALSE}
-ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) +
+ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg, )) +
   geom_point() +
   theme_light()+
   labs(title = "Average Peptide Abundances" ,subtitle = "IspG Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
@@ -338,9 +338,9 @@ ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) +
 **ISPG peptides Ranked Intensities :**  
 Bar graph of peptide intensities were averaged (n=3) to produce the bar, error bars are provided for standard deviation. Overlaid are the intensities from each replicate. The peptides are ranked from most abundant to least abundant that were quantified in the ISPG samples.
 ```{r, echo=FALSE}
-ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2Avg)) + 
+ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg)) + 
   geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
-  geom_errorbar(aes(ymin=Log2Avg, ymax=Log2Avg+Std) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  geom_errorbar(aes(ymin=Log2ISPGAvg, ymax=Log2ISPGAvg+ISPGStd) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   geom_point(data = ISPG_peptides_abundance, aes(x=Peptide, y = log2(ISPG_peptides_abundance$`ISPG-1`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPG_peptides_abundance, aes(x= Peptide, y= log2(ISPG_peptides_abundance$`ISPG-2`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPG_peptides_abundance, aes(x= Peptide, y= log2(ISPG_peptides_abundance$`ISPG-3`)), size = 3, color = "#6D696F", alpha = 0.5) +

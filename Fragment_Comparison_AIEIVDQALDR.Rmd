@@ -1,0 +1,206 @@
+---
+title: "Fragment Comparison AIEIVDQALDR"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r setup, include=FALSE}
+require(knitr)
+opts_knit$set(root.dir = "G:/Projects/Proteomics/Zymomona")
+knitr::opts_chunk$set(root.dir = "G:/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
+```
+
+```{r install_packages, echo=FALSE}
+library(pcaMethods)
+library(ggplot2)
+library(plotly)
+library(reshape2)
+library(plyr)
+
+```
+
+```{r load_data, echo=FALSE}
+# These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide AIEIVDQALDR 
+CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
+                                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
+                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
+                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
+                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
+                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
+                                      header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
+                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+```
+
+```{r dataformatting, echo=FALSE}
+# x = CompiledFragments_0_4_FAIMS
+df_fragments_log2 <- function(x){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df <- x[,-c(1:2)]
+  rownames(df) <- x$Mass.Feature
+  colnames(df) <- samples
+  df[df == 0] <- NA
+  
+  df_log2 <- log2(df)
+  df_log2[is.na(df_log2)] <- 0
+  
+  df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
+  df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
+  
+    for(i in 1:ncol(df_log2)){
+    mostIntense = max(df_log2[,i])
+    
+    for(j in 1:nrow(df_log2)){
+      df_log2[j,i] <- df_log2[j,i]/mostIntense
+    }
+  }
+  
+  return(df_log2)
+  
+}
+
+
+
+df_0_4_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_4_noFAIMS)
+df_0_4_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_4_FAIMS)
+
+df_0_6_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_6_noFAIMS)
+df_0_6_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_6_FAIMS)
+
+df_0_8_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_8_noFAIMS)
+df_0_8_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_8_FAIMS)
+
+df_1_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_1_noFAIMS)
+df_1_FAIMS_log2 <- df_fragments_log2(CompiledFragments_1_FAIMS)
+
+df_1_3_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_1_3_noFAIMS)
+df_1_3_FAIMS_log2 <- df_fragments_log2(CompiledFragments_1_3_FAIMS)
+
+df_2_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_2_noFAIMS)
+df_2_FAIMS_log2 <- df_fragments_log2(CompiledFragments_2_FAIMS)
+```
+
+```{r, echo=FALSE}
+cols <- brewer.pal(3, "YlGnBu")
+scaleRYG <- colorRampPalette(cols)(20)
+
+pheatmap(df_0_4_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.4 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_0_4_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.4 Da - Parameter Comparisons Infusions With FAIMS")
+
+pheatmap(df_0_6_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.6 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_0_6_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.6 Da - Parameter Comparisons Infusions With FAIMS")
+
+pheatmap(df_0_8_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.8 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_0_8_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 0.8 Da - Parameter Comparisons Infusions With FAIMS")
+
+pheatmap(df_1_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 1 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_1_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 1 Da - Parameter Comparisons Infusions with FAIMS")
+
+pheatmap(df_1_3_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 1.3 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_1_3_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 1.3 Da - Parameter Comparisons Infusions With FAIMS")
+
+pheatmap(df_2_FAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 2 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_2_noFAIMS_log2,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         main = "Isolation Width of 2 Da - Parameter Comparisons Infusions With FAIMS")
+
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

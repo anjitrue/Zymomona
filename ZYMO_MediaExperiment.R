@@ -1,11 +1,16 @@
+library(installr)
+
 #### Read data ####
 # 45 min gradients for 5 different conditions, each with 3 replicates. Ran on Boudicca Lumos Fusion Instrument
 # MaxQuant Output
 proteinGroups_Zymo_MediaExperiment <- read.csv("P:/EAT_20190926_Zymomona/txt_Zymmo_MediaExperiment/proteinGroups_MediaExperiment.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
+proteinGroups_ZM4database_MediaExperiment <- read.csv("P:/EAT_20190926_Zymomona/MediaExperiment_20191206/txt_withAlexZM4_database/proteinGroups_MediaExperiment_ZM4database.csv", 
+                                                      header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
 # Ran Imputation Algorithm developed my Dain. C# code output was filtered to 50% 
-EAT_imputed_data <- read.csv("P:/EAT_20190926_Zymomona/txt_Zymmo_MediaExperiment/MediaExperiment_imputed_proteinGroups.csv")
+EAT_imputed_data <- read.csv("P:/EAT_20190926_Zymomona/MediaExperiment_20191206/txt_withAlexZM4_database/MediaExperiment_Zm4database_imputed_proteinGroups.csv")
 
 #### Format data ####
 
@@ -14,7 +19,7 @@ rownames(EAT_imputed_data) <- EAT_imputed_data$Majority.protein.ID
 colnames(EAT_imputed_data) <- c("Majority.protein.ID",sub(".*intensity.","",colnames(EAT_imputed_data[,-1])))
 
 # Run subsetLFQ function from Data_Formating_Functions.R file
-subset_MediaExp <- subsetLFQ(proteinGroups_Zymo_MediaExperiment)
+subset_MediaExp <- subsetLFQ(proteinGroups_ZM4database_MediaExperiment)
 
 # use id as identifier in row names
 rownames(subset_MediaExp) <- subset_MediaExp$id
@@ -43,13 +48,16 @@ filtered_MediaExp = meta_MediaExp[which(rownames(meta_MediaExp) %in% rownames(cl
 ready_to_impute <- cbind(filtered_MediaExp,clean_df_MediaExp)
 
 # object ready for imputation, output into the P folder 
-write.csv(ready_to_impute, "P:/EAT_20190926_Zymomona/txt_Zymmo_MediaExperiment/EAT_50Percentfiltered_proteinGroups.csv")
+#write.csv(ready_to_impute, "P:/EAT_20190926_Zymomona/txt_Zymmo_MediaExperiment/EAT_50Percentfiltered_proteinGroups.csv")
+write.csv(ready_to_impute, "P:/EAT_20190926_Zymomona//MediaExperiment_20191206/txt_withAlexZM4_database/EAT_50Percentfiltered_ZM4database_proteinGroups.csv")
 
 # This object contains imputed data that is reduced to the 50% data cut off
-MediaExp_merged <- EAT_imputed_data[which(EAT_imputed_data$Majority.protein.ID %in% filtered_MediaExp$id),]
+#MediaExp_merged <- EAT_imputed_data[which(EAT_imputed_data$Majority.protein.ID %in% filtered_MediaExp$Majority.protein.IDs),]
+
+#EAT_imputed_data[-which(EAT_imputed_data$Majority.protein.ID %in% filtered_MediaExp$Majority.protein.IDs),]
 
 # Bind together meta data and data
-merged_MediaExp_impute <- cbind(filtered_MediaExp, MediaExp_merged[,-1])
+merged_MediaExp_impute <- cbind(filtered_MediaExp, EAT_imputed_data[,-1])
 
 
 #### Statistics ####
@@ -125,4 +133,4 @@ allConditions_df$'100_fdr' <- X100_fdr
 Collaborator_pdf <- cbind(filtered_MediaExp,allConditions_df)
 
 # object ready for imputation, output into the P folder 
-write.csv(Collaborator_pdf, "P:/EAT_20190926_Zymomona/txt_Zymmo_MediaExperiment/EAT_MediaExperiment_Average_SD_FC_TTEST_20191205proteinGroups.csv")
+write.csv(Collaborator_pdf, "P:/EAT_20190926_Zymomona/MediaExperiment_20191206/txt_withAlexZM4_database/EAT_MediaExperiment_ZM4database_Average_SD_FC_TTEST_20191212proteinGroups.csv")

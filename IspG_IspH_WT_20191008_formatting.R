@@ -28,14 +28,14 @@ rownames(merged_drb_impute) <- merged_drb_impute$Majority.protein.ID
 
 ISPG_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0180", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
 
-ISPG_reformat_uniprot <- function(gene,strain,df){
-  ISPG_data <- df[grep(gene, df$Fasta.headers),]
-  ISPG_lfq <- ISPG_data[grep(strain, ISPG_data$Fasta.headers),c(1,grep("LFQ",colnames(ISPG_data)))]
-  Sample <- sub("LFQ.intensity.", "", colnames(ISPG_lfq[,-1]))
-  Intensity <- unlist(ISPG_lfq[2:ncol(ISPG_lfq)])
-  ISPG_lfq <- data.frame("Sample" = Sample, "Intensity" = Intensity)
-  ISPG_lfq$Type <- c("ISPG","ISPG","ISPG","ISPH","ISPH","ISPH","WT","WT","WT")
-}
+# ISPG_reformat_uniprot <- function(gene,strain,df){
+#   ISPG_data <- df[grep(gene, df$Fasta.headers),]
+#   ISPG_lfq <- ISPG_data[grep(strain, ISPG_data$Fasta.headers),c(1,grep("LFQ",colnames(ISPG_data)))]
+#   Sample <- sub("LFQ.intensity.", "", colnames(ISPG_lfq[,-1]))
+#   Intensity <- unlist(ISPG_lfq[2:ncol(ISPG_lfq)])
+#   ISPG_lfq <- data.frame("Sample" = Sample, "Intensity" = Intensity)
+#   ISPG_lfq$Type <- c("ISPG","ISPG","ISPG","ISPH","ISPH","ISPH","WT","WT","WT")
+# }
 
 
 #df <- merged_drb_impute

@@ -169,8 +169,8 @@ sub_ISPH_peptides_avg$ISPHAvg <- rowMeans(sub_ISPH_peptides_avg[,grep("ISPH",col
 sub_ISPH_peptides_avg$WTAvg <- rowMeans(sub_ISPH_peptides_avg[,grep("WT",colnames(sub_ISPH_peptides_avg))])
 sub_ISPH_peptides_avg$Log2ISPHAvg <- log2(sub_ISPH_peptides_avg$ISPHAvg)
 sub_ISPH_peptides_avg$Log2WTAvg <- log2(sub_ISPH_peptides_avg$WTAvg)
-sub_ISPH_peptides_avg$ISPHStd <- apply(sub_ISPH_peptides_avg[,grep("ISPH",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
-sub_ISPH_peptides_avg$WTStd <- apply(sub_ISPH_peptides_avg[,grep("WT",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
+sub_ISPH_peptides_avg$ISPHStd <- apply(sub_ISPH_peptides_avg[,grep("ISPH-",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
+sub_ISPH_peptides_avg$WTStd <- apply(sub_ISPH_peptides_avg[,grep("WT-",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
 
 
 v <- vector()
@@ -301,7 +301,7 @@ ggplot(Range_ISPH_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
   geom_point( y = Range_ISPH_peptides_FC_AveragedWT[,3], color = "grey") +
   geom_errorbar(aes(ymin=AVG_FC-error, ymax=AVG_FC+error) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   theme_light()+
-  labs(title = "Average Peptide Abundances" ,subtitle = "ISPH Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
+  labs(title = "Peptide Fold Changes" ,subtitle = "ISPH and ISPH associated peptides", y = "Fold Change", x ="Peptides") +
   coord_flip() +
   geom_hline(yintercept = 4.709961)+
   geom_hline(yintercept = 6.791636)
@@ -330,9 +330,8 @@ long_ISPH_Lfq$Type <- rep(c("ISPG","ISPH","WT"), times = 11, each=3)
 **ISPH peptides Ranked Intensities:**  
 Dot plot of peptide intensities were averaged (n=3) and then ranked from most abundant to least abundant quantified in the ISPH samples.
 ```{r, echo=FALSE}
-ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) +
+ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2ISPHAvg)) +
   geom_point() +
-  
   theme_light()+
   labs(title = "Average Peptide Abundances" ,subtitle = "ISPH Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
   coord_flip()
@@ -344,9 +343,9 @@ ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2Avg, )) +
 **ISPH peptides Ranked Intensities :**  
 Bar graph of peptide intensities were averaged (n=3) to produce the bar, error bars are provided for standard deviation. Overlaid are the intensities from each replicate. The peptides are ranked from most abundant to least abundant that were quantified in the ISPH samples.
 ```{r, echo=FALSE}
-ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2Avg)) + 
+ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2ISPHAvg)) + 
   geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
-  geom_errorbar(aes(ymin=Log2Avg, ymax=Log2Avg+Std) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  geom_errorbar(aes(ymin=Log2ISPHAvg, ymax=Log2ISPHAvg+ISPHStd) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   geom_point(data = ISPH_peptides_abundance, aes(x=Peptide, y = log2(ISPH_peptides_abundance$`ISPH-1`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPH_peptides_abundance, aes(x= Peptide, y= log2(ISPH_peptides_abundance$`ISPH-2`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPH_peptides_abundance, aes(x= Peptide, y= log2(ISPH_peptides_abundance$`ISPH-3`)), size = 3, color = "#6D696F", alpha = 0.5) +

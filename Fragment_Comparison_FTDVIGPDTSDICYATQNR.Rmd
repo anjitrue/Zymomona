@@ -1,5 +1,5 @@
 ---
-title: "Fragment Comparison AIEIVDQALDR"
+title: "Fragment Comparison FTDVIGPDTSDICYATQNR"
 output:
   html_document:
     df_print: paged
@@ -23,51 +23,51 @@ library(plyr)
 ```
 
 ```{r load_data, echo=FALSE}
-# These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide AIEIVDQALDR 
-CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
+# These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide FTDVIGPDTSDICYATQNR 
+CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
+CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
+CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
+CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
+CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
+CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw <- rep(0,nrow(CompiledFragments_0_8_FAIMS))
 CompiledFragments_0_8_FAIMS <- cbind(CompiledFragments_0_8_FAIMS[,1:4],X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw,CompiledFragments_0_8_FAIMS[,5:ncol(CompiledFragments_0_8_FAIMS)])
 
-CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
+CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
+CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
+CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
+CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
+CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
+CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
@@ -765,8 +765,6 @@ combined_Log2 <- function (x){
 
 ```{r,echo=FALSE}
 
-fragment_annotation <- data.frame(IonMobility = c(rep("no FAIMS",19),rep("FAIMS",19)))
-rownames(fragment_annotation) <- rownames(Combined_0_4_rep_Log2)
 
 my_colour = list(
   #MaxInjection = c(`0.502` = "#CEE3DD", `1` = "#A7C2A4", `5` = "#73A08A"),

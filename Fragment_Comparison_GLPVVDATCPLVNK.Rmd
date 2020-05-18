@@ -84,8 +84,9 @@ meta_replicates <- function(x){
   colnames(df) <- samples
   df[df == 0] <- NA
   
-  df <- df[-which(rownames(df)=="b1"),]
-  df <- df[-which(rownames(df)=="y1"),]
+  df <- df[-c(which(rownames(df)=="b1"),which(rownames(df)=="b13")),]
+  df <- df[-c(which(rownames(df)=="y1"),which(rownames(df)=="y13")),]
+  
   
   df_t <- t(df)
   
@@ -123,8 +124,8 @@ df_fragments_log2 <- function(x,m){
   df_log2 <- log2(df)
   df_log2[is.na(df_log2)] <- 0
   
-  df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
-  df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
+  df_log2 <- df_log2[-c(which(rownames(df_log2)=="b1"),which(rownames(df_log2)=="b13")),]
+  df_log2 <- df_log2[-c(which(rownames(df_log2)=="y1"),which(rownames(df_log2)=="y13")),]
   
   for(i in 1:ncol(df_log2)){
     mostIntense = max(df_log2[,i])
@@ -399,7 +400,7 @@ for(i in 1:length(Experiment_meta$IsolationWidth)){
 Experiment_meta$FAIMS <- IW_sample_FAIMS
 
 #x <- CompiledFragments_2_noFAIMS
-#x=CompiledFragments_0_8_FAIMS
+#x=CompiledFragments_0_4_noFAIMS
 averagedIntensity <- function(x){
   
   samples <- colnames(x[,-c(1:2)])
@@ -411,8 +412,10 @@ averagedIntensity <- function(x){
   
   df_t[df_t == 0] <- NA
   
-  df_t <- df_t[,-which(colnames(df_t)=="b1")]
-  df_t <- df_t[,-which(colnames(df_t)=="y1")]
+  df_t <- df_t[,-c(which(colnames(df_t)=="b1"),which(colnames(df_t)=="b13"))]
+  df_t <- df_t[,-c(which(colnames(df_t)=="y1"),which(colnames(df_t)=="y13"))]
+  
+  colnames(df_t)[1] <- "precursor"
   
   df_t <- as.data.frame(cbind(samples, df_t))
   
@@ -682,8 +685,10 @@ format_df <- function(x){
   df_log2 <- log2(df)
   df_log2[is.na(df_log2)] <- 0
   
-  df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
-  df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
+  df_log2 <- df_log2[-c(which(rownames(df_log2)=="b1"),which(rownames(df_log2)=="b13")),]
+  df_log2 <- df_log2[-c(which(rownames(df_log2)=="y1"),which(rownames(df_log2)=="y13")),]
+  
+  rownames(df_log2)[1] <- "precursor"
   
     if(length(grep("CORRUPTED",colnames(df_log2))) != 0){
     df_log2 <- df_log2[,-grep("CORRUPTED",colnames(df_log2))]
@@ -791,7 +796,7 @@ pheatmap(Combined_0_4_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.4 Da")
 
@@ -803,7 +808,7 @@ pheatmap(Combined_0_6_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.6 Da")
 
@@ -815,7 +820,7 @@ pheatmap(Combined_0_8_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.8 Da")
 
@@ -827,7 +832,7 @@ pheatmap(Combined_1_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1 Da")
 
@@ -839,7 +844,7 @@ pheatmap(Combined_1_3_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1.3 Da")
 
@@ -851,7 +856,7 @@ pheatmap(Combined_2_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 2 Da")
 
@@ -867,6 +872,7 @@ Combined_1_Log2 <- combined_Log2(Combined_1_rep_Log2)
 Combined_1_3_Log2 <- combined_Log2(Combined_1_3_rep_Log2)
 Combined_2_Log2 <- combined_Log2(Combined_2_rep_Log2)
 
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/GLPVVDATCPLVNK_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_0_4_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_4_noFAIMS,
@@ -875,9 +881,12 @@ pheatmap(Combined_0_4_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
+         legend = F,
+         annotation_legend = F,
          main = "IW of 0.4 Da")
+dev.off()
 
 pheatmap(Combined_0_6_Log2,
          annotation_colors = my_colour,
@@ -887,7 +896,7 @@ pheatmap(Combined_0_6_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.6 Da")
 
@@ -899,10 +908,11 @@ pheatmap(Combined_0_8_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.8 Da")
 
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/GLPVVDATCPLVNK_combined_1_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_1_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_noFAIMS,
@@ -911,9 +921,12 @@ pheatmap(Combined_1_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
+         legend = F,
+         annotation_legend = F,
          main = "IW of 1 Da")
+dev.off()
 
 pheatmap(Combined_1_3_Log2,
          annotation_colors = my_colour,
@@ -923,10 +936,11 @@ pheatmap(Combined_1_3_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1.3 Da")
 
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/GLPVVDATCPLVNK_combined_2_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_2_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_2_noFAIMS,
@@ -935,9 +949,12 @@ pheatmap(Combined_2_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,25,26),
+         gaps_row = c(1,23,24),
          show_colnames = F,
+         legend = F,
+         annotation_legend = F,
          main = "IW of 2 Da")
+dev.off()
 
 
 ```

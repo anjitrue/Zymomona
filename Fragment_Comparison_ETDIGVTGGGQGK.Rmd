@@ -1,5 +1,5 @@
 ---
-title: "Fragment Comparison FTDVIGPDTSDICYATQNR"
+title: "Fragment Comparison ETDIGVTGGGQGK"
 output:
   html_document:
     df_print: paged
@@ -23,51 +23,51 @@ library(plyr)
 ```
 
 ```{r load_data, echo=FALSE}
-# These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide FTDVIGPDTSDICYATQNR 
-CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
+# These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide ETDIGVTGGGQGK 
+CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
+CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
+CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
+CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
+CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
+CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw <- rep(0,nrow(CompiledFragments_0_8_FAIMS))
 CompiledFragments_0_8_FAIMS <- cbind(CompiledFragments_0_8_FAIMS[,1:4],X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw,CompiledFragments_0_8_FAIMS[,5:ncol(CompiledFragments_0_8_FAIMS)])
 
-CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
+CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
+CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
+CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
+CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
+CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/FTDVIGPDTSDICYATQNR/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
+CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
@@ -682,24 +682,8 @@ format_df <- function(x){
   df_log2 <- log2(df)
   df_log2[is.na(df_log2)] <- 0
   
-  df_log2 <- df_log2[-c(which(rownames(df_log2)=="b1"),
-                        which(rownames(df_log2)=="b11"),
-                        which(rownames(df_log2)=="b12"),
-                        which(rownames(df_log2)=="b13"),
-                        which(rownames(df_log2)=="b14"),
-                        which(rownames(df_log2)=="b15"),
-                        which(rownames(df_log2)=="b16"),
-                        which(rownames(df_log2)=="b17"),
-                        which(rownames(df_log2)=="b18")),]
-  df_log2 <- df_log2[-c(which(rownames(df_log2)=="y1"),
-                        which(rownames(df_log2)=="y11"),
-                        which(rownames(df_log2)=="y12"),
-                        which(rownames(df_log2)=="y13"),
-                        which(rownames(df_log2)=="y14"),
-                        which(rownames(df_log2)=="y15"),
-                        which(rownames(df_log2)=="y16"),
-                        which(rownames(df_log2)=="y17"),
-                        which(rownames(df_log2)=="y18")),]
+  df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
+  df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
   
   rownames(df_log2)[1] <- "precursor"
   
@@ -799,7 +783,6 @@ Combined_1_rep_Log2 <- combined_replicates_Log2(CompiledFragments_1_noFAIMS,Comp
 Combined_1_3_rep_Log2 <- combined_replicates_Log2(CompiledFragments_1_3_noFAIMS,CompiledFragments_1_3_FAIMS)
 Combined_2_rep_Log2 <- combined_replicates_Log2(CompiledFragments_2_noFAIMS,CompiledFragments_2_FAIMS)
 
-
 pheatmap(Combined_0_4_rep_Log2,
          annotation_colors = my_colour,
          annotation_col = annotation_0_4_noFAIMS,
@@ -808,7 +791,7 @@ pheatmap(Combined_0_4_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.4 Da")
 
@@ -820,7 +803,7 @@ pheatmap(Combined_0_6_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.6 Da")
 
@@ -832,7 +815,7 @@ pheatmap(Combined_0_8_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.8 Da")
 
@@ -844,7 +827,7 @@ pheatmap(Combined_1_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1 Da")
 
@@ -856,7 +839,7 @@ pheatmap(Combined_1_3_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1.3 Da")
 
@@ -868,7 +851,7 @@ pheatmap(Combined_2_rep_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 2 Da")
 
@@ -884,7 +867,7 @@ Combined_1_Log2 <- combined_Log2(Combined_1_rep_Log2)
 Combined_1_3_Log2 <- combined_Log2(Combined_1_3_rep_Log2)
 Combined_2_Log2 <- combined_Log2(Combined_2_rep_Log2)
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FTDVIGPDTSDICYATQNR_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_0_4_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_4_noFAIMS,
@@ -893,7 +876,7 @@ pheatmap(Combined_0_4_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          legend = F,
          annotation_legend = F,
@@ -908,7 +891,7 @@ pheatmap(Combined_0_6_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.6 Da")
 
@@ -920,11 +903,11 @@ pheatmap(Combined_0_8_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 0.8 Da")
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FTDVIGPDTSDICYATQNR_combined_1_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_1_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_1_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_noFAIMS,
@@ -933,7 +916,7 @@ pheatmap(Combined_1_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          legend = F,
          annotation_legend = F,
@@ -948,11 +931,11 @@ pheatmap(Combined_1_3_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          main = "IW of 1.3 Da")
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FTDVIGPDTSDICYATQNR_combined_2_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_2_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_2_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_2_noFAIMS,
@@ -961,7 +944,7 @@ pheatmap(Combined_2_Log2,
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1,19,20),
+         gaps_row = c(1,23,24),
          show_colnames = F,
          legend = F,
          annotation_legend = F,

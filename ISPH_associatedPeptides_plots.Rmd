@@ -149,8 +149,9 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log
 Fold Change of ISPH protein across strain. Boxplot contains triplicate analysis. 
 ```{r, echo=FALSE}
 type.colors = as.numeric(factor(ISPH_lfq$Type))
-q <- ggplot(ISPH_lfq, aes(x=Type, y=FC, fill=Type)) +
+q <- ggplot(ISPH_lfq, aes(x=Type, y=log2(FC), fill=Type)) +
   geom_boxplot()+
+  ylim(0,4.5)+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPH protein", 
@@ -387,7 +388,35 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fol
 ```
 
 
+```{r, echo = FALSE}
+FoldChange_IspH_AIEIVDQDALDR <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspH_AIEIVDQDALDR_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
+FoldChange_IspH_AIEIVDQDALDR$Type <- rep("IspH", 6)
+
+ggplot(FoldChange_IspH_AIEIVDQDALDR, aes(x= Type, y= FoldChange)) + 
+  #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
+  geom_boxplot()+
+  geom_dotplot(binaxis='y', stackdir='center',
+                 position=position_dodge(1)) +
+  ylim(c(0,3.5))+
+  theme_light()+
+  labs(title = "Transition Fold Changes - FAIMS" ,subtitle = "AIEIVDQDALDR peptide ", y = "Fold Change", x ="Transition")
+```
+
+```{r, echo = FALSE}
+FoldChange_IspG_ETD <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspG_ETDIGVTGGGQGK_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+FoldChange_IspG_ETD$Type <- rep("IspG", 7)
+
+aggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) + 
+  #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
+  geom_boxplot()+
+  geom_dotplot(binaxis='y', stackdir='center',
+                 position=position_dodge(1)) +
+  ylim(c(0,4.5))+
+  theme_light()+
+  labs(title = "Transition Fold Changes - FAIMS" ,subtitle = "ETDIGVTGGGQGK peptide ", y = "Fold Change", x ="Transition")
+```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 

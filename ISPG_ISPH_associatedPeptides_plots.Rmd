@@ -144,7 +144,7 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log
 Fold Change of ISPG protein across strain. Boxplot contains triplicate analysis. 
 ```{r, echo=FALSE}
 type.colors = as.numeric(factor(ISPG_lfq$Type))
-q <- ggplot(ISPG_lfq, aes(x=Type, y=FC, fill=Type)) +
+q <- ggplot(ISPG_lfq, aes(x=Type, y=log2(FC), fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()

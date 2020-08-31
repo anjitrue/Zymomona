@@ -1,3 +1,5 @@
+BiocManager::install("EBImage")
+
 library(pcaMethods)
 library(ggplot2)
 library(pheatmap)
@@ -5,6 +7,7 @@ library(plotly)
 library(reshape2)
 library(RColorBrewer)
 library(plyr)
+library("EBImage")
 
 #### Upload Data ####
 
@@ -473,3 +476,20 @@ pheatmap(df_0_4_Combined_Log2,
 
 #Clean up heat map so that MaxInjection is ordered. 
 colnames(df_0_4_noFAIMS_log2)
+
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/AIEIVDQALDR_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pheatmap(Combined_0_4_Log2,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_4_noFAIMS,
+         #annotation_row = fragment_annotation,
+         color = scaleRYG,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(1,19,20),
+         show_colnames = F,
+         legend = F,
+         annotation_legend = F,
+         main = "AIEIVDQALDR IW of 0.4 Da")
+dev.off()
+

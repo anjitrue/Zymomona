@@ -71,28 +71,37 @@ ggplot(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra, aes(x=m.z, y= Relative.Abundance)) +
   labs(title = "PROSIT ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 
-##################################################
+######### Plotting Spectra ############
 
-
-
-# df_library = ProteinProspector_ETDIGVTGGGQGK
-# df = FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance
-spectra_plotting <- function(df_library, df){
-  # extract the library peptide ions into object fragment
+peptide_Library_fragment <- function(df_library){
+  
   fragment <- numeric()
   for (i in 1:nrow(df_library)){
     if(df_library[i,2] != 0 ){
       fragment <- append(fragment,as.numeric(df_library[i,1]))
     }
   }
+  
+  return <- fragment
+}
+
+
+# df_library <- ProteinProspector_AIEIVQALDR
+# df_prosit <- PROSIT_IspH_AIIEIVDALDR_Spectra
+top10_ions <- function(df_library,df_prosit){
+  
+  # extract peptide fragments from protein prospect library
+  fragment <- peptide_Library_fragment(df_library)
+  
   # Print the name of the dataframe that will be compared to library peptides
   print(deparse(substitute(df)))
+  
   # Create an empty vector to put the transitions that were found in the experimental spectra
   transitions <- numeric()
   
   # Ion comparison has to be exact, there for I will truncate m/z values before the decimal
   # and then turn them into characters for proper comparison
-  df.mass.to.charge.char <- as.character(trunc(df$m.z))
+  df.mass.to.charge.char <- as.character(trunc(df_prosit$m.z))
   
   # iterate through library ions - fragment vector
   for(i in 1:length(fragment)){
@@ -109,7 +118,22 @@ spectra_plotting <- function(df_library, df){
                                            df.mass.to.charge.char))
   }
   
-  # extract the m/z values using the index were pattern matching was found
+  mass.to.charge <- df_prosit$m.z[transitions]
+  print(mass.to.charge)
+  
+  df_sort <-df_prosit[transitions,]
+  df_sort <- df_sort[order(df_sort$Relative.Abundance, decreasing = TRUE),]
+  
+  df_top10 <- df_sort[1:10,]
+  
+  return <- df_top10
+}
+
+AIEIVDQALDR_top10 <- top10_ions(ProteinProspector_AIEIVQALDR, PROSIT_IspH_AIIEIVDALDR_Spectra)
+ETDIGVTGGGQGK_top10 <- top10_ions(ProteinProspector_ETDIGVTGGGQGK, PROSIT_IspG_ETDIGVTGGGGQGK_Spectra)
+
+final_list_using_Intensity_function <- function(df,transitions_vector){
+  
   mass.to.charge <- df$m.z[transitions]
   print(mass.to.charge)
   
@@ -139,9 +163,160 @@ spectra_plotting <- function(df_library, df){
       
       final_list <- append(final_list, keep)
       print(final_list)
+      
     }
     
   }
+  
+  return <- final_list
+}
+
+# match fragments for high resolution data
+final_list_using_ppm_function <- function(df,transitions_vector,fragment){
+  mass.to.charge <- df$m.z[transitions]
+  print(mass.to.charge)
+  
+  # reduce to only the unique m/z
+  unique.m.t.c <- unique(trunc(mass.to.charge))
+  
+  
+  final_list <- vector()
+  
+  # The following will be used to match the m/z based on intensity. If there is more than one m/z
+  # value being compared, the m/z with the greatest intensity is chosen. 
+  for(i in 1:length(unique.m.t.c)){
+    
+    comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
+    
+    if(length(comparison_intensity) <= 1){
+      keep <- mass.to.charge[comparison_intensity]
+      
+      final_list <- append(final_list,keep)
+      print(final_list)
+      
+      
+    }else if(length(comparison_intensity) > 1){
+      
+      within_ppm <- vector()
+      
+      for(j in 1:length(comparison_intensity)){
+        
+        theoretical <- fragment[which(trunc(fragment) %in% unique.m.t.c[i])]
+        observed <- mass.to.charge[comparison_intensity[j]]
+        
+        ppm_error <- abs(observed-theoretical)/theoretical*1e6
+        
+        if(ppm_error <= 10){
+          within_ppm <- append(within_ppm, ppm_error)
+           keep <- observed
+           
+           final_list <- append(final_list, keep)
+           
+           print(final_list)
+        }
+      }
+    }
+  }
+    return <- final_list
+}
+
+# match fragments for low resolution data
+final_list_using_DAwindow_function <- function(df_1,transitions_vector,fragment_vector){
+  mass.to.charge <- df$m.z[transitions]
+  #print(mass.to.charge)
+  
+  # reduce to only the unique m/z
+  unique.m.t.c <- unique(trunc(mass.to.charge))
+  
+  
+  final_list <- vector()
+  
+  # The following will be used to match the m/z based on intensity. If there is more than one m/z
+  # value being compared, the m/z with the greatest intensity is chosen. 
+  for(i in 1:length(unique.m.t.c)){
+    
+    comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
+    # 
+    # if(length(comparison_intensity) <= 1){
+    #   keep <- mass.to.charge[comparison_intensity]
+    #   
+    #   final_list <- append(final_list,keep)
+    #   print(final_list)
+    #   
+    #   
+    # }else if(length(comparison_intensity) > 1){
+      
+      within_ppm <- vector()
+      
+      for(j in 1:length(comparison_intensity)){
+        
+       theoretical = fragment[which(trunc(fragment) %in% unique.m.t.c[i])]
+       theoretical_lowEnd = theoretical-0.35
+       theoretical_highEnd = theoretical+0.35
+       
+       observed = mass.to.charge[comparison_intensity[j]]
+        
+       if(observed %between% c(theoretical_lowEnd,theoretical_highEnd))
+       {
+         within_ppm <- append(within_ppm, ppm_error)
+         
+         keep <- observed
+          
+          final_list <- append(final_list, keep)
+          
+          print(final_list)
+          
+          #rm(observed)
+       #}
+      }
+    }
+  }
+  return <- final_list
+}
+
+ df_library = AIEIVDQALDR_top10
+ df = Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance
+ df_library = ETDIGVTGGGQGK_top10
+ df = Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance
+spectra_plotting <- function(df_library, df){
+  # extract the library peptide ions into object fragment
+  fragment <- sort(peptide_Library_fragment(df_library))
+  
+  
+  # Print the name of the dataframe that will be compared to library peptides
+  print(deparse(substitute(df)))
+  # Create an empty vector to put the transitions that were found in the experimental spectra
+  transitions <- numeric()
+  
+  # Ion comparison has to be exact, there for I will truncate m/z values before the decimal
+  # and then turn them into characters for proper comparison
+  df.mass.to.charge.char <- as.character(trunc(df$m.z))
+  
+  # iterate through library ions - fragment vector
+  for(i in 1:length(fragment)){
+    
+    # truncate and turn fragment ion into a character
+    frag_char <- as.character(trunc(fragment[i]))
+    
+    # assign a new variable for exact pattern matching
+    pat <- paste0("^",frag_char,"$")
+    
+    # append matched ions to transition vector
+    # transitions object will be populated with the index of where the match was found
+    transitions <- append(transitions,grep(pat, 
+                                           df.mass.to.charge.char))
+  }
+  
+  if(length(grep("High",deparse(substitute(df)))) != 0 | length(grep("Faims",deparse(substitute(df)))) != 0){
+    print("use 10 ppm window")
+    final_list <- final_list_using_ppm_function(df, transitions, fragment)
+  }else if(length(grep("Low",deparse(substitute(df)))) != 0){
+    print("use 0.35 Da window")
+    final_list <- final_list_using_DAwindow_function(df, transitions, fragment)
+  }
+  
+  
+
   
   # Differentiate between the ions that are associatted to the peptide and those that are background.
   # Color the peptide ions red and the background black
@@ -180,17 +355,17 @@ PA <- prosit_AIEIVDQALDR + labs(title = "Prosit Theoretical Spectra - AIEVDQALDR
 high_res_AIEIDVDQDALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance)
 HA <- high_res_AIEIDVDQDALDR + labs(title = "High Resolution AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
-low_res_AIEIDVDQDALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance)
+low_res_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance)
 LA <- low_res_AIEIDVDQDALDR + labs(title = "Low Resolution AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 #labs(title = "Low Resolution ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
-prosit_ETDIGVTGGGGQGK <- spectra_plotting(ProteinProspector_ETDIGVTGGGQGK, PROSIT_IspG_ETDIGVTGGGGQGK_Spectra)
+prosit_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, PROSIT_IspG_ETDIGVTGGGGQGK_Spectra)
 PE <- prosit_ETDIGVTGGGGQGK + labs(title = "Prosit Theoretical Spectra - ETDIGVTGGGQGK", y= "Relative Abundance", x="m/z")
 
 high_res_ETDIGVTGGGGQGK <- spectra_plotting(ProteinProspector_ETDIGVTGGGQGK, High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
 HE <- high_res_ETDIGVTGGGGQGK + labs(title = "High Resolution ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
-low_res_ETDIGVTGGGGQGK <- spectra_plotting(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
+low_res_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
 LE <- low_res_ETDIGVTGGGGQGK + labs(title = "Low Resolution ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 

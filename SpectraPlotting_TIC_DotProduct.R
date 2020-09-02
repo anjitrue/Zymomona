@@ -172,8 +172,9 @@ final_list_using_Intensity_function <- function(df,transitions_vector){
 }
 
 # match fragments for high resolution data
-final_list_using_ppm_function <- function(df,transitions_vector,fragment){
-  mass.to.charge <- df$m.z[transitions]
+final_list_using_ppm_function <- function(df_1,transitions_vector,fragment_vector){
+  
+  mass.to.charge <- df_1$m.z[transitions_vector]
   print(mass.to.charge)
   
   # reduce to only the unique m/z
@@ -183,25 +184,17 @@ final_list_using_ppm_function <- function(df,transitions_vector,fragment){
   final_list <- vector()
   
   # The following will be used to match the m/z based on intensity. If there is more than one m/z
-  # value being compared, the m/z with the greatest intensity is chosen. 
+  # value being compared, the m/z within the 10 ppm tolerance is chosen. 
   for(i in 1:length(unique.m.t.c)){
     
     comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
-    
-    if(length(comparison_intensity) <= 1){
-      keep <- mass.to.charge[comparison_intensity]
-      
-      final_list <- append(final_list,keep)
-      print(final_list)
-      
-      
-    }else if(length(comparison_intensity) > 1){
+  
       
       within_ppm <- vector()
       
       for(j in 1:length(comparison_intensity)){
         
-        theoretical <- fragment[which(trunc(fragment) %in% unique.m.t.c[i])]
+        theoretical <- fragment_vector[which(trunc(fragment_vector) %in% unique.m.t.c[i])]
         observed <- mass.to.charge[comparison_intensity[j]]
         
         ppm_error <- abs(observed-theoretical)/theoretical*1e6
@@ -215,14 +208,13 @@ final_list_using_ppm_function <- function(df,transitions_vector,fragment){
            print(final_list)
         }
       }
-    }
   }
     return <- final_list
 }
 
 # match fragments for low resolution data
 final_list_using_DAwindow_function <- function(df_1,transitions_vector,fragment_vector){
-  mass.to.charge <- df$m.z[transitions]
+  mass.to.charge <- df_1$m.z[transitions_vector]
   #print(mass.to.charge)
   
   # reduce to only the unique m/z
@@ -236,31 +228,22 @@ final_list_using_DAwindow_function <- function(df_1,transitions_vector,fragment_
   for(i in 1:length(unique.m.t.c)){
     
     comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
-    # 
-    # if(length(comparison_intensity) <= 1){
-    #   keep <- mass.to.charge[comparison_intensity]
-    #   
-    #   final_list <- append(final_list,keep)
-    #   print(final_list)
-    #   
-    #   
-    # }else if(length(comparison_intensity) > 1){
       
-      within_ppm <- vector()
+      #within_Da_window <- vector()
       
       for(j in 1:length(comparison_intensity)){
         
-       theoretical = fragment[which(trunc(fragment) %in% unique.m.t.c[i])]
+       theoretical = fragment_vector[which(trunc(fragment_vector) %in% unique.m.t.c[i])]
        theoretical_lowEnd = theoretical-0.35
        theoretical_highEnd = theoretical+0.35
        
        observed = mass.to.charge[comparison_intensity[j]]
         
-       if(observed %between% c(theoretical_lowEnd,theoretical_highEnd))
+       if(between(observed,theoretical_lowEnd,theoretical_highEnd))
        {
-         within_ppm <- append(within_ppm, ppm_error)
+         #within_Da_window <- append(within_Da_window, observed)
          
-         keep <- observed
+          keep <- observed
           
           final_list <- append(final_list, keep)
           
@@ -275,7 +258,7 @@ final_list_using_DAwindow_function <- function(df_1,transitions_vector,fragment_
 }
 
  df_library = AIEIVDQALDR_top10
- df = Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance
+ df = FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
  df_library = ETDIGVTGGGQGK_top10
  df = Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance
 spectra_plotting <- function(df_library, df){
@@ -307,12 +290,14 @@ spectra_plotting <- function(df_library, df){
                                            df.mass.to.charge.char))
   }
   
-  if(length(grep("High",deparse(substitute(df)))) != 0 | length(grep("Faims",deparse(substitute(df)))) != 0){
+  if(length(grep("High",deparse(substitute(df)))) != 0 | length(grep("FAIMS",deparse(substitute(df)))) != 0){
     print("use 10 ppm window")
     final_list <- final_list_using_ppm_function(df, transitions, fragment)
   }else if(length(grep("Low",deparse(substitute(df)))) != 0){
     print("use 0.35 Da window")
     final_list <- final_list_using_DAwindow_function(df, transitions, fragment)
+  }else if(length(grep("PROSIT",deparse(substitute(df)))) != 0){
+    final_list <- df$m.z[transitions]
   }
   
   
@@ -349,10 +334,10 @@ spectra_plotting <- function(df_library, df){
 }
 
 ##### Plot spectra #####
-prosit_AIEIVDQALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, PROSIT_IspH_AIIEIVDALDR_Spectra)
+prosit_AIEIVDQALDR <- spectra_plotting(AIEIVDQALDR_top10, PROSIT_IspH_AIIEIVDALDR_Spectra)
 PA <- prosit_AIEIVDQALDR + labs(title = "Prosit Theoretical Spectra - AIEVDQALDR", y = "Relative Abundance", x = "m/z")
 
-high_res_AIEIDVDQDALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance)
+high_res_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance)
 HA <- high_res_AIEIDVDQDALDR + labs(title = "High Resolution AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
 low_res_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance)
@@ -362,7 +347,7 @@ LA <- low_res_AIEIDVDQDALDR + labs(title = "Low Resolution AIEIVDQDALDR Spectra"
 prosit_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, PROSIT_IspG_ETDIGVTGGGGQGK_Spectra)
 PE <- prosit_ETDIGVTGGGGQGK + labs(title = "Prosit Theoretical Spectra - ETDIGVTGGGQGK", y= "Relative Abundance", x="m/z")
 
-high_res_ETDIGVTGGGGQGK <- spectra_plotting(ProteinProspector_ETDIGVTGGGQGK, High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
+high_res_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
 HE <- high_res_ETDIGVTGGGGQGK + labs(title = "High Resolution ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 low_res_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
@@ -400,7 +385,7 @@ FAIMS_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/Dat
 
 FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance <- infusion_spectra_prep(FAIMS_AIIEIVDALDR_Spectra, 200000)
 
-FAIMS_AIEIDVDQDALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+FAIMS_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 A1 <- FAIMS_AIEIDVDQDALDR + ylim(0,1) + labs(title = "FAIMS AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
 #with out FAIMS
@@ -409,7 +394,7 @@ noFAIMS_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/D
 
 noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance <- infusion_spectra_prep(noFAIMS_AIIEIVDALDR_Spectra, 200000)
 
-noFAIMS_AIEIDVDQDALDR <- spectra_plotting(ProteinProspector_AIEIVQALDR, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+noFAIMS_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 A2 <- noFAIMS_AIEIDVDQDALDR + ylim(0,1) + labs(title = "no FAIMS AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
 # ETDIGVTGGGQGK #
@@ -420,7 +405,7 @@ FAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/D
 
 FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance <- infusion_spectra_prep(FAIMS_ETDIGVTGGGQGK_Spectra, 200000)
 
-FAIMS_ETDIGVTGGGQGK <- spectra_plotting(ProteinProspector_ETDIGVTGGGQGK, FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+FAIMS_ETDIGVTGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 E1 <- FAIMS_ETDIGVTGGGQGK + ylim(0,1) + labs(title = "FAIMS ETDIGVTGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 #with out FAIMS
@@ -429,7 +414,7 @@ noFAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS
 
 noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance <- infusion_spectra_prep(noFAIMS_ETDIGVTGGGQGK_Spectra, 200000)
 
-noFAIMS_ETDIGVTGGGGQGK <- spectra_plotting(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+noFAIMS_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 E2 <- noFAIMS_ETDIGVTGGGGQGK + ylim(0,1) + labs(title = "no FAIMS ETDIGVTGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 # Use the ggplotGrob function to prepare plots to be arranged for pdf printing
@@ -469,7 +454,7 @@ ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_F
        height = 8.5,
        units = "in")
 
-ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_all.pdf",
+ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_all_top10.pdf",
        grid.arrange(PAgrob, PEgrob, HAgrob, HEgrob, LAgrob, LEgrob, A1grob, E1grob, A2grob, E2grob, ncol =2),
        width = 10,
        height = 14.5,

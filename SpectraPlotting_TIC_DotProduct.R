@@ -4,6 +4,7 @@ library(ggplot2)
 library(lattice)
 library(corrplot)
 library(ggcorrplot)
+library(dplyr)
 
 
 ##### Library Comparison ####
@@ -171,6 +172,8 @@ final_list_using_Intensity_function <- function(df,transitions_vector){
   return <- final_list
 }
 
+
+ 
 # match fragments for high resolution data
 final_list_using_ppm_function <- function(df_1,transitions_vector,fragment_vector){
   
@@ -200,6 +203,7 @@ final_list_using_ppm_function <- function(df_1,transitions_vector,fragment_vecto
         ppm_error <- abs(observed-theoretical)/theoretical*1e6
         
         if(ppm_error <= 10){
+          
           within_ppm <- append(within_ppm, ppm_error)
            keep <- observed
            
@@ -257,10 +261,10 @@ final_list_using_DAwindow_function <- function(df_1,transitions_vector,fragment_
   return <- final_list
 }
 
- df_library = AIEIVDQALDR_top10
- df = FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
- df_library = ETDIGVTGGGQGK_top10
- df = Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance
+ # df_library = AIEIVDQALDR_top10
+ # df = FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
+ # df_library = ETDIGVTGGGQGK_top10
+ # df = Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance
 spectra_plotting <- function(df_library, df){
   # extract the library peptide ions into object fragment
   fragment <- sort(peptide_Library_fragment(df_library))
@@ -463,14 +467,16 @@ ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_a
 #### TIC Explained ######
 # To explain the TIC associated to the peptide fragments the function tic_explained_function
 
-# df_proteinProspect <- ProteinProspector_AIEIVQALDR
-# df <- FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
+ df_proteinProspect <- AIEIVDQALDR_top10
+ df <- Low_Res_IspH_AIIEIVDALDR_Spectra
 
 tic_explained_function <- function(df_proteinProspect, df){
   
+  #fragment <- df_proteinProspect$m.z
+  
   transitions <- numeric()
   
-  df.mass.to.charge.char <- as.character(trunc(df_proteinProspect$mass.to.charge))
+  df.mass.to.charge.char <- as.character(sort(trunc(df_proteinProspect$m.z)))
   
   
   for(i in 1:length(df.mass.to.charge.char)){
@@ -482,35 +488,33 @@ tic_explained_function <- function(df_proteinProspect, df){
     transitions <- append(transitions,grep(pat,as.character(trunc(df$m.z))))
   }
   
-  
   mass.to.charge <- df$m.z[transitions]
   print(mass.to.charge)
   
   unique.m.t.c <- unique(trunc(mass.to.charge))
   
-  
   final_list <- vector()
-  
+
   for(i in 1:length(unique.m.t.c)){
     comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
-    
+
     if(length(comparison_intensity) <= 1){
       keep <- mass.to.charge[comparison_intensity]
-      
+
       final_list <- append(final_list,keep)
       print(final_list)
-      
-      
+
+
     }else if(length(comparison_intensity) > 1){
-      
+
       keep.intensity <- max(df$Intensity[which(df$m.z %in% mass.to.charge[comparison_intensity])])
-      
+
       keep <- df$m.z[which(df$Intensity == keep.intensity)]
-      
+
       final_list <- append(final_list, keep)
       print(final_list)
     }
-    
+
   }
   
   intensity_peptide <- df$Intensity[which(df$m.z %in% final_list)]
@@ -523,39 +527,41 @@ tic_explained_function <- function(df_proteinProspect, df){
   
 }
 
-Tic_explained_High_Res_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEIVQALDR, High_Res_IspH_AIIEIVDALDR_Spectra)
+Tic_explained_High_Res_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10, High_Res_IspH_AIIEIVDALDR_Spectra)
 
-Tic_explained_Low_Res_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEIVQALDR,Low_Res_IspH_AIIEIVDALDR_Spectra)
+Tic_explained_Low_Res_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10,Low_Res_IspH_AIIEIVDALDR_Spectra)
 
-Tic_explained_High_Res_ETDIGVTGGGQGK <- tic_explained_function(ProteinProspector_ETDIGVTGGGQGK, High_Res_IspG_ETDIGVTGGGGQGK_Spectra)
+Tic_explained_High_Res_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10, High_Res_IspG_ETDIGVTGGGGQGK_Spectra)
 
-Tic_explained_Low_Res_ETDIGVTGGGQGK <- tic_explained_function(ProteinProspector_ETDIGVTGGGQGK, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra)
+Tic_explained_Low_Res_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra)
 
 ### AIEIVDQALDR ###
 colnames(FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_FAIMS_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEIVQALDR,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+Tic_explained_FAIMS_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 colnames(noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_noFAIMS_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEIVQALDR, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+Tic_explained_noFAIMS_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 ### ETDIGVTGGGQGK ###
 colnames(FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_FAIMS_ETDIGVTGGGQGK <- tic_explained_function(ProteinProspector_ETDIGVTGGGQGK,FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+Tic_explained_FAIMS_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10,FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 
 colnames(noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_noFAIMS_ETDIGVTGGGQGK <- tic_explained_function(ProteinProspector_ETDIGVTGGGQGK, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+Tic_explained_noFAIMS_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 
 
 
 ##### Dot Product ####
-# df_proteinProspect <- ProteinProspector_AIEIVQALDR
-# df <- High_Res_IspH_AIIEIVDALDR_Spectra
+ df_top10_comparison <- AIEIVDQALDR_top10
+ df <- PROSIT_IspH_AIIEIVDALDR_Spectra
 
-peptide_ions_function <- function(df_proteinProspect, df){
+peptide_ions_function <- function(df_top10_comparison, df, df_name){
+  
+  print(df_name)
   
   transitions <- numeric()
   
-  df.mass.to.charge.char <- as.character(trunc(df_proteinProspect$mass.to.charge))
+  df.mass.to.charge.char <- as.character(sort(trunc(df_top10_comparison$m.z)))
   
   
   for(i in 1:length(df.mass.to.charge.char)){
@@ -568,37 +574,77 @@ peptide_ions_function <- function(df_proteinProspect, df){
   }
   
   
-  mass.to.charge <- df$m.z[transitions]
+  
+  #mass.to.charge <- df$m.z[transitions]
   #print(mass.to.charge)
   
-  unique.m.t.c <- unique(trunc(mass.to.charge))
+  fragment <- sort(df_top10_comparison$m.z)
   
-  
-  final_list <- vector()
-  
-  for(i in 1:length(unique.m.t.c)){
-    comparison_intensity <- which(trunc(mass.to.charge) %in% unique.m.t.c[i])
+  if(length(grep("High",df_name) != 0)){
     
-    if(length(comparison_intensity) <= 1){
-      keep <- mass.to.charge[comparison_intensity]
+    print("use 10 ppm window")
+      final_list <- final_list_using_ppm_function(df, transitions,fragment)
+      peptide <- df[which(df$m.z %in% final_list),]
       
-      final_list <- append(final_list,keep)
-      #print(final_list)
-      
-      
-    }else if(length(comparison_intensity) > 1){
-      
-      keep.intensity <- max(df$Intensity[which(df$m.z %in% mass.to.charge[comparison_intensity])])
-      
-      keep <- df$m.z[which(df$Intensity == keep.intensity)]
-      
-      final_list <- append(final_list, keep)
-      #print(final_list)
-    }
+  }
+  
+  if(length(grep("Low",df_name) != 0)){
+    
+    print("use 0.35 Da window")
+    final_list <- final_list_using_DAwindow_function(df, transitions, fragment)
+    peptide <- df[which(df$m.z %in% final_list),]
     
   }
   
-  peptide <- df[which(df$m.z %in% final_list),]
+  if(length(grep("FAIMS",df_name)) != 0){
+    
+    print("use 10 ppm window and recalculate relative abundance")
+    final_list <- final_list_using_ppm_function(df, transitions,fragment)
+    
+    unique.m.t.c <- unique(trunc(final_list))
+    
+    
+    reduced_list <- vector()
+    
+    # The following will be used to match the m/z based on intensity. If there is more than one m/z
+    # value being compared, the m/z with the greatest intensity is chosen. 
+    for(i in 1:length(unique.m.t.c)){
+      comparison_intensity <- which(trunc(final_list) %in% unique.m.t.c[i])
+      
+      if(length(comparison_intensity) <= 1){
+        keep <- final_list[comparison_intensity]
+        
+        reduced_list <- append(reduced_list,keep)
+        print(reduced_list)
+        
+        
+      }else if(length(comparison_intensity) > 1){
+        
+        
+        keep.intensity <- max(df$Intensity[which(df$m.z %in% final_list[comparison_intensity])])
+        
+        keep <- df$m.z[which(df$Intensity == keep.intensity)]
+        
+        reduced_list <- append(reduced_list, keep)
+        print(reduced_list)
+        
+      }
+      
+    }
+    
+    peptide <- df[which(df$m.z %in% reduced_list),]
+    
+    max_intensity <- max(peptide$Intensity)
+    
+    peptide$Recalculated.Relative.Abundance <- peptide$Intensity/max_intensity
+    
+  }
+  if(length(grep("PROSIT",df_name)) != 0){
+    peptide <- df[which(df$m.z %in% fragment),]
+  }
+  
+
+  
   
   return(peptide)
   
@@ -606,14 +652,14 @@ peptide_ions_function <- function(df_proteinProspect, df){
 
 
 
-# df_proteinProspect <- ProteinProspector_AIEIVQALDR
-# df <- High_Res_IspH_AIIEIVDALDR_Spectra
+df_proteinProspect <- AIEIVDQALDR_top10
+df <- FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
 
 intensity_function <- function(df_proteinProspect, df){
   
   transitions <- numeric()
   
-  df.mass.to.charge.char <- as.character(trunc(df_proteinProspect$mass.to.charge))
+  df.mass.to.charge.char <- as.character(sort(trunc(df_proteinProspect$m.z)))
   
   
   for(i in 1:length(df.mass.to.charge.char)){
@@ -646,9 +692,9 @@ intensity_function <- function(df_proteinProspect, df){
       
     }else if(length(comparison_intensity) > 1){
       
-      keep.intensity <- max(df$Intensity[which(df$m.z %in% mass.to.charge[comparison_intensity])])
+      keep.intensity <- max(df$Relative.Abundance[which(df$m.z %in% mass.to.charge[comparison_intensity])])
       
-      keep <- df$m.z[which(df$Intensity == keep.intensity)]
+      keep <- df$m.z[which(df$Relative.Abundance == keep.intensity)]
       
       final_list <- append(final_list, keep)
       #print(final_list)
@@ -656,21 +702,22 @@ intensity_function <- function(df_proteinProspect, df){
     
   }
   
-  intensity_peptide <- df$Intensity[which(df$m.z %in% final_list)]
+  intensity_peptide <- df[which(df$m.z %in% final_list),ncol(df)]
   #intensity_peptide_sum <- sum(intensity_peptide)
   
   return(intensity_peptide)
   
 }
 
-# df_1 <- High_Res_IspG_ETDIGVTGGGGQGK_Spectra
-# df_2 <- noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance
-# df_ProteinProspector <- ProteinProspector_ETDIGVTGGGQGK
+  df_1 <- High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance
+  df_2 <- FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
+  df_top10 <- AIEIVDQALDR_top10
 
-DP_function <- function(df_1, df_2, df_ProteinProspector){
+DP_function <- function(df_1, df_2, df_top10){
   
-  df1_peptide <- peptide_ions_function(df_ProteinProspector,df_1)
-  df2_peptide <- peptide_ions_function(df_ProteinProspector, df_2)
+  df1_peptide <- peptide_ions_function(df_top10,df_1,deparse(substitute(df_1))) 
+  
+  df2_peptide <- peptide_ions_function(df_top10, df_2,deparse(substitute(df_2)))
   
   if(nrow(df1_peptide) >= nrow(df2_peptide)){
     spec1 = df1_peptide
@@ -680,12 +727,13 @@ DP_function <- function(df_1, df_2, df_ProteinProspector){
     spec2 = df1_peptide
   }
   
-  sum_intensity_combined = vector()
+  #sum_intensity_combined = vector()
+  sum_Relative.Abundance_combined = vector()
   not_included = vector()
   
   for(i in 1:nrow(spec1)){
     
-    print(i)
+    print(spec1$m.z[i])
     
     if(is.na(trunc(spec2$m.z[i]))){
       print(paste0("i = ",i," Ion NOt here"))
@@ -695,14 +743,22 @@ DP_function <- function(df_1, df_2, df_ProteinProspector){
     
     if(length(which(trunc(spec1$m.z[i]) %in% trunc(spec2$m.z))) != 0){
       
-      spec1_intensity = spec1$Intensity[i]
+      #spec1_intensity = spec1$Intensity[i]
+      spec1_Relative.Abundance = spec1[,ncol(spec1)][i]
       
-      spec2_intensity = spec2$Intensity[which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
+      #spec2_intensity = spec2$Intensity[which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
+      spec2_Relative.Abundance = spec2[,ncol(spec2)][which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
       
-      combined_intensity = spec1_intensity*spec2_intensity
       
-      sum_intensity_combined = append(sum_intensity_combined, combined_intensity)
-      print(sum_intensity_combined)
+      #combined_intensity = spec1_intensity*spec2_intensity
+      combined_Relative.Abundance = spec1_Relative.Abundance*spec2_Relative.Abundance
+      
+      # sum_intensity_combined = append(sum_intensity_combined, combined_intensity)
+      # print(sum_intensity_combined)
+      
+      sum_Relative.Abundance_combined = append(sum_Relative.Abundance_combined, combined_Relative.Abundance)
+      print(sum_Relative.Abundance_combined)
+      
       
     } else{
       
@@ -712,10 +768,10 @@ DP_function <- function(df_1, df_2, df_ProteinProspector){
   }
   
   
-  I_spec1 <- intensity_function(df_ProteinProspector, df_1)
-  I_spec2 <- intensity_function(df_ProteinProspector, df_2)
+  I_spec1 <- intensity_function(df_top10, df1_peptide)
+  I_spec2 <- intensity_function(df_top10, df2_peptide)
   
-  numerator <- sum(sum_intensity_combined)
+  numerator <- sum(sum_Relative.Abundance_combined)
   denomenator <- sum(I_spec1^2)*sum(I_spec2^2)
   
   DP <- numerator/sqrt(denomenator)
@@ -725,11 +781,15 @@ DP_function <- function(df_1, df_2, df_ProteinProspector){
 }
 
 
-DP_function(High_Res_IspH_AIIEIVDALDR_Spectra,noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, ProteinProspector_AIEIVQALDR)
-DP_function(High_Res_IspG_ETDIGVTGGGGQGK_Spectra,noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance, ProteinProspector_ETDIGVTGGGQGK)
+DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance, AIEIVDQALDR_top10)
+DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,PROSIT_IspH_AIIEIVDALDR_Spectra, AIEIVDQALDR_top10)
+DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance, AIEIVDQALDR_top10)
+DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, AIEIVDQALDR_top10)
+
+DP_function(High_Res_IspG_ETDIGVTGGGGQGK_Spectra,noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance, ETDIGVTGGGQGK_top10)
 
 
-df.list <- list(High_Res_IspH_AIIEIVDALDR_Spectra, Low_Res_IspH_AIIEIVDALDR_Spectra, 
+df.list <- list(PROSIT_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra, Low_Res_IspH_AIIEIVDALDR_Spectra, 
                 FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 df.list_ETDIGVTGGGGQGK <- list(High_Res_IspH_ETDIGVTGGGGQGK_Spectra, Low_Res_IspH_ETDIGVTGGGGQGK_Spectra, 
@@ -739,13 +799,13 @@ df.list_ETDIGVTGGGGQGK <- list(High_Res_IspH_ETDIGVTGGGGQGK_Spectra, Low_Res_Isp
 colnames(df.list_ETDIGVTGGGGQGK[[1]]) <- c("m.z","Intensity")
 colnames(df.list_ETDIGVTGGGGQGK[[2]]) <- c("m.z","Intensity")
 
-df_matrix <- matrix(nrow = 4, ncol = 4)
+df_matrix <- matrix(nrow = 5, ncol = 5)
 df_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 4, ncol = 4)
 
 for(i in 1:length(df.list)){
   df_n <- df.list[[i]]
   for (j in 1:length(df.list)) {
-    dot_product = DP_function(df_n,df.list[[j]],ProteinProspector_AIEIVQALDR)
+    dot_product = DP_function(df_n,df.list[[j]],AIEIVDQALDR_top10)
     df_matrix[i,j] <- dot_product
   }
 }
@@ -753,7 +813,7 @@ for(i in 1:length(df.list)){
 for(i in 1:length(df.list_ETDIGVTGGGGQGK)){
   df_n <- df.list_ETDIGVTGGGGQGK[[i]]
   for (j in 1:length(df.list_ETDIGVTGGGGQGK)) {
-    dot_product = DP_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ProteinProspector_ETDIGVTGGGQGK)
+    dot_product = DP_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ETDIGVTGGGQGK_top10)
     df_matrix_ETDIGVTGGGGQGK[i,j] <- dot_product
   }
 }

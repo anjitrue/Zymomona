@@ -653,7 +653,7 @@ peptide_ions_function <- function(df_top10_comparison, df, df_name){
 
 
 df_proteinProspect <- AIEIVDQALDR_top10
-df <- FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
+df <- noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
 
 intensity_function <- function(df_proteinProspect, df){
   
@@ -709,15 +709,15 @@ intensity_function <- function(df_proteinProspect, df){
   
 }
 
-  df_1 <- High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance
-  df_2 <- FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
+  df_1 <- PROSIT_IspH_AIIEIVDALDR_Spectra
+  df_2 <- noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance
   df_top10 <- AIEIVDQALDR_top10
 
-DP_function <- function(df_1, df_2, df_top10){
+DP_function <- function(df_1, df_2, df_top10, name1, name2){
   
-  df1_peptide <- peptide_ions_function(df_top10,df_1,deparse(substitute(df_1))) 
+  df1_peptide <- peptide_ions_function(df_top10,df_1,name1) 
   
-  df2_peptide <- peptide_ions_function(df_top10, df_2,deparse(substitute(df_2)))
+  df2_peptide <- peptide_ions_function(df_top10, df_2,name2)
   
   if(nrow(df1_peptide) >= nrow(df2_peptide)){
     spec1 = df1_peptide
@@ -764,6 +764,18 @@ DP_function <- function(df_1, df_2, df_top10){
       
       print(paste0("i = ",i," Ion NOt here"))
       
+      #spec1_intensity = spec1$Intensity[i]
+      spec1_Relative.Abundance = spec1[,ncol(spec1)][i]
+      
+      #spec2_intensity = spec2$Intensity[which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
+      spec2_Relative.Abundance = 0
+      
+      #combined_intensity = spec1_intensity*spec2_intensity
+      combined_Relative.Abundance = spec1_Relative.Abundance*spec2_Relative.Abundance
+      
+      sum_Relative.Abundance_combined = append(sum_Relative.Abundance_combined, combined_Relative.Abundance)
+      print(sum_Relative.Abundance_combined)
+      
     }
   }
   
@@ -780,49 +792,56 @@ DP_function <- function(df_1, df_2, df_top10){
   
 }
 
+DP_function(PROSIT_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance, AIEIVDQALDR_top10, "PROSIT_IspH_AIIEIVDALDR_Spectra", "High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance")
 
 DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance, AIEIVDQALDR_top10)
-DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,PROSIT_IspH_AIIEIVDALDR_Spectra, AIEIVDQALDR_top10)
+DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,PROSIT_IspH_AIIEIVDALDR_Spectra, AIEIVDQALDR_top10,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance","PROSIT_IspH_AIIEIVDALDR_Spectra")
 DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance, AIEIVDQALDR_top10)
 DP_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, AIEIVDQALDR_top10)
 
-DP_function(High_Res_IspG_ETDIGVTGGGGQGK_Spectra,noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance, ETDIGVTGGGQGK_top10)
+
+DP_function(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra,High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance, ETDIGVTGGGQGK_top10, "PROSIT_IspG_ETDIGVTGGGGQGK_Spectra", "High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance")
+
+DP_function(High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance,noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance, ETDIGVTGGGQGK_top10)
 
 
-df.list <- list(PROSIT_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra, Low_Res_IspH_AIIEIVDALDR_Spectra, 
+df.list <- list(PROSIT_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance, Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance, 
                 FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+names(df.list) <- c("PROSIT_IspH_AIIEIVDALDR_Spectra", "High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance", "Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance",
+                    "FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance","noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance")
 
-df.list_ETDIGVTGGGGQGK <- list(High_Res_IspH_ETDIGVTGGGGQGK_Spectra, Low_Res_IspH_ETDIGVTGGGGQGK_Spectra, 
+df.list_ETDIGVTGGGGQGK <- list(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra,High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance, 
                                FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+names(df.list_ETDIGVTGGGGQGK) <- list("PROSIT_IspG_ETDIGVTGGGGQGK_Spectra","High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance", "Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance", 
+                               "FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance", "noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance")
 
-
-colnames(df.list_ETDIGVTGGGGQGK[[1]]) <- c("m.z","Intensity")
-colnames(df.list_ETDIGVTGGGGQGK[[2]]) <- c("m.z","Intensity")
 
 df_matrix <- matrix(nrow = 5, ncol = 5)
-df_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 4, ncol = 4)
+df_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 5, ncol = 5)
 
 for(i in 1:length(df.list)){
   df_n <- df.list[[i]]
+  df_name <- names(df.list[i])
   for (j in 1:length(df.list)) {
-    dot_product = DP_function(df_n,df.list[[j]],AIEIVDQALDR_top10)
+    dot_product <- DP_function(df_n,df.list[[j]], AIEIVDQALDR_top10, df_name, names(df.list[j]))
     df_matrix[i,j] <- dot_product
   }
 }
 
 for(i in 1:length(df.list_ETDIGVTGGGGQGK)){
   df_n <- df.list_ETDIGVTGGGGQGK[[i]]
+  df_name <- names(df.list_ETDIGVTGGGGQGK[i])
   for (j in 1:length(df.list_ETDIGVTGGGGQGK)) {
-    dot_product = DP_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ETDIGVTGGGQGK_top10)
+    dot_product = DP_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ETDIGVTGGGQGK_top10,df_name,names(df.list_ETDIGVTGGGGQGK[j]))
     df_matrix_ETDIGVTGGGGQGK[i,j] <- dot_product
   }
 }
 
-colnames(df_matrix) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
-rownames(df_matrix) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
+colnames(df_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(df_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
 
-colnames(df_matrix_ETDIGVTGGGGQGK) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
-rownames(df_matrix_ETDIGVTGGGGQGK) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
+colnames(df_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(df_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
 
 library(RColorBrewer)
 #cols <- brewer.pal(4,"BrBG")
@@ -830,7 +849,7 @@ scaleRYG <- colorRampPalette(c("#F3A5BF","#15688E"), space = "rgb")(100)
 
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/dotProduct_AIEIVDQALDR_ETDIGVTGGGQGK_v2.pdf",height = 10, width = 15)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/dotProduct_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 corrplot(df_matrix, type = "lower", method = "color", #col = scaleRYG, 
          addCoef.col = "white",
@@ -846,13 +865,17 @@ dev.off()
 #ggcorrplot(df_matrix, type = "lower", outline.color = "white")
 
 #### SIMilarity Score ####
-# df_1 <- High_Res_IspH_AIIEIVDALDR_Spectra
-# df_2 <- High_Res_IspH_AIIEIVDALDR_Spectra
+df_1 <- High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance
+df_2 <- High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance
+df_top10 <- AIEIVDQALDR_top10
 
-SIM_function <- function(df_1, df_2, df_ProteinProspector){
+SIM_function <- function(df_1, df_2, df_top10, name1, name2){
   
-  df1_peptide <- peptide_ions_function(df_ProteinProspector,df_1)
-  df2_peptide <- peptide_ions_function(df_ProteinProspector, df_2)
+  
+  df1_peptide <- peptide_ions_function(df_top10,df_1,name1) 
+  
+  df2_peptide <- peptide_ions_function(df_top10, df_2,name2)
+  
   
   if(nrow(df1_peptide) >= nrow(df2_peptide)){
     spec1 = df1_peptide
@@ -862,8 +885,8 @@ SIM_function <- function(df_1, df_2, df_ProteinProspector){
     spec2 = df1_peptide
   }
   
-  sqrt_intensity = vector()
-  not_included = vector()
+  sum_sqrt_Relative.Abundance = vector()
+  #not_included = vector()
   
   for(i in 1:nrow(spec1)){
     
@@ -877,25 +900,39 @@ SIM_function <- function(df_1, df_2, df_ProteinProspector){
     
     if(length(which(trunc(spec1$m.z[i]) %in% trunc(spec2$m.z))) != 0){
       
-      spec1_intensity = spec1$Intensity[i]
+      #spec1_intensity = spec1$Intensity[i]
+      spec1_Relative.Abundance = spec1[,ncol(spec1)][i]
       
-      spec2_intensity = spec2$Intensity[which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
+      #spec2_intensity = spec2$Intensity[which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
+      spec2_Relative.Abundance = spec2[,ncol(spec2)][which(trunc(spec2$m.z) == trunc(spec1$m.z[i]))]
       
-      combined_intensity = sqrt(spec1_intensity*spec2_intensity)
+      #combined_intensity = sqrt(spec1_intensity*spec2_intensity)
+      sqrt_combined_Relative.Abundance = sqrt(spec1_Relative.Abundance*spec2_Relative.Abundance)
       
-      sqrt_intensity = append(sqrt_intensity, combined_intensity)
+      #sqrt_intensity = append(sqrt_intensity, combined_intensity)
+      sum_sqrt_Relative.Abundance = append(sum_sqrt_Relative.Abundance, sqrt_combined_Relative.Abundance)
+      print(sum_sqrt_Relative.Abundance)
       
     } else{
       
       print(paste0("i = ",i," Ion NOt here"))
       
+      spec1_Relative.Abundance = spec1[,ncol(spec1)][i]
+      
+      spec2_Relative.Abundance = 0
+      
+      combined_Relative.Abundance = sqrt(spec1_Relative.Abundance*spec2_Relative.Abundance)
+      
+      sum_sqrt_Relative.Abundance = append(sum_sqrt_Relative.Abundance, combined_Relative.Abundance)
+      print(sum_sqrt_Relative.Abundance)
+      
     }
   }
   
-  I_spec1 <- intensity_function(df_ProteinProspector, df_1)
-  I_spec2 <- intensity_function(df_ProteinProspector, df_2)
+  I_spec1 <- intensity_function(df_top10, df1_peptide)
+  I_spec2 <- intensity_function(df_top10, df2_peptide)
   
-  numerator = sum(sqrt_intensity)
+  numerator = sum(sum_sqrt_Relative.Abundance)
   denomenator = sqrt(sum(I_spec1)*sum(I_spec2))
   
   SIM = numerator/denomenator
@@ -904,35 +941,37 @@ SIM_function <- function(df_1, df_2, df_ProteinProspector){
   
 }
 
-SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra, ProteinProspector_AIEIVQALDR)
-SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra,Low_Res_IspH_AIIEIVDALDR_Spectra,ProteinProspector_AIEIVQALDR)
-SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, ProteinProspector_AIEIVQALDR)
-SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra,noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance, AIEIVDQALDR_top10,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance","High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance")
+SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance,AIEIVDQALDR_top10,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance","Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance")
+SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance, AIEIVDQALDR_top10,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance","FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance")
+SIM_function(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance,AIEIVDQALDR_top10,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance","noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance")
 
-df_matrix <- matrix(nrow = 4, ncol = 4)
-df_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 4, ncol = 4)
+df_matrix <- matrix(nrow = 5, ncol = 5)
+df_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 5, ncol = 5)
 
 for(i in 1:length(df.list)){
   df_n <- df.list[[i]]
+  df_name <- names(df.list[i])
   for (j in 1:length(df.list)) {
-    SIM_score = SIM_function(df_n,df.list[[j]], ProteinProspector_AIEIVQALDR)
+    SIM_score = SIM_function(df_n,df.list[[j]], AIEIVDQALDR_top10, df_name, names(df.list[j]))
     df_matrix[i,j] <- SIM_score
   }
 }
 
 for(i in 1:length(df.list_ETDIGVTGGGGQGK)){
   df_n <- df.list_ETDIGVTGGGGQGK[[i]]
+  df_name <- names(df.list_ETDIGVTGGGGQGK[i])
   for (j in 1:length(df.list_ETDIGVTGGGGQGK)) {
-    SIM_score = SIM_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ProteinProspector_ETDIGVTGGGQGK)
+    SIM_score = SIM_function(df_n,df.list_ETDIGVTGGGGQGK[[j]], ETDIGVTGGGQGK_top10,df_name, names(df.list_ETDIGVTGGGGQGK[j]))
     df_matrix_ETDIGVTGGGGQGK[i,j] <- SIM_score
   }
 }
 
-colnames(df_matrix) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
-rownames(df_matrix) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
+colnames(df_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(df_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
 
-colnames(df_matrix_ETDIGVTGGGGQGK) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
-rownames(df_matrix_ETDIGVTGGGGQGK) <- c("High Res", "Low Res", "Infusion FAIMS", "Infusion")
+colnames(df_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(df_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
 
 library(RColorBrewer)
 #cols <- brewer.pal(4,"BrBG")
@@ -940,7 +979,7 @@ scaleRYG <- colorRampPalette(c("#F3A5BF","#15688E"), space = "rgb")(100)
 
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SimilarityScore_AIEIVDQALDR_ETDIGVTGGGQGK_v2.pdf",height = 10, width = 15)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SimilarityScore_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 corrplot(df_matrix, type = "lower", method = "color", #col = scaleRYG, 
          addCoef.col = "white",
@@ -951,4 +990,74 @@ corrplot(df_matrix_ETDIGVTGGGGQGK, type = "lower", method = "color", #col = scal
          addCoef.col = "white",
          tl.col = "black", tl.srt = 45,
          cl.lim = c(0,1))
+dev.off()
+
+
+##### Spectral Similarity Function from Jesse ######
+
+library(OrgMassSpecR)
+ 
+df1_peptide <- peptide_ions_function(AIEIVDQALDR_top10,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,"High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance") 
+
+df2_peptide <- peptide_ions_function(AIEIVDQALDR_top10, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance,"noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance")
+
+spectrumSimilarity_plotting_dp_function <- function(df_top10, df_1, df_2, name1, name2){
+  
+  df1_peptide <- peptide_ions_function(df_top10,df_1,name1)
+  df2_peptide <- peptide_ions_function(df_top10, df_2,name2)
+  
+  dp <- SpectrumSimilarity(df1_peptide, df2_peptide,
+                           top.label = name1,
+                           bottom.label = name2)
+  
+  return <- dp
+  
+}
+
+dotproduct = spectrumSimilarity_plotting_dp_function(AIEIVDQALDR_top10,PROSIT_IspH_AIIEIVDALDR_Spectra,High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance,
+                                        "PROSIT_IspH_AIIEIVDALDR_Spectra","High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance")
+
+j_matrix <- matrix(nrow = 5, ncol = 5)
+
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots.pdf",height = 10, width = 15)
+par(mfrow = c(1,2))
+for(i in 1:length(df.list)){
+  df_n <- df.list[[i]]
+  df_name <- names(df.list[i])
+  for (j in 1:length(df.list)) {
+    dotproduct_v2 = spectrumSimilarity_plotting_dp_function(AIEIVDQALDR_top10, df_n, df.list[[j]], df_name, names(df.list[j]))
+    j_matrix[i,j] <- dotproduct_v2
+  }
+}
+dev.off()
+
+j_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 5, ncol = 5)
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots_ETDIGVTGGGQGK.pdf",height = 10, width = 15)
+par(mfrow = c(1,2))
+for(i in 1:length(df.list)){
+  df_n <- df.list_ETDIGVTGGGGQGK[[i]]
+  df_name <- names(df.list_ETDIGVTGGGGQGK[i])
+  for (j in 1:length(df.list_ETDIGVTGGGGQGK)) {
+    dotproduct_v2 = spectrumSimilarity_plotting_dp_function(ETDIGVTGGGQGK_top10, df_n, df.list_ETDIGVTGGGGQGK[[j]], df_name, names(df.list[j]))
+    j_matrix_ETDIGVTGGGGQGK[i,j] <- dotproduct_v2
+  }
+}
+dev.off()
+
+colnames(j_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(j_matrix) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+
+colnames(j_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+rownames(j_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
+
+
+pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesses_AIEIVDQALDR_ETDIGVTGGGQGK_heatmaps.pdf",height = 10, width = 15)
+par(mfrow = c(1,2))
+corrplot(j_matrix, type = "lower", method = "color", #col = scaleRYG, 
+         addCoef.col = "white",
+         tl.col = "black", tl.srt = 45)
+
+corrplot(j_matrix_ETDIGVTGGGGQGK, type = "lower", method = "color", #col = scaleRYG, 
+         addCoef.col = "white",
+         tl.col = "black", tl.srt = 45)
 dev.off()

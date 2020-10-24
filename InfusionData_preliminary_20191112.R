@@ -5,7 +5,7 @@ library(grid)
 
 #### WT_3c_FAIMS_ISPHpeptides_infusion_20191112 ####
 
-WT_FAIMS_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/WT_3c_FAIMS_ISPHpeptides_infusion_20191112.csv", 
+WT_FAIMS_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/WT_3c_FAIMS_ISPHpeptides_infusion_20191112.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 WT_FAIMS_ISPH$Peptide <- as.factor(WT_FAIMS_ISPH$Peptide)
@@ -20,10 +20,10 @@ p
 
 #### ISPH_3a_FAIMS_ISPHpeptides_infusion_20191112 ####
 
-# ISPH_FAIMS_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_20191112.csv", 
+# ISPH_FAIMS_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_20191112.csv", 
 #                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-ISPH_FAIMS_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_peptide.csv",
+ISPH_FAIMS_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_peptide.csv",
                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 ISPH_plot <- function(x){
@@ -64,14 +64,14 @@ ggplot(x, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
 
 #### ISPH_3a_FAIMS_ISPHpeptides_infusion_240K ####
 
-ISPH_FAIMS_240K <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_240K.csv", 
+ISPH_FAIMS_240K <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_240K.csv", 
                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 ISPH_plot(ISPH_FAIMS_240K)
 
 ##### Analysis Time #####
 
-Analysis_Time <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/AnalysisTime_LC_INFUSION.csv", 
+Analysis_Time <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/AnalysisTime_LC_INFUSION.csv", 
                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 ggplot(Analysis_Time, aes(x=Analysis, y=Time)) +
@@ -81,10 +81,10 @@ ggplot(Analysis_Time, aes(x=Analysis, y=Time)) +
 
 ##### Infusion Spectra extraction of AIEVDQALDR #####
 
-# FAIMS_IspH_AIIEIVDALDR_10transitions <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_LongTransitions_20191112.csv", 
+# FAIMS_IspH_AIIEIVDALDR_10transitions <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_LongTransitions_20191112.csv", 
 #                                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-FAIMS_IspH_AIIEIVDALDR_10transitions <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_LongTransition.csv", 
+FAIMS_IspH_AIIEIVDALDR_10transitions <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_LongTransition.csv", 
                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(FAIMS_IspH_AIIEIVDALDR_10transitions) <- c("Time","Intensity","Transition")
 x <- FAIMS_IspH_AIIEIVDALDR_10transitions
@@ -98,10 +98,10 @@ ggplot(x, aes(x=Time, y=Intensity, group = Transition)) +
   labs(title = "1 min tryptic digest infusion with FAIMS-PRM" ,subtitle = "Strain over-expressinig IspH", y = "Intensity", x ="Time (min)")
 
 
-# FAIMS_IspH_AIIEIVDALDR_Spectra <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_spectra_allTransitions_20191112.csv", 
+# FAIMS_IspH_AIIEIVDALDR_Spectra <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_spectra_allTransitions_20191112.csv", 
 #                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-FAIMS_IspH_AIIEIVDALDR_Spectra <- read.csv("G:/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_infusionSpectra.csv", 
+FAIMS_IspH_AIIEIVDALDR_Spectra <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_infusioon_240K_Is_04iso_infusionSpectra.csv", 
                                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 x <- FAIMS_IspH_AIIEIVDALDR_Spectra
@@ -120,7 +120,7 @@ ggplot(x, aes(x=mass.to.charge, y=Intensity)) +
 
 
 
-IspH_AIIEIVDALDR_light_heavy <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeavyLight_AIEIVDQALDR_IspHOE_spiked.csv", 
+IspH_AIIEIVDALDR_light_heavy <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeavyLight_AIEIVDQALDR_IspHOE_spiked.csv", 
                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspH_AIIEIVDALDR_light_heavy) <- c("Time","Intensity","Peptide")
 
@@ -136,7 +136,7 @@ ggplot(x, aes(x=Time, y=Intensity, group = Peptide)) +
   labs(title = "1 min tryptic digest infusion with FAIMS-PRM" ,subtitle = "Strain over-expressinig IspH", y = "Intensity", x ="Time (min)")
 
 
-IspG_ETDIGVTGGGQGK_light_heavy <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ETDIGVTGGGQGK_heavy_light_inOEIspG.csv", 
+IspG_ETDIGVTGGGQGK_light_heavy <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ETDIGVTGGGQGK_heavy_light_inOEIspG.csv", 
                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspG_ETDIGVTGGGQGK_light_heavy) <- c("Time","Intensity","Peptide")
 
@@ -153,7 +153,7 @@ ggplot(x, aes(x=Time, y=Intensity, group = Peptide)) +
 
 
 
-WT_AIIEIVDALDR_light_heavy <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeavyLight_AIEIVDQALDR_WT_spiked.csv", 
+WT_AIIEIVDALDR_light_heavy <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeavyLight_AIEIVDQALDR_WT_spiked.csv", 
                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(WT_AIIEIVDALDR_light_heavy) <- c("Time","Intensity","Peptide")
 
@@ -171,17 +171,17 @@ ggplot(x, aes(x=Time, y=Intensity, group = Peptide)) +
 ##### LC and Spectra extraction of AIEVDQALDR #####
 
 #### Orbi
-FAIMS_IspH_AIIEIVDALDR_LCextraction <- read.csv("G:/Projects/Proteomics/Zymomona/20191106_EAT_FAIMS_IspH_1c_extract_AIEIVDQALDR.csv", 
+FAIMS_IspH_AIIEIVDALDR_LCextraction <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/20191106_EAT_FAIMS_IspH_1c_extract_AIEIVDQALDR.csv", 
                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(FAIMS_IspH_AIIEIVDALDR_LCextraction) <- c("Time", "Relative.Abundance")
 
 
-IspH_MS1_AIIEIVDALDR_Orbi_LCextraction <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/20200309_ISPH_OrbiMS1_FullChromatogram_45min.csv", 
+IspH_MS1_AIIEIVDALDR_Orbi_LCextraction <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/20200309_ISPH_OrbiMS1_FullChromatogram_45min.csv", 
                                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspH_MS1_AIIEIVDALDR_Orbi_LCextraction) <- c("Time", "Intensity")
 
 
-IspH_AIIEIVDALDR_Orbi_LCextraction <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/20200309_ISPH_OrbiMS1_OrbiMS2_FullChromatogram_45min.csv", 
+IspH_AIIEIVDALDR_Orbi_LCextraction <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/20200309_ISPH_OrbiMS1_OrbiMS2_FullChromatogram_45min.csv", 
                                                header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspH_AIIEIVDALDR_Orbi_LCextraction) <- c("Time", "Relative.Abundance")
 
@@ -194,7 +194,7 @@ ggplot(IspH_MS1_AIIEIVDALDR_Orbi_LCextraction, aes(x=Time, y= Intensity)) +
 
 
 #### ION TRAP 
-IspH_AIIEIVDALDR_LCextraction <- read.csv("G:/Projects/Proteomics/Zymomona/EAT_Zymo_Isph_3a_20191004_LCextract_AIEIVDQALDR.csv", 
+IspH_AIIEIVDALDR_LCextraction <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/EAT_Zymo_Isph_3a_20191004_LCextract_AIEIVDQALDR.csv", 
                                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspH_AIIEIVDALDR_LCextraction) <- c("Time", "Relative.Abundance")
 
@@ -206,7 +206,7 @@ ggplot(IspH_AIIEIVDALDR_LCextraction, aes(x=Time, y= Relative.Abundance)) +
 
 
 
-FAIMS_IspH_AIIEIVDALDR_SpectraExtraction <- read.csv("G:/Projects/Proteomics/Zymomona/20191106_EAT_FAIMS_IspH_1c_extractSpectra_AIEIVDQALDR.csv", 
+FAIMS_IspH_AIIEIVDALDR_SpectraExtraction <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/20191106_EAT_FAIMS_IspH_1c_extractSpectra_AIEIVDQALDR.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(FAIMS_IspH_AIIEIVDALDR_SpectraExtraction) <- c("mass.to.charge.ratio", "Relative.Abundance")
 
@@ -219,7 +219,7 @@ ggplot(FAIMS_IspH_AIIEIVDALDR_SpectraExtraction, aes(x=mass.to.charge.ratio, y= 
   labs(title = "MS/MS Spectra" ,subtitle = "XIC of 621.8381 m/z", y = "Relative Abundance", x ="Time (min)")
 
 
-IspH_AIEIVDALDR_SpectraExtraction <- read.csv("G:/Projects/Proteomics/Zymomona/EAT_Zymo_Isph_3a_20191004_extractSpectra_AIEIVDQALDR.csv", 
+IspH_AIEIVDALDR_SpectraExtraction <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/EAT_Zymo_Isph_3a_20191004_extractSpectra_AIEIVDQALDR.csv", 
                                                      header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(IspH_AIEIVDALDR_SpectraExtraction) <- c("mass.to.charge.ratio", "Relative.Abundance")
 
@@ -232,11 +232,11 @@ ggplot(IspH_AIEIVDALDR_SpectraExtraction, aes(x=mass.to.charge.ratio, y= Relativ
 ##### OE strain with spiked standard
 
 #Infusion 
-ETDIGVTGGGQGK_heavy_light_inOEIspG_infusion <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ETDIGVTGGGQGK_heavy_light_inOEIspG.csv", 
+ETDIGVTGGGQGK_heavy_light_inOEIspG_infusion <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ETDIGVTGGGQGK_heavy_light_inOEIspG.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 #Spectra _ISPG
-ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ISPG500ng_250fm_per_uL_heavies_1e6agc_fixmass_LIGHT_HEAVY.csv", 
+ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ISPG500ng_250fm_per_uL_heavies_1e6agc_fixmass_LIGHT_HEAVY.csv", 
                                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra) <- c("mass.to.charge.ratio", "Intensity", "Ion.Type")
 ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra <- ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra[order(ETDIGVTGGGQGK_heavy_light_inOEIspG_spectra$mass.to.charge.ratio),]
@@ -276,7 +276,7 @@ ggplot(background, aes(x=mass.to.charge.ratio, y= Relative.Abundance)) +
   theme_classic()
 
 #Spectra _ISPH
-AIEIVDQALDR_heavy_light_inOEIspH_spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ISPH500ng_250fm_per_uL_heavies_1e6agc_fixmass_LIGHT_HEAVY.csv", 
+AIEIVDQALDR_heavy_light_inOEIspH_spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Infusion_withStandards_Experiment/ISPH500ng_250fm_per_uL_heavies_1e6agc_fixmass_LIGHT_HEAVY.csv", 
                                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(AIEIVDQALDR_heavy_light_inOEIspH_spectra) <- c("mass.to.charge.ratio", "Intensity", "Ion.Type")
 AIEIVDQALDR_heavy_light_inOEIspH_spectra <- AIEIVDQALDR_heavy_light_inOEIspH_spectra[order(AIEIVDQALDR_heavy_light_inOEIspH_spectra$mass.to.charge.ratio),]
@@ -319,9 +319,9 @@ ggplot(background, aes(x=mass.to.charge.ratio, y= Relative.Abundance)) +
 
 
 ##### Percent TIC explained #####
-ProteinProspector_AIEIVQALDR <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_AIEIVDQALDR.csv", 
+ProteinProspector_AIEIVQALDR <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_AIEIVDQALDR.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
-ProteinProspector_ETDIGVTGGGQGK <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_ETDIGVTGGGQGK.csv", 
+ProteinProspector_ETDIGVTGGGQGK <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_ETDIGVTGGGQGK.csv", 
                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 tic_explained_function <- function(df_proteinProspect, df){
@@ -538,17 +538,17 @@ Tic_explained_FAIMS_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEI
 Tic_explained_noFAIMS_AIEIDVQALDR <- tic_explained_function(ProteinProspector_AIEIVQALDR, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 # Peptide abundances
-ISPH_Jan25_1 <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_1_20200125.csv", 
+ISPH_Jan25_1 <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_1_20200125.csv", 
                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
-ISPH_Jan25_2 <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_2_20200125.csv", 
+ISPH_Jan25_2 <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_2_20200125.csv", 
                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
-ISPH_Jan25_3 <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_3_20200125.csv", 
-                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
-
-ISPH_Jan25_1to3 <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_1-3_20200125.csv", 
+ISPH_Jan25_3 <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_3_20200125.csv", 
                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-ISPG_Jan25_1to3 <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/IW1_240K_MI1_AGC1e06_noFAIMS_1-3_ISPGPeptides_20200125.csv", 
+ISPH_Jan25_1to3 <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/IW1_240K_MI1_AGC1e06_noFAIMS_1-3_20200125.csv", 
+                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+ISPG_Jan25_1to3 <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/IW1_240K_MI1_AGC1e06_noFAIMS_1-3_ISPGPeptides_20200125.csv", 
                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 ISPH_plot(ISPH_Jan25_1)
@@ -558,34 +558,34 @@ ISPH_plot(ISPH_Jan25_1to3)
 ISPG_plot(ISPG_Jan25_1to3)
 
 # NO-FAIMS Fragmentation coverage
-AIEIVDQALDR_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/AIEIVDQALDR_libraryComparison.csv", 
+AIEIVDQALDR_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/AIEIVDQALDR_libraryComparison.csv", 
                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
-GLPVVDATCPLVNK_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/GLPVVDATCPLVNK_libraryComparison.csv", 
+GLPVVDATCPLVNK_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/GLPVVDATCPLVNK_libraryComparison.csv", 
                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
-FTDVIGPDTSDICYATQNR_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FTDVIGPDTSDICYATQNR_libraryComparison.csv", 
+FTDVIGPDTSDICYATQNR_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FTDVIGPDTSDICYATQNR_libraryComparison.csv", 
                                      header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-VSLSADPEQEVR_ISPG <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/VSLSADPEQEVR_libraryComparison.csv", 
+VSLSADPEQEVR_ISPG <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/VSLSADPEQEVR_libraryComparison.csv", 
                               header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-ETDIGVTGGGQGK_ISPG <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/ETDIGVTGGGQGK_libraryComparison.csv", 
+ETDIGVTGGGQGK_ISPG <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/ETDIGVTGGGQGK_libraryComparison.csv", 
                                header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-AVDCPLHLGITEAGGLIGGTVK_ISPG <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/AVDCPLHLGITEAGGLIGGTVK_libraryComparison.csv", 
+AVDCPLHLGITEAGGLIGGTVK_ISPG <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/AVDCPLHLGITEAGGLIGGTVK_libraryComparison.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 # FAIMS Fragmentation coverage
-FAIMS_AIEIVDQALDR_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_AIEIVDQALDR_libraryComparison.csv", 
+FAIMS_AIEIVDQALDR_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_AIEIVDQALDR_libraryComparison.csv", 
                              header = TRUE, sep = ",", stringsAsFactors = FALSE)
-FAIMS_GLPVVDATCPLVNK_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_GLPVVDATCPLVNK_libraryComparison.csv", 
+FAIMS_GLPVVDATCPLVNK_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_GLPVVDATCPLVNK_libraryComparison.csv", 
                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
-FAIMS_FTDVIGPDTSDICYATQNR_ISPH <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_FTDVIGPDTSDICYATQNR_libraryComparison.csv", 
+FAIMS_FTDVIGPDTSDICYATQNR_ISPH <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPH/FAIMS_FTDVIGPDTSDICYATQNR_libraryComparison.csv", 
                                      header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-FAIMS_VSLSADPEQEVR_ISPG <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/FAIMS_VSLSADPEQEVR_libraryComparison.csv", 
+FAIMS_VSLSADPEQEVR_ISPG <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/FAIMS_VSLSADPEQEVR_libraryComparison.csv", 
                               header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-FAIMS_ETDIGVTGGGQGK_ISPG <- read.csv("G:/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/FAIMS_ETDIGVTGGGQGK_libraryComparison.csv", 
+FAIMS_ETDIGVTGGGQGK_ISPG <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/SkyLine_LibraryComparison/ISPG/FAIMS_ETDIGVTGGGQGK_libraryComparison.csv", 
                                header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
@@ -651,10 +651,10 @@ FAIMS_ETDIGVTGGGQGK <- peptide_coverage(FAIMS_ETDIGVTGGGQGK_ISPG)
 
 ##### Standards ####
 
-Standards_IspG <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/PeakArea_Standard_IspG.csv", 
+Standards_IspG <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/PeakArea_Standard_IspG.csv", 
                              header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-Standards_IspH <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/PeakArea_Standard_IspH_FAIMS.csv", 
+Standards_IspH <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/PeakArea_Standard_IspH_FAIMS.csv", 
                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 ggplot(Standards_IspG, aes(x=log2(Concentration), y= y9._768.4090)) +
@@ -681,7 +681,7 @@ ggplot(Standards_IspH, aes(x=log2(Concentration), y=y6_727.3609)) +
 
 #### Infusion Experiment ####
 #FAIMS
-FAIMS_Infusion_Experiment <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Ratio_LightToHeavy_FAIMS.csv", 
+FAIMS_Infusion_Experiment <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/Ratio_LightToHeavy_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 meta <- FAIMS_Infusion_Experiment

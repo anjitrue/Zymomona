@@ -7,8 +7,8 @@ output:
 
 ```{r setup, include=FALSE}
 require(knitr)
-opts_knit$set(root.dir = "G:/Projects/Proteomics/Zymomona")
-knitr::opts_chunk$set(root.dir = "G:/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
+opts_knit$set(root.dir = "I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona")
+knitr::opts_chunk$set(root.dir = "I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
 ```
 
 ```{r install_packages, echo=FALSE}

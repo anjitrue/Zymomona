@@ -147,7 +147,7 @@ Intensity of ISPG protein across strain. Each strain was analyzed averaged and s
 
 
 q <- ggplot(ISPG_lfq_aggregate_df, aes(x=SampleType, y=as.numeric(ISPG_lfq_aggregate_df$AverageLog2Intensity))) +
-  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.8, position = position_dodge())+
+  geom_bar(stat = "identity", color = "#5ABCB2" ,  fill = "#5ABCB2", alpha = 0.8, position = position_dodge())+
   ylim(0,40)+
   geom_errorbar(aes(ymin=as.numeric(ISPG_lfq_aggregate_df$AverageLog2Intensity), ymax=as.numeric(ISPG_lfq_aggregate_df$AverageLog2Intensity)+as.numeric(ISPG_lfq_aggregate_df$StdevLog2Intensity)) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   theme_light()

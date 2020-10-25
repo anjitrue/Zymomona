@@ -144,13 +144,14 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log
 Fold Change of ISPG protein across strain. Boxplot contains triplicate analysis. 
 ```{r, echo=FALSE}
 type.colors = as.numeric(factor(ISPG_lfq$Type))
-q <- ggplot(ISPG_lfq, aes(x=Type, y=log2(FC), fill=Type)) +
+q <- ggplot(ISPG_lfq, aes(x=Type, y=FC, fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG protein", 
                                                                     subtitle = "Over Expression (OE) Strain",
                                                                     y = "Fold Change (OE/WT)")
+
 ```
 
 #### The following analysis will consider the intensities associated to individual peptides and how the fold changes compare to protein fold changes relative to WT.   
@@ -295,6 +296,7 @@ ggplot(Range_ISPG_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
   geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,2], color = "grey") +
   geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,3], color = "grey") +
   geom_errorbar(aes(ymin=AVG_FC-error, ymax=AVG_FC+error) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  scale_y_continuous(limits = c(-30,80), breaks = seq(-50,100, by = 25))+
   theme_light()+
   labs(title = "Peptide Fold Changes" ,subtitle = "ISPG and ISPG associated peptides", y = "Fold Change", x ="Peptides") +
   coord_flip() +
@@ -339,7 +341,7 @@ ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg, )) +
 Bar graph of peptide intensities were averaged (n=3) to produce the bar, error bars are provided for standard deviation. Overlaid are the intensities from each replicate. The peptides are ranked from most abundant to least abundant that were quantified in the ISPG samples.
 ```{r, echo=FALSE}
 ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg)) + 
-  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
+  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#5ABCB2", alpha = 0.6, position = position_dodge())+
   geom_errorbar(aes(ymin=Log2ISPGAvg, ymax=Log2ISPGAvg+ISPGStd) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   geom_point(data = ISPG_peptides_abundance, aes(x=Peptide, y = log2(ISPG_peptides_abundance$`ISPG-1`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPG_peptides_abundance, aes(x= Peptide, y= log2(ISPG_peptides_abundance$`ISPG-2`)), size = 3, color = "#6D696F", alpha = 0.5) +

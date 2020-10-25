@@ -4,11 +4,10 @@ output:
   html_document:
     df_print: paged
 ---
-
 ```{r setup, include=FALSE}
 require(knitr)
-opts_knit$set(root.dir = "G:/Projects/Proteomics/Zymomona")
-knitr::opts_chunk$set(root.dir = "G:/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
+opts_knit$set(root.dir = "I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona")
+knitr::opts_chunk$set(root.dir = "I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/DataAnalysis/", warning = FALSE, message = FALSE)
 ```
 
 ```{r install_packages, echo=FALSE}
@@ -23,8 +22,6 @@ library(plyr)
 ```{r load_data, echo=FALSE}
 # Read in MaxQuant output proteingroups, peptides as well as DRB imputed dataframe in Data_Formatting_Functions
 load("P:/EAT_20190926_Zymomona/ISPH_ISPG_OE_Mehmet/EclipseRuns/combined_ZM4tag/txt/OEZM4tag_45minLCMSMS_Eclipse_AbundanceImputed_20200420.RData")
-
-
 ```
 
 I reformatted both the protein and peptide MaxQuant .csv files to extract ISPH data and the three associated peptides **AIEIVDQALDR**, **GLPVVDATCPLVNK**, and **FTDVIGPDTSDICYATQNR**
@@ -38,19 +35,16 @@ I built the following functions that utilized certain data to output formatted d
 #df <- merged_drb_impute
 #df_peptide <- ISPH_peptides
 #gene = "ZMO0875"
-
 ISPH_reformat_ZM4 <- function(gene,df, peptide,df_peptide){
   #Extract "ZMO0875" row
   ISPH_data <- df[grep(gene, df$Protein.IDs),]
   #Reduce dataframe to only LFQ columns
   ISPH_lfq <- ISPH_data[, c(1,grep("LFQ", colnames(ISPH_data)))]
-
   #For loop to save the each peptide intensity into a vector
   for(i in 1:length(peptide)){
     ISPH_peptide_lfq <- df_peptide[which(df_peptide$Sequence == peptide[i]),grep("Intensity", colnames(df_peptide))] 
     ISPH_peptide_lfq <- ISPH_peptide_lfq[,-grep("new", colnames(ISPH_peptide_lfq))]
     assign(paste(peptide[i],"_lfq",sep = ""), vapply(ISPH_peptide_lfq[1,-1], paste, collapse = ",", character(1L)))
-
   }
   
   # save sample names in a vector
@@ -77,7 +71,6 @@ ISPH_reformat_ZM4 <- function(gene,df, peptide,df_peptide){
   ISPH_lfq$FC <- v
   return(ISPH_lfq)
 }
-
 # df <- ISPH_lfq
 # colnum will be 3,4,5
 peptide_FC <- function(colnum,df){
@@ -95,24 +88,19 @@ peptide_FC <- function(colnum,df){
   
   return(v)
 }
-
 ISPH_peptides <- peptides_Zymo_Eclipse45min_ZM4tag[grep("ZMO0875", peptides_Zymo_Eclipse45min_ZM4tag$Proteins),]
-
 # Peptides to keep track of
 peptide <- c("AIEIVDQALDR", "GLPVVDATCPLVNK", "FTDVIGPDTSDICYATQNR")
 # Apply ISPH_function to ISPH gene "ZMO0875"
 ISPH_lfq <- ISPH_reformat_ZM4("ZMO0875", merged_drb_impute, peptide, ISPH_peptides)
-
 # Apply peptide_FC function to each peptide
 ISPH_lfq$AIEIVDQALDR_FC <- peptide_FC(3,ISPH_lfq)
 ISPH_lfq$GLPVVDATCPLVNK_FC <- peptide_FC(4,ISPH_lfq)
 ISPH_lfq$FTDVIGPDTSDICYATQNR_FC <- peptide_FC(5,ISPH_lfq)
-
 # Fold Change transformed to Log2
 ISPH_lfq$AIEIVDQALDR_FC_log2 <- log2(ISPH_lfq$AIEIVDQALDR_FC)
 ISPH_lfq$GLPVVDATCPLVNK_FC__log2 <- log2(ISPH_lfq$GLPVVDATCPLVNK_FC)
 ISPH_lfq$FTDVIGPDTSDICYATQNR_FC__log2 <- log2(ISPH_lfq$FTDVIGPDTSDICYATQNR_FC)
-
 ```
 
 #### **Plot1**  
@@ -142,6 +130,21 @@ q <- ggplot(ISPH_lfq, aes(x=Type, y=log2(Intensity), fill=Type)) +
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log2(Abundance) ISPH protein", 
                                                                     subtitle = "Across sample types in triplicate",
                                                                     y = "Log2(Intensity)")
+
+#This can only be done if ISPG Rmarkdown has been ran through
+ISPG_ISPH_lfq <- rbind(ISPG_lfq[,c(1:2,6,7)], ISPH_lfq[,c(1:2,6,7)])
+
+q <- ggplot(ISPG_ISPH_lfq, aes(x=Type, y=log2(Intensity), fill=Type)) +
+  geom_boxplot()+
+  #geom_point(data = ISPH_lfq, aes(x= Type, y= log2(Intensity)), size = 3, color = "#6D696F", alpha = 0.5) +
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log2(Abundance) ISPG and ISOG protein", 
+                                                                    subtitle = "Across sample types in triplicate",
+                                                                    y = "Log2(Intensity)")
+
+
+
 ```
 
 #### **Plot2**  
@@ -149,14 +152,26 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Log
 Fold Change of ISPH protein across strain. Boxplot contains triplicate analysis. 
 ```{r, echo=FALSE}
 type.colors = as.numeric(factor(ISPH_lfq$Type))
-q <- ggplot(ISPH_lfq, aes(x=Type, y=log2(FC), fill=Type)) +
+q <- ggplot(ISPH_lfq, aes(x=Type, y=FC, fill=Type)) +
   geom_boxplot()+
-  ylim(0,4.5)+
+  #ylim(0,30)+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPH protein", 
                                                                     subtitle = "Over Expression (OE) Strain",
                                                                     y = "Fold Change (OE/WT)")
+
+
+Type.colors = as.numeric(factor(ISPG_ISPH_lfq$Type))
+q <- ggplot(ISPG_ISPH_lfq[c(1:3,13:14),], aes(x=Type, y=FC, fill=Type)) +
+  geom_boxplot()+
+  scale_y_continuous(limits = c(0,30), breaks = seq(0,30, by = 5))+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG and ISPH protein", 
+                                                                    subtitle = "Over Expression (OE) Strain",
+                                                                    y = "Fold Change (OE/WT)")
+
 ```
 
 #### The following analysis will consider the intensities associated to individual peptides and how the fold changes compare to protein fold changes relative to WT.   
@@ -165,40 +180,31 @@ ISPH_peptides_averages <- ISPH_peptides[,c(42,grep("Intensity.IspH", colnames(IS
 sub_ISPH_peptides_avg <- ISPH_peptides_averages[,c(1,2,4,5,6,8,9)]
 colnames(sub_ISPH_peptides_avg) <- c("PEP","ISPH-1", "ISPH-2", "ISPH-3","WT-1", "WT-2", "WT-3")
 rownames(sub_ISPH_peptides_avg) <- ISPH_peptides$Sequence
-
 sub_ISPH_peptides_avg$ISPHAvg <- rowMeans(sub_ISPH_peptides_avg[,grep("ISPH",colnames(sub_ISPH_peptides_avg))])
 sub_ISPH_peptides_avg$WTAvg <- rowMeans(sub_ISPH_peptides_avg[,grep("WT",colnames(sub_ISPH_peptides_avg))])
 sub_ISPH_peptides_avg$Log2ISPHAvg <- log2(sub_ISPH_peptides_avg$ISPHAvg)
 sub_ISPH_peptides_avg$Log2WTAvg <- log2(sub_ISPH_peptides_avg$WTAvg)
 sub_ISPH_peptides_avg$ISPHStd <- apply(sub_ISPH_peptides_avg[,grep("ISPH-",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
 sub_ISPH_peptides_avg$WTStd <- apply(sub_ISPH_peptides_avg[,grep("WT-",colnames(sub_ISPH_peptides_avg))],1,function(x) sd(log2(x)))
-
-
 v <- vector()
 #subset peptides with abundance greater than log2
 for(i in 1:nrow(sub_ISPH_peptides_avg)){
   if(0 %in% sub_ISPH_peptides_avg[i,2:7])
     v <- append(v,i) 
 }
-
 ISPH_peptides_abundance <- sub_ISPH_peptides_avg[-v,]
 ISPH_peptides_abundance <- ISPH_peptides_abundance[order(ISPH_peptides_abundance$Log2ISPHAvg),]
 ISPH_peptides_abundance$Peptide <- rownames(ISPH_peptides_abundance)
-
 ISPH_peptides_abundance<- ISPH_peptides_abundance %>%
   mutate(Peptide = factor(Peptide, level = rownames(ISPH_peptides_abundance)))
-
 #str(ISPH_peptides_abundance)
 #ISPH_peptides_abundance$Peptide
-
 ```
 
 ```{r peptideRanges_withMeanNotAveraged, echo=FALSE}
 t_ISPH_peptides_abundance <-t(ISPH_peptides_abundance[,2:7])
 Range_ISPH_peptides <- cbind(ISPH_lfq[c(grep("ISPH",ISPH_lfq$Type),grep("WT", ISPH_lfq$Type)),2],t_ISPH_peptides_abundance)
 colnames(Range_ISPH_peptides) <- c("ISPH", colnames(t_ISPH_peptides_abundance))
-
-
 peptide_FC <- function(df){ 
   
   df_FC <- data.frame(matrix(NA, nrow = nrow(df), ncol = ncol(df)))
@@ -225,10 +231,8 @@ peptide_FC <- function(df){
   
   colnames(df_FC) <- colnames(df)
   rownames(df_FC) <- rownames(df)
-
   return(df_FC)
 }
-
 Range_ISPH_peptides_FC <- peptide_FC(Range_ISPH_peptides)
 Range_ISPH_peptides_FC <- data.frame(matrix(unlist(Range_ISPH_peptides_FC), nrow = length(Range_ISPH_peptides_FC), byrow = T), stringsAsFactors = FALSE)
 Range_ISPH_peptides_FC <- Range_ISPH_peptides_FC[,1:3]
@@ -267,40 +271,34 @@ peptide_FC_averagedWT <- function(df){
   rownames(df_FC) <- rownames(df)
   return(df_FC)
 }
-
 Range_ISPH_peptides_FC_AveragedWT <- peptide_FC_averagedWT(Range_ISPH_peptides)
 Range_ISPH_peptides_FC_AveragedWT <- data.frame(matrix(unlist(Range_ISPH_peptides_FC_AveragedWT), nrow = length(Range_ISPH_peptides_FC_AveragedWT), byrow = T), stringsAsFactors = FALSE)
 #Range_ISPH_peptides_FC_AveragedWT <- Range_ISPH_peptides_FC_AveragedWT[,1:3]
 rownames(Range_ISPH_peptides_FC_AveragedWT) <- colnames(Range_ISPH_peptides)
 colnames(Range_ISPH_peptides_FC_AveragedWT) <- rownames(Range_ISPH_peptides)
-
 Range_ISPH_peptides_FC_AveragedWT$AVG_FC <- rowMeans(Range_ISPH_peptides_FC_AveragedWT[,1:3]) 
 Range_ISPH_peptides_FC_AveragedWT$AVG_WT_FC <- rowMeans(Range_ISPH_peptides_FC_AveragedWT[,4:6]) 
-
 Range_ISPH_peptides_FC_AveragedWT$Std_FC <- apply(Range_ISPH_peptides_FC_AveragedWT[,1:3],1, FUN = sd)
 Range_ISPH_peptides_FC_AveragedWT$Std_WT_FC <- apply(Range_ISPH_peptides_FC_AveragedWT[,4:6],1, FUN = sd)
-
 Range_ISPH_peptides_FC_AveragedWT$error <- apply(Range_ISPH_peptides_FC_AveragedWT[,1:3],1, 
                                                  function(x) qt(0.975, df=length(x)-1)*sd(x)/sqrt(length(x)))
 Range_ISPH_peptides_FC_AveragedWT$WT_error <- apply(Range_ISPH_peptides_FC_AveragedWT[,4:6],1, 
                                                     function(x) qt(0.975, df=length(x)-1)*sd(x)/sqrt(length(x)))
-
 Range_ISPH_peptides_FC_AveragedWT <- Range_ISPH_peptides_FC_AveragedWT[c(1,nrow(Range_ISPH_peptides_FC_AveragedWT):2),]
 Range_ISPH_peptides_FC_AveragedWT$BioMolecule <- rownames(Range_ISPH_peptides_FC_AveragedWT)
-
 Range_ISPH_peptides_FC_AveragedWT<- Range_ISPH_peptides_FC_AveragedWT %>% 
   mutate(BioMolecule = factor(BioMolecule, level = rev(rownames(Range_ISPH_peptides_FC_AveragedWT))))
 ```
 
 
 ```{r,echo=FALSE}
-
 ggplot(Range_ISPH_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
   geom_point() +
   geom_point( y = Range_ISPH_peptides_FC_AveragedWT[,1], color = "grey") +
   geom_point( y = Range_ISPH_peptides_FC_AveragedWT[,2], color = "grey") +
   geom_point( y = Range_ISPH_peptides_FC_AveragedWT[,3], color = "grey") +
   geom_errorbar(aes(ymin=AVG_FC-error, ymax=AVG_FC+error) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
+  scale_y_continuous(limits = c(-20,20), breaks = seq(-20,20, by = 5))+
   theme_light()+
   labs(title = "Peptide Fold Changes" ,subtitle = "ISPH and ISPH associated peptides", y = "Fold Change", x ="Peptides") +
   coord_flip() +
@@ -308,23 +306,17 @@ ggplot(Range_ISPH_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
   geom_hline(yintercept = 6.791636)
   
 #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 ```
 
 
 ```{r long_format, echo=FALSE}
 # reforat ISPH wide format to long
 long_ISPH_Lfq <- melt(ISPH_lfq, id.vars = c("Sample"))
-
 variable2 <- long_ISPH_Lfq$variable[long_ISPH_Lfq$variable != "Type"]
 long_ISPH_Lfq <- long_ISPH_Lfq[which(long_ISPH_Lfq$variable  %in% variable2),]
-
 long_ISPH_Lfq$value <- as.numeric(long_ISPH_Lfq$value)
-
-
 long_ISPH_Lfq$variable <- revalue(long_ISPH_Lfq$variable, c("Intensity" = "ISPH","FC" ="ISPH_FC"))
 long_ISPH_Lfq$Type <- rep(c("ISPG","ISPH","WT"), times = 11, each=3)
-
 ```
 
 #### **Plot 3 version 1**  
@@ -337,7 +329,6 @@ ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2ISPHAvg)) +
   labs(title = "Average Peptide Abundances" ,subtitle = "ISPH Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +
   coord_flip()
 #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 ```
 
 #### **Plot 3 version2**  
@@ -345,7 +336,7 @@ ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2ISPHAvg)) +
 Bar graph of peptide intensities were averaged (n=3) to produce the bar, error bars are provided for standard deviation. Overlaid are the intensities from each replicate. The peptides are ranked from most abundant to least abundant that were quantified in the ISPH samples.
 ```{r, echo=FALSE}
 ggplot(ISPH_peptides_abundance, aes(x=Peptide, y= Log2ISPHAvg)) + 
-  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
+  geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#C3DE79", alpha = 0.6, position = position_dodge())+
   geom_errorbar(aes(ymin=Log2ISPHAvg, ymax=Log2ISPHAvg+ISPHStd) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
   geom_point(data = ISPH_peptides_abundance, aes(x=Peptide, y = log2(ISPH_peptides_abundance$`ISPH-1`)), size = 3, color = "#6D696F", alpha = 0.5) +
   geom_point(data = ISPH_peptides_abundance, aes(x= Peptide, y= log2(ISPH_peptides_abundance$`ISPH-2`)), size = 3, color = "#6D696F", alpha = 0.5) +
@@ -365,7 +356,6 @@ q <- ggplot(long_ISPH_Lfq[1:36,], aes(x=variable, y=log2(value), fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
-
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Intensity across strains", 
                                                                     subtitle = "ISPH and associted peptides in Over Expression (OE) Strain",
                                                                     y = "Log2(Intensity)", x= "")
@@ -379,20 +369,37 @@ q <- ggplot(long_ISPH_Lfq[37:72,], aes(x=variable, y=log2(value), fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
-
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 
                                                                     subtitle = "ISPH and associted peptides in Over Expression (OE) Strain",
                                                                     y = "Log2(Fold Change relative to WT)", x = "")
-
-
 ```
 
+#### **Plot 6**  
+**ISPH protein and peptides Log2 transformed fold change: **  
+Box plot of fold changes for ISPH and the three peptides of interest and ISPG and it's associated three peptides. This is the most important plot for considering using peptides to monitor over expression at the peptide level versus the protein level. This plot can only be implemented if you have ran the ISG_ISPH_associatedPeptides_plots.Rmd.  
+```{r, echo=FALSE}
+long_ISPG_Lfq_ONLY <- long_ISPG_Lfq[grep("FC", long_ISPG_Lfq$variable),]
+long_ISPG_Lfq_ONLY <- long_ISPG_Lfq_ONLY[-grep("log2",long_ISPG_Lfq_ONLY$variable),]
+
+long_ISPH_Lfq_ONLY <- long_ISPH_Lfq[grep("FC", long_ISPH_Lfq$variable),]
+long_ISPH_Lfq_ONLY <- long_ISPH_Lfq_ONLY[-grep("log2", long_ISPH_Lfq_ONLY$variable),]
+
+appended_ISPH_ISPG <- rbind(long_ISPH_Lfq_ONLY, long_ISPG_Lfq_ONLY)
+appended_ISPH_ISPG_FC <- appended_ISPH_ISPG[-grep("WT",appended_ISPH_ISPG$Type),]
+
+
+q <- ggplot(appended_ISPH_ISPG_FC, aes(x=variable, y=log2(value), fill=Type)) +
+  geom_boxplot()+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 
+                                                                    subtitle = "ISPH and associted peptides in Over Expression (OE) Strain",
+                                                                    y = "Log2(Fold Change relative to WT)", x = "")
+```
 
 ```{r, echo = FALSE}
 FoldChange_IspH_AIEIVDQDALDR <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspH_AIEIVDQDALDR_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
-
 FoldChange_IspH_AIEIVDQDALDR$Type <- rep("IspH", 6)
-
 ggplot(FoldChange_IspH_AIEIVDQDALDR, aes(x= Type, y= FoldChange)) + 
   #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
   geom_boxplot()+
@@ -405,9 +412,7 @@ ggplot(FoldChange_IspH_AIEIVDQDALDR, aes(x= Type, y= FoldChange)) +
 
 ```{r, echo = FALSE}
 FoldChange_IspG_ETD <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspG_ETDIGVTGGGQGK_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
-
 FoldChange_IspG_ETD$Type <- rep("IspG", 7)
-
 aggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) + 
   #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
   geom_boxplot()+
@@ -417,7 +422,6 @@ aggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) +
   theme_light()+
   labs(title = "Transition Fold Changes - FAIMS" ,subtitle = "ETDIGVTGGGQGK peptide ", y = "Fold Change", x ="Transition")
 ```
-
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

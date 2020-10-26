@@ -8,23 +8,23 @@ library(dplyr)
 
 
 ##### Library Comparison ####
-ProteinProspector_AIEIVQALDR <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_AIEIVDQALDR.csv", 
+ProteinProspector_AIEIVQALDR <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_AIEIVDQALDR.csv", 
                                          header = TRUE, sep = ",", stringsAsFactors = FALSE)
-ProteinProspector_ETDIGVTGGGQGK <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_ETDIGVTGGGQGK.csv", 
+ProteinProspector_ETDIGVTGGGQGK <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/ProteinProspector_ETDIGVTGGGQGK.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 #Library Spectra
 #PROSIT
-PROSIT_IspH_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/PROSIT_LibrarySpectra_AIEIVDQALDR.csv", 
+PROSIT_IspH_AIIEIVDALDR_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/PROSIT_LibrarySpectra_AIEIVDQALDR.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(PROSIT_IspH_AIIEIVDALDR_Spectra) <- c("m.z", "Relative.Abundance")
 
-PROSIT_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/PROSIT_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
+PROSIT_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/PROSIT_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
                                                header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(PROSIT_IspG_ETDIGVTGGGGQGK_Spectra) <- c("m.z", "Relative.Abundance")
 
 #### HIGH_Res data upload ####
-High_Res_IspH_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/HighRes_Intensity_LibrarySpectra_AIEIVDQALDR.csv", 
+High_Res_IspH_AIIEIVDALDR_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/HighRes_Intensity_LibrarySpectra_AIEIVDQALDR.csv", 
                                               header = TRUE, sep = ",", stringsAsFactors = FALSE)
 High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance <- High_Res_IspH_AIIEIVDALDR_Spectra
 High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance$Relative.Abundance <- High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance$Intensity/(max(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance$Intensity))
@@ -32,7 +32,7 @@ colnames(High_Res_IspH_AIIEIVDALDR_Spectra.RelativeAbundance) <- c("m.z", "Inten
 
 
 
-High_Res_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/HighRes_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
+High_Res_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/HighRes_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
 High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance = High_Res_IspG_ETDIGVTGGGGQGK_Spectra
 High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Relative.Abundance <- High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Intensity/(max(High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Intensity))
@@ -41,14 +41,14 @@ colnames(High_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance) <- c("m.z", "In
 
 
 #### LOW_Res data upload ####
-Low_Res_IspH_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/LowRes_LibrarySpectra_AIEIVDQALDR.csv", 
+Low_Res_IspH_AIIEIVDALDR_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/LowRes_LibrarySpectra_AIEIVDQALDR.csv", 
                                              header = TRUE, sep = ",", stringsAsFactors = FALSE)
 Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance <- Low_Res_IspH_AIIEIVDALDR_Spectra
 Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance$Relative.Abundance <- Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance$Intensity/(max(Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance$Intensity))
 colnames(Low_Res_IspH_AIIEIVDALDR_Spectra.RelaiveAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
 
 
-Low_Res_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/LowRes_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
+Low_Res_IspG_ETDIGVTGGGGQGK_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/LowRes_LibrarySpectra_ETDIGVTGGGGQGK.csv", 
                                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
 Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance <- Low_Res_IspG_ETDIGVTGGGGQGK_Spectra
 Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Relative.Abundance <- Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Intensity/(max(Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance$Intensity))
@@ -384,7 +384,7 @@ infusion_spectra_prep <- function(Infusion_df, max_Intensity){
 ##### Infusion data upload #####
 #AIEIVDQALDR
 #FAIMS
-FAIMS_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200126_ZymoFAIMS_IW2_R500K_MI502_AGC1e06_2.csv", 
+FAIMS_AIIEIVDALDR_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200126_ZymoFAIMS_IW2_R500K_MI502_AGC1e06_2.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance <- infusion_spectra_prep(FAIMS_AIIEIVDALDR_Spectra, 200000)
@@ -393,7 +393,7 @@ FAIMS_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, FAIMS_AIIEIVDALDR_Spe
 A1 <- FAIMS_AIEIDVDQDALDR + ylim(0,1) + labs(title = "FAIMS AIEIVDQDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
 #with out FAIMS
-noFAIMS_AIIEIVDALDR_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200125_Zymo_IW2_R500K_MI502_AGC1e06_1.csv", 
+noFAIMS_AIIEIVDALDR_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200125_Zymo_IW2_R500K_MI502_AGC1e06_1.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance <- infusion_spectra_prep(noFAIMS_AIIEIVDALDR_Spectra, 200000)
@@ -404,7 +404,7 @@ A2 <- noFAIMS_AIEIDVDQDALDR + ylim(0,1) + labs(title = "no FAIMS AIEIVDQDALDR Sp
 # ETDIGVTGGGQGK #
 
 #FAIMS
-FAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200126_ZymoFAIMS_IW2_R500K_MI502_AGC1e06_2_ETDIGVTGGGQGK.csv", 
+FAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200126_ZymoFAIMS_IW2_R500K_MI502_AGC1e06_2_ETDIGVTGGGQGK.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance <- infusion_spectra_prep(FAIMS_ETDIGVTGGGQGK_Spectra, 200000)
@@ -413,7 +413,7 @@ FAIMS_ETDIGVTGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, FAIMS_ETDIGVTGGGQGK
 E1 <- FAIMS_ETDIGVTGGGQGK + ylim(0,1) + labs(title = "FAIMS ETDIGVTGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
 #with out FAIMS
-noFAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200125_Zymo_IW2_R500K_MI502_AGC1e06_1_ETDIGVTGGGQGK.csv", 
+noFAIMS_ETDIGVTGGGQGK_Spectra <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/LibraryComparison/20200125_Zymo_IW2_R500K_MI502_AGC1e06_1_ETDIGVTGGGQGK.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance <- infusion_spectra_prep(noFAIMS_ETDIGVTGGGQGK_Spectra, 200000)
@@ -441,24 +441,24 @@ grid.arrange(PAgrob, PEgrob, HAgrob, HEgrob, LAgrob, LEgrob, ncol =2)
 grid.arrange(A1grob, E1grob, A2grob, E2grob, ncol = 2)
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES.pdf")
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES.pdf")
 grid.arrange(PAgrob, PEgrob, HAgrob, HEgrob, LAgrob, LEgrob, ncol =2)
 dev.off()
 
 
-ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES.pdf",
+ggsave("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES.pdf",
        grid.arrange(PAgrob, PEgrob, HAgrob, HEgrob, LAgrob, LEgrob, ncol =2),
        width = 10,
        height = 11.5,
        units = "in")
 
-ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_FAIMS_noFAIMS.pdf",
+ggsave("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_FAIMS_noFAIMS.pdf",
        grid.arrange(A1grob, E1grob, A2grob, E2grob, ncol =2),
        width = 10,
        height = 8.5,
        units = "in")
 
-ggsave("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_all_top10.pdf",
+ggsave("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_all_top10.pdf",
        grid.arrange(PAgrob, PEgrob, HAgrob, HEgrob, LAgrob, LEgrob, A1grob, E1grob, A2grob, E2grob, ncol =2),
        width = 10,
        height = 14.5,
@@ -849,7 +849,7 @@ scaleRYG <- colorRampPalette(c("#F3A5BF","#15688E"), space = "rgb")(100)
 
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/dotProduct_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/dotProduct_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 corrplot(df_matrix, type = "lower", method = "color", #col = scaleRYG, 
          addCoef.col = "white",
@@ -979,7 +979,7 @@ scaleRYG <- colorRampPalette(c("#F3A5BF","#15688E"), space = "rgb")(100)
 
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SimilarityScore_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SimilarityScore_AIEIVDQALDR_ETDIGVTGGGQGK_v3.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 corrplot(df_matrix, type = "lower", method = "color", #col = scaleRYG, 
          addCoef.col = "white",
@@ -1019,7 +1019,7 @@ dotproduct = spectrumSimilarity_plotting_dp_function(AIEIVDQALDR_top10,PROSIT_Is
 
 j_matrix <- matrix(nrow = 5, ncol = 5)
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots.pdf",height = 10, width = 15)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 for(i in 1:length(df.list)){
   df_n <- df.list[[i]]
@@ -1032,7 +1032,7 @@ for(i in 1:length(df.list)){
 dev.off()
 
 j_matrix_ETDIGVTGGGGQGK <- matrix(nrow = 5, ncol = 5)
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots_ETDIGVTGGGQGK.pdf",height = 10, width = 15)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesse_Similarity_Plots_ETDIGVTGGGQGK.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 for(i in 1:length(df.list)){
   df_n <- df.list_ETDIGVTGGGGQGK[[i]]
@@ -1051,7 +1051,7 @@ colnames(j_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion
 rownames(j_matrix_ETDIGVTGGGGQGK) <- c("PROSIT","High Res", "Low Res", "Infusion FAIMS", "Infusion")
 
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesses_AIEIVDQALDR_ETDIGVTGGGQGK_heatmaps.pdf",height = 10, width = 15)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Jesses_AIEIVDQALDR_ETDIGVTGGGQGK_heatmaps.pdf",height = 10, width = 15)
 par(mfrow = c(1,2))
 corrplot(j_matrix, type = "lower", method = "color", #col = scaleRYG, 
          addCoef.col = "white",

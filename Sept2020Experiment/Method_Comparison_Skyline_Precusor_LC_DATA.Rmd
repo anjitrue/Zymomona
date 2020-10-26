@@ -1,0 +1,358 @@
+---
+title: "MethodComparison_Eclipse02"
+author: "Anji"
+date: "October 25, 2020"
+  html_document:
+    df_print: paged
+---
+```{r setup, include=FALSE}
+require(knitr)
+opts_knit$set(root.dir = "E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/")
+knitr::opts_chunk$set(root.dir = "E:/EAT/Projects/Zymomona_direct_Infusion/", warning = FALSE, message = FALSE)
+```
+
+```{r install_packages, echo=FALSE}
+library(pcaMethods)
+library(ggplot2)
+library(plotly)
+library(reshape2)
+library(plyr)
+
+```
+
+```{r load_data, echo=FALSE}
+# Read in csv files that were generated in skyline-daily DDA 45 min LC-MS/MS peak picking of 6 peptides - using high resolution library
+DDA_PRM_AIEIVDQALDR <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/AIEIVDQALDR_peakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DDA_PRM_GLPVVDATCPLVNK <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/GLPVVDATCPLVNK_peakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DDA_PRM_FTDVIGPDTSDICYATQNR <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/FTDVIGPDTSDICYATQNR_peakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DDA_PRM_ETDIGVTGGGQGK <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/ETDIGVTGGGQGK_peakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DDA_PRM_VSLSADPEQEVR <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/VSLSADPEQEVR_peakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DDA_PRM_AVDCPLHLGITEAGGLIGGTVK <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/SkylineOutput/oldDigest_DDA/AVDCPLHLGITEAGGLIGGTVK_RedonepeakArea_timepoint120_skylineDaily_highResLibrary.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+
+
+```
+
+I reformatted both the Skyline .csv files to extract ISPH and ISPG peptide data and the three associated ISPH peptides **AIEIVDQALDR**, **GLPVVDATCPLVNK**, and **FTDVIGPDTSDICYATQNR** and the three associated ISPG peptides are
+
+I built the following functions that format data frames.  
+1. ** function takes in gene = ZMO0875, the filtered and imputed protein intensities, and the peptide intensities. The output is ISPH abundance table in wide format that contains abundances for the peptides of interest.  
+2. *peptide_FC* function takes in the column number associated with the peptide of interest and ISPH abundance table. This function will produce the fold changes of the proteins and peptides relative to what was measured in the WT.  
+
+
+```{r ISPH_data_formating, echo=FALSE}
+#df <- DDA_AIEIVDQALDR
+
+Summed_precusor <- function(df){
+  
+  #Extract sample names and reformat
+  RAW_Sample_names <- df[,1]
+  Sample_names <- sub("_45min.*", "", RAW_Sample_names)
+  Sample_names <- sub("_","-", Sample_names)
+  Sample_meta <- as.data.frame(Sample_names) %>% separate(Sample_names, into = paste("V", 1:4, sep = "-"))
+  Sample_meta[is.na(Sample_meta)] <- "DDA"
+  
+  Sample_Analysis <- paste0(Sample_meta$`V-1`, "-", Sample_meta$`V-4`)
+  Sample_meta$`V-3` <- Sample_Analysis
+  
+  #Extract colmumns with precursor in it
+  precusor_data <- df[,grep("precursor", colnames(df))]
+  
+  #Create new dataframe to only meta and precursor information
+  #Fix precursor name
+  df_meta_precursor <- cbind(Sample_names, Sample_meta,precusor_data) 
+  colnames(df_meta_precursor) <- c("Sample_Names", "Sample_Type", "Replicate", "Sample_Analysis", "Analysis_Type", "precursor_1",
+                                   "precursor_M1_2", "precursor_M2_3")
+  
+  #Summed precursor 
+  Summed_precusor <- apply(df_meta_precursor[,grep("precursor", colnames(df_meta_precursor))], 1, sum)
+  #Append Summed precursor to dataframe
+  df_meta_precursor$Sum_Precursor <- Summed_precusor
+    
+    df_meta_precursor_FC <- FC_summed_precusor(df_meta_precursor)
+    
+  return(df_meta_precursor_FC)
+}
+
+
+  
+aggregate_precursor <- function(df){
+  
+  aggregate_sum_precursor <- aggregate(df_meta_precursor$Sum_Precursor,
+                                list(df_meta_precursor$Sample_Analysis), mean)
+  
+  aggregate_sum_precursor$stdev <- aggregate(df_meta_precursor$Sum_Precursor,
+                                list(df_meta_precursor$Sample_Analysis), sd)[2]
+  
+  aggregate_sum_precursor$log2Average <- log2(aggregate_sum_precursor$x)
+  
+  aggregate_sum_precursor$log2Stdev <- aggregate(log2(df_meta_precursor$Sum_Precursor),
+                                list(df_meta_precursor$Sample_Analysis), sd)[2]
+  
+  colnames(aggregate_sum_precursor) <- c("Sample_Type", "Average_Sum", "Stdev_Sum", "Log2Average_Sum", "Stdev_Log2Sum")
+  
+  ggplot(aggregate_sum_precursor, aes(Sample_Type, Log2Average_Sum))+
+  geom_point()
+  
+  return(aggregate_sum_precursor)
+}
+
+
+  FC_summed_precusor <- function(df){
+  
+  v = vector()
+  WT_DDA <- df[grep("WT-DDA",df$Sample_Analysis),]
+  WT_PRM <- df[grep("WT-PRM",df$Sample_Analysis),]
+  
+    
+    for (j in 1:nrow(df)) {
+      for (i in 1:3) {
+        if(length(grep("DDA", df$Sample_Analysis[j])) != 0){
+            paste0(df$Sample_Names[j]," ", df$Sample_Analysis[j])
+            if(length(grep(i,df$Replicate[j])) != 0){
+              v <- append(v,df$Sum_Precursor[j]/WT_DDA$Sum_Precursor[i])
+          paste0(WT_DDA$Sample_Names[i])
+          print(v)
+          }
+        }else{
+          paste0(df$Sample_Names[j]," ", df$Sample_Analysis[j])
+          if(length(grep(i,df$Replicate[j])) != 0){
+            v <- append(v,df$Sum_Precursor[j]/WT_PRM$Sum_Precursor[i])
+        paste0(WT_PRM$Sample_Names[i])
+        print(v)
+        }
+
+      }
+      }
+    }
+  df$FC_summedPrecursor <- v
+  return(df)
+  }
+```
+
+
+Apply the funtions to the DDA and PRM data collected by LC-MS/MS without the standard spiked in. 
+```{r, echo=FALSE}
+
+FC_AIEIVDQALDR <- Summed_precusor(DDA_PRM_AIEIVDQALDR)
+  
+FC_GLPVVDATCPLVNK <- Summed_precusor(DDA_PRM_GLPVVDATCPLVNK)
+FC_GLPVVDATCPLVNK$Sum_Precursor[13] <- (FC_GLPVVDATCPLVNK$Sum_Precursor[14]+FC_GLPVVDATCPLVNK$Sum_Precursor[15])/2
+FC_GLPVVDATCPLVNK$FC_summedPrecursor[1] <- FC_GLPVVDATCPLVNK$Sum_Precursor[1]/FC_GLPVVDATCPLVNK$Sum_Precursor[13]
+FC_GLPVVDATCPLVNK$FC_summedPrecursor[7] <- FC_GLPVVDATCPLVNK$Sum_Precursor[7]/FC_GLPVVDATCPLVNK$Sum_Precursor[13]
+  
+FC_FTDVIGPDTSDICYATQNR <- Summed_precusor(DDA_PRM_FTDVIGPDTSDICYATQNR)
+  
+FC_ETDIGVTGGGQGK <- Summed_precusor(DDA_PRM_ETDIGVTGGGQGK)
+
+FC_VSLSADPEQEVR  <- Summed_precusor(DDA_PRM_VSLSADPEQEVR)
+
+FC_AVDCPLHLGITEAGGLIGGTVK <- Summed_precusor(DDA_PRM_AVDCPLHLGITEAGGLIGGTVK)
+
+
+IspH_peptide <- c("AIEIVDQALDR", "GLPVVDATCPLVNK", "FTDVIGPDTSDICYATQNR")
+IspG_peptide <- c("ETDIGVTGGGQGK", "VSLSADPEQEVR", "AVDCPLHLGITEAGGLIGGTVK")
+
+# Add some extra columns with peptide descriptors
+FC_AIEIVDQALDR$peptide <- rep("AIEIVDQALDR", nrow(FC_AIEIVDQALDR))
+FC_GLPVVDATCPLVNK$peptide <- rep("GLPVVDATCPLVNK", nrow(FC_GLPVVDATCPLVNK))
+FC_FTDVIGPDTSDICYATQNR$peptide <- rep("FTDVIGPDTSDICYATQNR", nrow(FC_FTDVIGPDTSDICYATQNR))
+FC_ETDIGVTGGGQGK$peptide <- rep("ETDIGVTGGGQGK", nrow(FC_ETDIGVTGGGQGK))
+FC_VSLSADPEQEVR$peptide <- rep("VSLSADPEQEVR", nrow(FC_VSLSADPEQEVR))
+FC_AVDCPLHLGITEAGGLIGGTVK$peptide <- rep("AVDCPLHLGITEAGGLIGGTVK", nrow(FC_AVDCPLHLGITEAGGLIGGTVK))
+
+# Rbind all peptide dataframes into one big data frame
+FC_allPeptides <- rbind(FC_AIEIVDQALDR, FC_GLPVVDATCPLVNK, FC_FTDVIGPDTSDICYATQNR, FC_ETDIGVTGGGQGK, FC_VSLSADPEQEVR, FC_AVDCPLHLGITEAGGLIGGTVK)
+# Add some extra columns with protein descriptors
+FC_allPeptides$Sample_Analysis_peptide <- paste0(FC_allPeptides$Sample_Analysis,"-",FC_allPeptides$peptide)
+FC_allPeptides$Protein_OE <- c(rep("ISPH",54), rep("ISPG", 54))
+
+# Remove unwanted data and keep only FC that will be plotted
+FC_allPeptides_OE_ISPH <- FC_allPeptides_OE[FC_allPeptides_OE$Protein_OE == "ISPH",]
+   FC_allPeptides_OE_ISPH <- FC_allPeptides_OE_ISPH[-grep("WT", FC_allPeptides_OE_ISPH$Sample_Names),]
+   FC_allPeptides_OE_ISPH <- FC_allPeptides_OE_ISPH[-grep("ISPG", FC_allPeptides_OE_ISPH$Sample_Names),]
+
+FC_allPeptides_OE_ISPG <- FC_allPeptides_OE[FC_allPeptides_OE$Protein_OE == "ISPG",]
+FC_allPeptides_OE_ISPG <- FC_allPeptides_OE_ISPG[-grep("WT", FC_allPeptides_OE_ISPG$Sample_Names),]
+FC_allPeptides_OE_ISPG <- FC_allPeptides_OE_ISPG[-grep("ISPH", FC_allPeptides_OE_ISPG$Sample_Names),]
+
+# rebind cleaned-up dataframe and order the dataframe so that IspH peptides come first and then IspG peptides follow  
+FC_allPeptides_OE_ISPH_ISPG <- rbind(FC_allPeptides_OE_ISPH, FC_allPeptides_OE_ISPG)
+FC_allPeptides_OE_ISPH_ISPG$peptide <- as.factor(FC_allPeptides_OE_ISPH_ISPG$peptide)
+FC_allPeptides_OE_ISPH_ISPG <- FC_allPeptides_OE_ISPH_ISPG %>%
+  mutate(peptide = factor(peptide, level = c(IspH_peptide, IspG_peptide)))
+
+# ggplot of FC for peptides that monitor OE - not log2 transformed
+FC_allPeptides_OE_ISPH_ISPG$Sample_Type <- as.factor(FC_allPeptides_OE_ISPH_ISPG$Sample_Type)
+p <- ggplot(FC_allPeptides_OE_ISPH_ISPG, aes(Sample_Analysis_peptide, FC_summedPrecursor), fill = as.factor(Sample_Type))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79"))+
+  scale_y_continuous(breaks = seq(0,60,10), limit = c(0,60))+
+  theme_light()+
+  facet_grid(~peptide, scales = "free", space = "free")
+
+p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fold Change Over Expressed Strain to Wild Type", 
+                                                                    subtitle = "ISPH and and ISPG associted peptides",
+                                                                    y = "Fold Change relative to Wild Type", x= "")
+
+
+
+```
+
+
+```{r, echo=FALSE}
+DIF_ETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFaims_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_DirectInfusion/CompiledFragmentResults_ETDIGVTGGGQGK_DirectInfusion_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DIF_heavyETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFaims_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_DirectInfusion/CompiledFragmentResults_ETDIGVTGGGQGKheavy_DirectInfusion_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DIF_AIEIVDQALDR_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFaims_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_DirectInfusion/CompiledFragmentResults_AIEIVDQALDR_DirectInfusion_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+DIF_heavyAIEIVDQALDR_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFaims_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_DirectInfusion/CompiledFragmentResults_AIEIVDQALDRheavy_DirectInfusion_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+```
+
+```{r, echo=FALSE}
+FAIMS_ETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/FAIMS_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_FAIMS_DirectInfusion/column1/Multiplex/CompiledFragmentResults_ETDIGVTGGGQGK_FAIMS_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+FAIMS_heavyETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/FAIMS_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_FAIMS_DirectInfusion/column1/Multiplex/CompiledFragmentResults_ETDIGVTGGGQGKheavy_FAIMS_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+FAIMS_AIEIVDQALDR_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/FAIMS_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_FAIMS_DirectInfusion/column1/Multiplex/CompiledFragmentResults_AIEIVDQALDR_FAIMS_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+FAIMS_heavyAIEIVDQALDR_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/FAIMS_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_FAIMS_DirectInfusion/column1/Multiplex/CompiledFragmentResults_AIEIVDQALDRheavy_FAIMS_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+```
+
+```{r, echo=FALSE}
+# df <- DIF_AIEIVDQALDR_MultiPlex
+# peptide_Type <- "light"
+# peptide <- "AIEIVDQALDR"
+# target_ions <- c(17:20)
+Ion_mobility <- "N"
+
+Formatting_DFI_Summed_df <- function(df,peptide_Type, peptide,target_ions,Ion_mobility){
+  
+  #Extract sample names and reformat
+  RAW_Sample_names_df <- colnames(df[,-c(1:2)])
+  Sample_names <- sub("_.*", "", RAW_Sample_names)
+
+  Sample_meta <- as.data.frame(Sample_names) %>% separate(Sample_names, into = paste("V", 1:3, sep = "."))
+  
+  Sample_meta$Multiplex <- rep(peptide_Type, nrow(Sample_meta))
+  Sample_meta$Peptide <- rep(peptide, nrow(Sample_meta))
+  Sample_meta$Type <- paste0(Sample_meta$V.1, "_", Sample_meta$Multiplex,"_", Sample_meta$Peptide)
+  Sample_meta$IonMobility <- rep(Ion_mobility, nrow(Sample_meta))
+  
+  df_totalIons_sum <- cbind(Sample_meta,apply(df[,-c(1:2)],2,sum),apply(df[target_ions,-c(1:2)],2,sum))
+  colnames(df_totalIons_sum) <- c("Strain", "Replicate", "TimePoint", "AnalysisType", "Peptide", "Sample", "IonMobility", "TotalIonsSummed", "MarkerIonsSummed")
+  
+  return(df_totalIons_sum)
+}
+
+
+AIEIVDQALDR_light_summed <- Formatting_DFI_Summed_df(DIF_AIEIVDQALDR_MultiPlex,"light","AIEIVDQALDR",c(17:20), "no_FAIMS")
+AIEIVDQALDR_heavy_summed <- Formatting_DFI_Summed_df(DIF_heavyAIEIVDQALDR_MultiPlex, "heavy","AIEIVDQALDR", c(17:20), "no_FAIMS")
+
+ETDIGVTGGGQGK_light_summed <- Formatting_DFI_Summed_df(DIF_ETDIGVTGGGQGK_MultiPlex,"light","ETDIGVTGGGQGK", c(19:24), "no_FAIMS")
+ETDIGVTGGGQGK_heavy_summed <- Formatting_DFI_Summed_df(DIF_heavyETDIGVTGGGQGK_MultiPlex, "heavy","ETDIGVTGGGQGK", c(19:24), "no_FAIMS")
+
+AIEIVDQALDR_FAIMS_light_summed <- Formatting_DFI_Summed_df(FAIMS_AIEIVDQALDR_MultiPlex,"light","AIEIVDQALDR",c(17:20), "FAIMS")
+AIEIVDQALDR_FAIMS_heavy_summed <- Formatting_DFI_Summed_df(FAIMS_heavyAIEIVDQALDR_MultiPlex, "heavy","AIEIVDQALDR", c(17:20), "FAIMS")
+
+ETDIGVTGGGQGK_FAIMS_light_summed <- Formatting_DFI_Summed_df(FAIMS_ETDIGVTGGGQGK_MultiPlex,"light","ETDIGVTGGGQGK", c(19:24), "FAIMS")
+ETDIGVTGGGQGK_FAIMS_heavy_summed <- Formatting_DFI_Summed_df(FAIMS_heavyETDIGVTGGGQGK_MultiPlex, "heavy","ETDIGVTGGGQGK", c(19:24), "FAIMS")
+
+
+pheatmap(DIF_AIEIVDQALDR_MultiPlex[-c(1:4),-c(1:2)],
+          labels_row = DIF_AIEIVDQALDR_MultiPlex$Mass.Feature[-c(1:4)])
+pheatmap(DIF_ETDIGVTGGGQGK_MultiPlex[-c(1:4),-c(1:2)],
+          labels_row = DIF_ETDIGVTGGGQGK_MultiPlex$Mass.Feature[-c(1:4)])
+pheatmap(FAIMS_AIEIVDQALDR_MultiPlex[-c(1:4),-c(1:2)],
+          labels_row = FAIMS_AIEIVDQALDR_MultiPlex$Mass.Feature[-c(1:4)])
+pheatmap(FAIMS_ETDIGVTGGGQGK_MultiPlex[-c(1:4),-c(1:2)],
+          labels_row = FAIMS_ETDIGVTGGGQGK_MultiPlex$Mass.Feature[-c(1:4)])
+
+# df <- AIEIVDQALDR_light_summed
+# df_heavy <- AIEIVDQALDR_heavy_summed
+
+FoldChange_DFI <- function(df, df_heavy){
+  
+  df_FC <- FC_DIF(df, df[,8:9])
+  rownames(df_FC) <- paste0(df_FC$Strain,"_", df_FC$Replicate,"_", df_FC$IonMobility, "_", df_FC$AnalysisType,"_", df_FC$Peptide)
+
+  df_light_heavy_meta <- df[,1:7]
+  df_light_heavy <- cbind(apply(df_light_heavy_meta, 2,  function(x) {sub("light", "ratio", x)}),df[,8:9]/df_heavy[8:9])
+  light_heavy_ratio_FC <- FC_DIF(df_light_heavy, df_light_heavy[,8:9])
+  rownames(light_heavy_ratio_FC) <- paste0(light_heavy_ratio_FC$Strain,"_", light_heavy_ratio_FC$Replicate,"_", light_heavy_ratio_FC$IonMobility, "_", light_heavy_ratio_FC$AnalysisType,"_", light_heavy_ratio_FC$Peptide)
+  
+  df_meta_precursor_FC <- rbind(df_FC, light_heavy_ratio_FC)
+    
+  return(df_meta_precursor_FC)
+}
+
+
+FC_DIF <- function(df,df_light_heavy){
+  v = data.frame()
+  WT <- df_light_heavy[grep("WT",rownames(df_light_heavy)),]
+    
+    for (j in 1:nrow(df_light_heavy)) {
+      for (i in 1:3) {
+        if(length(grep(paste0(i,".120"), rownames(df_light_heavy)[j])) != 0){
+              v <- rbind(v,df_light_heavy[j,]/WT[i,])
+        }
+      }
+    }
+  colnames(v) <- c(paste0("FC_",colnames(v)[1]), paste0("FC_", colnames(v)[2]))
+  df_out <- cbind(df,v)
+  return(df_out)
+}
+
+AIEIVDQALDR_light_ratio <- FoldChange_DFI(AIEIVDQALDR_light_summed,AIEIVDQALDR_heavy_summed)
+   FC_AIEIVDQALDR_light_ratio <- AIEIVDQALDR_light_ratio[-grep("WT", AIEIVDQALDR_light_ratio$Strain),]
+   FC_AIEIVDQALDR_light_ratio <- FC_AIEIVDQALDR_light_ratio [-grep("ISPG", FC_AIEIVDQALDR_light_ratio$Strain),]
+   
+ETDIGVTGGGQGK_light_ratio <- FoldChange_DFI(ETDIGVTGGGQGK_light_summed,ETDIGVTGGGQGK_heavy_summed)
+   FC_ETDIGVTGGGQGK_light_ratio <- ETDIGVTGGGQGK_light_ratio[-grep("WT", ETDIGVTGGGQGK_light_ratio$Strain),]
+   FC_ETDIGVTGGGQGK_light_ratio <- FC_ETDIGVTGGGQGK_light_ratio [-grep("ISPH", FC_ETDIGVTGGGQGK_light_ratio$Strain),]
+
+p <- ggplot(AIEIVDQALDR_light_ratio , aes(Sample, FC_MarkerIonsSummed), fill = as.factor(AnalysisType))+
+  geom_boxplot()
+p <- ggplot(ETDIGVTGGGQGK_light_ratio , aes(Sample, FC_MarkerIonsSummed), fill = as.factor(AnalysisType))+
+  geom_boxplot()
+
+AIEIVDQALDR_FAIMS_light_ratio <- FoldChange_DFI(AIEIVDQALDR_FAIMS_light_summed,AIEIVDQALDR_FAIMS_heavy_summed)
+   FC_AIEIVDQALDR_FAIMS_light_ratio <- AIEIVDQALDR_FAIMS_light_ratio[-grep("WT", AIEIVDQALDR_FAIMS_light_ratio$Strain),]
+   FC_AIEIVDQALDR_FAIMS_light_ratio <- FC_AIEIVDQALDR_FAIMS_light_ratio [-grep("ISPG", FC_AIEIVDQALDR_FAIMS_light_ratio$Strain),]
+   
+ETDIGVTGGGQGK_FAIMS_light_ratio <- FoldChange_DFI(ETDIGVTGGGQGK_FAIMS_light_summed,ETDIGVTGGGQGK_FAIMS_heavy_summed)
+   FC_ETDIGVTGGGQGK_FAIMS_light_ratio <- ETDIGVTGGGQGK_FAIMS_light_ratio[-grep("WT", ETDIGVTGGGQGK_FAIMS_light_ratio$Strain),]
+   FC_ETDIGVTGGGQGK_FAIMS_light_ratio <- FC_ETDIGVTGGGQGK_FAIMS_light_ratio [-grep("ISPH", FC_ETDIGVTGGGQGK_FAIMS_light_ratio$Strain),]
+   
+p <- ggplot(AIEIVDQALDR_light_ratio , aes(Sample, FC_MarkerIonsSummed), fill = as.factor(AnalysisType))+
+  geom_boxplot()
+p <- ggplot(ETDIGVTGGGQGK_light_ratio , aes(Sample, FC_MarkerIonsSummed), fill = as.factor(AnalysisType))+
+  geom_boxplot()
+
+
+peptides_DIF_FAIMS_combined <- rbind(FC_AIEIVDQALDR_light_ratio, FC_ETDIGVTGGGQGK_light_ratio, FC_AIEIVDQALDR_FAIMS_light_ratio, FC_ETDIGVTGGGQGK_FAIMS_light_ratio)
+
+
+p <- ggplot(peptides_DIF_FAIMS_combined, aes(Sample, FC_MarkerIonsSummed), fill = as.factor(Strtain))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("#5ABCB2", "#C3DE79"))+
+  scale_y_continuous(breaks = seq(0,90,10), limit = c(0,90))+
+  theme_light()+
+  facet_grid(~IonMobility, scales = "free", space = "free")
+
+p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fold Change Over Expressed Strain to Wild Type", 
+                                                                    subtitle = "ISPH and and ISPG associted peptides",
+                                                                    y = "Fold Change relative to Wild Type", x= "")
+
+
+
+```

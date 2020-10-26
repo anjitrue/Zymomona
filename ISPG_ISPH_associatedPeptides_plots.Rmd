@@ -182,9 +182,9 @@ ISPG_peptides_abundance <- sub_ISPG_peptides_avg[-v,]
 ISPG_peptides_abundance <- ISPG_peptides_abundance[order(ISPG_peptides_abundance$Log2ISPGAvg),]
 ISPG_peptides_abundance$Peptide <- rownames(ISPG_peptides_abundance)
 
-ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
-  mutate(Peptide = factor(Peptide, level = rownames(ISPG_peptides_abundance)))
 
+ISPG_peptides_abundance<- ISPG_peptides_abundance %>% mutate(Peptide = factor(Peptide, level = rownames(ISPG_peptides_abundance)))
+rownames(ISPG_peptides_abundance) <- ISPG_peptides_abundance$Peptide
 #str(ISPG_peptides_abundance)
 #ISPG_peptides_abundance$Peptide
 ```
@@ -296,7 +296,7 @@ ggplot(Range_ISPG_peptides_FC_AveragedWT, aes(x=BioMolecule, y= AVG_FC)) +
   geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,2], color = "grey") +
   geom_point( y = Range_ISPG_peptides_FC_AveragedWT[,3], color = "grey") +
   geom_errorbar(aes(ymin=AVG_FC-error, ymax=AVG_FC+error) , width = .2, color= "#6D696F", position = position_dodge(0.052)) +
-  scale_y_continuous(limits = c(-30,80), breaks = seq(-50,100, by = 25))+
+  scale_y_continuous(limits = c(-75,150), breaks = seq(-75,150, by = 25))+
   theme_light()+
   labs(title = "Peptide Fold Changes" ,subtitle = "ISPG and ISPG associated peptides", y = "Fold Change", x ="Peptides") +
   coord_flip() +
@@ -327,7 +327,7 @@ long_ISPG_Lfq$Type <- rep(c("ISPG","ISPH","WT"), times = 11, each=3)
 **ISPG peptides Ranked Intensities:**  
 Dot plot of peptide intensities were averaged (n=3) and then ranked from most abundant to least abundant quantified in the ISPG samples.
 ```{r, echo=FALSE}
-ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg, )) +
+ggplot(ISPG_peptides_abundance, aes(x=Peptide, y= Log2ISPGAvg )) +
   geom_point() +
   theme_light()+
   labs(title = "Average Peptide Abundances" ,subtitle = "IspG Over Expressed Samples", y = "Log2(Intensity)", x ="Peptides") +

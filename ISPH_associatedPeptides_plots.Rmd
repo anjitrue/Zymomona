@@ -197,6 +197,7 @@ ISPH_peptides_abundance <- ISPH_peptides_abundance[order(ISPH_peptides_abundance
 ISPH_peptides_abundance$Peptide <- rownames(ISPH_peptides_abundance)
 ISPH_peptides_abundance<- ISPH_peptides_abundance %>%
   mutate(Peptide = factor(Peptide, level = rownames(ISPH_peptides_abundance)))
+rownames(ISPH_peptides_abundance) <- ISPH_peptides_abundance$Peptide
 #str(ISPH_peptides_abundance)
 #ISPH_peptides_abundance$Peptide
 ```
@@ -392,13 +393,13 @@ q <- ggplot(appended_ISPH_ISPG_FC, aes(x=variable, y=log2(value), fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
-q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 
+q + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fold Change across strains", 
                                                                     subtitle = "ISPH and associted peptides in Over Expression (OE) Strain",
                                                                     y = "Log2(Fold Change relative to WT)", x = "")
 ```
 
 ```{r, echo = FALSE}
-FoldChange_IspH_AIEIVDQDALDR <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspH_AIEIVDQDALDR_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
+FoldChange_IspH_AIEIVDQDALDR <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspH_AIEIVDQDALDR_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
 FoldChange_IspH_AIEIVDQDALDR$Type <- rep("IspH", 6)
 ggplot(FoldChange_IspH_AIEIVDQDALDR, aes(x= Type, y= FoldChange)) + 
   #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
@@ -411,9 +412,9 @@ ggplot(FoldChange_IspH_AIEIVDQDALDR, aes(x= Type, y= FoldChange)) +
 ```
 
 ```{r, echo = FALSE}
-FoldChange_IspG_ETD <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspG_ETDIGVTGGGQGK_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
+FoldChange_IspG_ETD <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FoldChange_Comparison/IspG_ETDIGVTGGGQGK_FoldChangeComparison_FAIMS.csv",header = TRUE, sep = ",", stringsAsFactors = FALSE)
 FoldChange_IspG_ETD$Type <- rep("IspG", 7)
-aggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) + 
+ggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) + 
   #geom_bar(stat = "identity", color = "#6D696F" ,  fill = "#7C9E3D", alpha = 0.6, position = position_dodge())+
   geom_boxplot()+
   geom_dotplot(binaxis='y', stackdir='center',

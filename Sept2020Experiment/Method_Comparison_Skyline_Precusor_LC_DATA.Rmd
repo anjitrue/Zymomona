@@ -174,6 +174,7 @@ FC_allPeptides$Sample_Analysis_peptide <- paste0(FC_allPeptides$Sample_Analysis,
 FC_allPeptides$Protein_OE <- c(rep("ISPH",54), rep("ISPG", 54))
 
 # Remove unwanted data and keep only FC that will be plotted
+FC_allPeptides_OE <- FC_allPeptides
 FC_allPeptides_OE_ISPH <- FC_allPeptides_OE[FC_allPeptides_OE$Protein_OE == "ISPH",]
    FC_allPeptides_OE_ISPH <- FC_allPeptides_OE_ISPH[-grep("WT", FC_allPeptides_OE_ISPH$Sample_Names),]
    FC_allPeptides_OE_ISPH <- FC_allPeptides_OE_ISPH[-grep("ISPG", FC_allPeptides_OE_ISPH$Sample_Names),]
@@ -239,7 +240,7 @@ Formatting_DFI_Summed_df <- function(df,peptide_Type, peptide,target_ions,Ion_mo
   
   #Extract sample names and reformat
   RAW_Sample_names_df <- colnames(df[,-c(1:2)])
-  Sample_names <- sub("_.*", "", RAW_Sample_names)
+  Sample_names <- sub("_.*", "", RAW_Sample_names_df)
 
   Sample_meta <- as.data.frame(Sample_names) %>% separate(Sample_names, into = paste("V", 1:3, sep = "."))
   
@@ -354,5 +355,66 @@ p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fol
                                                                     y = "Fold Change relative to Wild Type", x= "")
 
 
+
+```
+
+
+```{r,echo=FALSE}
+FAIMS_Induction_ETDIGVTGGGQGKlight <- read.csv("E:/EAT/Projects/Proteomics/Infusion_FAIMS/DataAnalysis/CompiledFragmentResults_ETDIGVTGGGQGKlight_FAIMS_infusion_2020SeptInduction_cleanUP.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+FAIMS_heavyETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/FAIMS_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_FAIMS_DirectInfusion/column1/Multiplex/CompiledFragmentResults_ETDIGVTGGGQGKheavy_FAIMS_TimeCourse_120TimePoint_halfDiluted.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+```
+
+
+
+```{r,echo=FALSE}
+
+df <- FAIMS_Induction_ETDIGVTGGGQGKlight
+Induction_Summed_precusor <- function(df){
+  
+  #Extract sample names and reformat
+  RAW_Sample_names <- colnames(df[,-c(1:2)])
+  Sample_names <- sub(".*26_", "", RAW_Sample_names)
+  Sample_names <- sub(".*96_", "", Sample_names)
+  Sample_names <- gsub("_", "-", Sample_names)
+  
+  
+  Sample_meta <- as.data.frame(Sample_names) %>% separate(Sample_names, into = paste("V", 1:5, sep = "-"))
+  
+  for(i in 1:nrow(Sample_meta)){
+    if(length(grep("half",Sample_meta$`V-5`[i])) !=0){
+        Sample_meta$`V-5`[i] <- Sample_meta$`V-4`[i]
+  }
+  }
+  
+  Sample_meta <- Sample_meta[mixedorder(Sample_meta$`V-5`),]
+  Sample_meta$Unique <- make.unique(as.character(Sample_meta$`V-5`),sep = "-")
+  Sample_meta$`V-3` <- sub("point.*",".5", Sample_meta$`V-3`)
+  
+  #Sample_meta[which(Sample_meta$`V-3` == "3"),3] <- "30"
+  
+  Sample_Analysis <- paste0(Sample_meta$`V-1`, "-", Sample_meta$`V-4`)
+  Sample_meta$`V-3` <- Sample_Analysis
+  
+  #Extract colmumns with precursor in it
+  precusor_data <- df[,grep("precursor", colnames(df))]
+  
+  #Create new dataframe to only meta and precursor information
+  #Fix precursor name
+  df_meta_precursor <- cbind(Sample_names, Sample_meta,precusor_data) 
+  colnames(df_meta_precursor) <- c("Sample_Names", "Sample_Type", "Replicate", "Sample_Analysis", "Analysis_Type", "precursor_1",
+                                   "precursor_M1_2", "precursor_M2_3")
+  
+  #Summed precursor 
+  Summed_precusor <- apply(df_meta_precursor[,grep("precursor", colnames(df_meta_precursor))], 1, sum)
+  #Append Summed precursor to dataframe
+  df_meta_precursor$Sum_Precursor <- Summed_precusor
+    
+    df_meta_precursor_FC <- FC_summed_precusor(df_meta_precursor)
+    
+  return(df_meta_precursor_FC)
+}
 
 ```

@@ -559,8 +559,8 @@ aggregate_ions <- function(df, WhichIons){
   return(aggregate_sum_ions)
 }
 
-  df<- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight
-  WhichIons <- "All"
+  df<- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+  WhichIons <- "Select"
 
 Replicate_injection_aggregate_ions <- function(df, WhichIons){
   
@@ -578,12 +578,16 @@ Replicate_injection_aggregate_ions <- function(df, WhichIons){
                                 list(df$RepConcentration), function(x) sd(log2(x)))[[2]]
   aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
   
-  colnames(aggregate_sum_ions) <- c("Concentration", "Average_Sum", "Stdev_Sum", "Log2Average_Sum", "Stdev_Log2Sum", "%CV")
+  colnames(aggregate_sum_ions) <- c("RepConcentration", "Average_Sum", "Stdev_Sum", "Log2Average_Sum", "Stdev_Log2Sum", "%CV")
+  
+  aggregate_sum_ions$Concentration <- as.numeric(sub("reinject", "", aggregate_sum_ions$RepConcentration))
+  
+  aggregate_sum_ions_ordered <- aggregate_sum_ions[order(aggregate_sum_ions$Concentration),]
   
   # ggplot(aggregate_sum_ions, aes(Concentration, Log2Average_Sum))+
   # geom_point()
   
-  return(aggregate_sum_ions)
+  return(aggregate_sum_ions_ordered)
 }
 All_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "All")
 Select_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "Select")
@@ -659,8 +663,11 @@ Repliciate_ratio_aggregate <- function(df_light, df_heavy, WhichIons){
                                 list(df$RepConcentration), sd)[[2]]
 
   aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
+  aggregate_sum_ions$Concentration <- as.numeric(sub("reinject", "", aggregate_sum_ions$Group.1))
   
-  return(aggregate_sum_ions)
+  aggregate_sum_ions_ordered <- aggregate_sum_ions[order(aggregate_sum_ions$Concentration),]
+  
+  return(aggregate_sum_ions_ordered)
 }
 
 ```
@@ -679,11 +686,199 @@ Ratio_SpikeMatrixLadder_AIEIVDQALDR_Select <- ratio_aggregate(Summed_SpikeMatrix
 # FAIMS
 Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"All")
 
+Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
+  mutate(Group.1 = factor(Group.1, level = Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1))
+
 Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_Select <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"Select")
 
 
 Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy,"All")
 
 Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_Select <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy,"Select")
+
+```
+
+
+```{r, echo=FALSE}
+Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility <- rep("noFAIMS", nrow(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All))
+Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility <- rep("FAIMS", nrow(Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All))
+
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- rbind(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All[,-5])
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration <- c(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration)
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All[order(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration),]
+
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Type <- paste0(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1, Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility)
+
+order_concentration <- factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1, levels = c("15.625", "31.25", "62.5", "125", "125reinject", 
+                                                                                                "250", "250reinject", "500", "500reinject"))
+
+
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
+  mutate(Group.1 = factor(Group.1, level = levels(order_concentration)))
+
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility)
+ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered, aes(x= Group.1, y=x, group = IonMobility)) +
+  geom_point(aes(color = IonMobility)) +
+  #geom_line(aes(color = "black")) +
+  geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
+  labs(title = "Standard Spiked in Matrix", subtitle = "Light to Heavy Ratio - ETDIGVTGGGQGK",
+       x = "Concentration (fmol/uL)", y = "Light to Heavy Ratio")
+
+```
+
+
+```{r,echo=FALSE}
+Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$IonMobility <- rep("noFAIMS", nrow(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All))
+Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All$IonMobility <- rep("FAIMS", nrow(Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All))
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All <- rbind(Ratio_SpikeMatrixLadder_AIEIVDQALDR_All,Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All[,-5])
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Concentration <- c(Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Group.1,Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All$Concentration)
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All <- Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All[order(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Concentration),]
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Type <- paste0(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Group.1, Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$IonMobility)
+
+order_concentration <- factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$Group.1, levels = c("15.625", "31.25", "62.5", "125", "125reinject", 
+                                                                                                "250", "250reinject", "500", "500reinject"))
+
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered <- Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All %>%
+  mutate(Group.1 = factor(Group.1, level = levels(order_concentration)))
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility)
+ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered, aes(x= Group.1, y=x, group = IonMobility)) +
+  geom_point(aes(color = IonMobility)) +
+  #geom_line(aes(color = "black")) +
+  geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
+  labs(title = "Standard Spiked in Matrix", subtitle = "Light to Heavy Ratio - AIEIVDQALDR",
+       x = "Concentration (fmol/uL)", y = "Light to Heavy Ratio")
+
+```
+
+```{r,echo=FALSE}
+# ggplot(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All, aes(x= Group.1, y=x)) +
+#   geom_point(aes(color = "black")) +
+#   geom_line(aes(color = "black")) +
+#   geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+#                 alpha = 0.2,
+#                 width = 0,
+#                 size= 10,
+#                 color= "#6D696F") +
+#   theme_classic()
+# 
+# 
+# 
+# ggplot(Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered, aes(x= Group.1, y=x)) +
+#   geom_point(aes(color = "black")) +
+#   geom_line(aes(color = "black")) +
+#   geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+#                 alpha = 0.2,
+#                 width = 0,
+#                 size= 10,
+#                 color= "#6D696F") +
+#   theme_classic()
+
+ggplot(All_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_point(color = "red") +
+  geom_line(color = "red") +
+  geom_errorbar(aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  geom_point(data = Select_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_line(data = Select_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = Select_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  geom_point(data = Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  #geom_line(data = Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+    geom_point(data = All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum), color = "red") +
+  #geom_line(data = Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  theme_classic()+
+    labs(title = "Standard Spiked in Matrix", subtitle = "Transitions for heavy ETDIGVTGGGQGK standard - no FAIMS and FAIMS",
+       x = "Concentration (fmol/uL)", y = "Log2(Average Sum of Intensity)")
+```
+
+
+```{r,echo=FALSE}
+ggplot(All_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_point(color = "red") +
+  geom_line(color = "red") +
+  geom_errorbar(aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  geom_point(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_line(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  geom_point(data = Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  #geom_line(data = Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+    geom_point(data = All_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum), color = "red") +
+  #geom_line(data = Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = All_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  theme_classic()+
+    labs(title = "Standard Spiked in Matrix", subtitle = "Transitions for heavy AIEIVDQALDR standard - no FAIMS and FAIMS",
+       x = "Concentration (fmol/uL)", y = "Log2(Average Sum of Intensity)")
+
+ggplot(Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_point(color = "red") +
+  geom_line(color = "red") +
+  geom_errorbar(aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  geom_point(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum)) +
+  geom_line(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(x= Concentration, y=Log2Average_Sum))+
+  geom_errorbar(data = Select_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(ymin = Log2Average_Sum-Stdev_Log2Sum, ymax = Log2Average_Sum+Stdev_Log2Sum),
+                alpha = 0.2,
+                width = 0,
+                size= 10,
+                color= "#6D696F") +
+  theme_classic()
+
+
+  xlim(0,180)+
+  theme_classic()+
+  labs(title = "Time Course IspH Over Expression Monitoring", subtitle = "Light to Heavy Ratio - AIEIVDQALDR",
+       x = "Time (min)", y = "Light to Heavy Ratio")
 
 ```

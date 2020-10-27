@@ -225,7 +225,7 @@ ISPG_peptides_abundance$Peptide <- rownames(ISPG_peptides_abundance)
 
 ISPG_peptides_abundance<- ISPG_peptides_abundance %>%
   mutate(Peptide = factor(Peptide, level = rownames(ISPG_peptides_abundance)))
-
+rownames(ISPG_peptides_abundance) <- ISPG_peptides_abundance$Peptide
 #str(ISPG_peptides_abundance)
 #ISPG_peptides_abundance$Peptide
 ```
@@ -411,7 +411,7 @@ q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Int
 **ISPG protein and peptides Log2 transformed fold change: **  
 Box plot of fold changes relative to WT for ISPG and the three peptides of interest. This is the most important plot for considering using peptides to monitor over expression at the peptide level versus the protein level.  
 ```{r, echo=FALSE}
-q <- ggplot(long_ISPG_Lfq[37:72,], aes(x=variable, y=log2(value), fill=Type)) +
+q <- ggplot(long_ISPG_Lfq[37:72,], aes(x=variable, y=value, fill=Type)) +
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()

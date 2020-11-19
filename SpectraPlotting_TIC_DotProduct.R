@@ -395,6 +395,23 @@ spectra_plotting <- function(df_library, df){
   }else if(length(grep("FAIMS",deparse(substitute(df)))) != 0){
     print("use ppm and intensitywindow")
     final_list <- final_list_using_infusion_function(df_transitions, transitions, fragment)
+    
+    keep.m.z <- which(df$m.z %in% final_list)
+    keep <- df$m.z[which(df$m.z %in% final_list)]
+    remove_contaminant <- vector()
+    for (i in 1:length(keep)) {
+          remove_contaminant.location <- append(remove_contaminant.location, c(keep.m.z[i]-6,keep.m.z[i]-5,
+                                          keep.m.z[i]-4,keep.m.z[i]-3,
+                                          keep.m.z[i]-2,keep.m.z[i]-1, 
+                                          keep.m.z[i]+1,keep.m.z[i]+2,
+                                          keep.m.z[i]+3,keep.m.z[i]+4,
+                                          keep.m.z[i]+5,keep.m.z[i]+6))
+      
+      
+    }
+    
+    df <- df[-remove_contaminant.location,]
+
   }
   
   
@@ -566,7 +583,7 @@ ggsave("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_a
  df_proteinProspect <- ETDIGVTGGGQGK_top10
  df <- FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance
 
-tic_explained_function_LC <- function(df_proteinProspect, df){
+tic_explained_function<- function(df_proteinProspect, df){
   
   #fragment <- df_proteinProspect$m.z
   
@@ -623,6 +640,9 @@ tic_explained_function_LC <- function(df_proteinProspect, df){
   
 }
 
+df_proteinProspect <- ETDIGVTGGGQGK_top10
+df <- FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance
+
 tic_explained_function_infusion <- function(df_proteinProspect, df){
   
   #fragment <- df_proteinProspect$m.z
@@ -664,7 +684,12 @@ tic_explained_function_infusion <- function(df_proteinProspect, df){
       keep.intensity <- max(df$Intensity[which(df$m.z %in% mass.to.charge[comparison_intensity])])
       
       keep <- df$m.z[which(df$Intensity == keep.intensity)]
-      remove_contaminant.location <- which(df$Intensity == keep.intensity)+1
+      remove_contaminant.location <- c(which(df$Intensity == keep.intensity)-6,which(df$Intensity == keep.intensity)-5,
+                                       which(df$Intensity == keep.intensity)-4,which(df$Intensity == keep.intensity)-3,
+                                       which(df$Intensity == keep.intensity)-2,which(df$Intensity == keep.intensity)-1, 
+                                       which(df$Intensity == keep.intensity)+1,which(df$Intensity == keep.intensity)+2,
+                                       which(df$Intensity == keep.intensity)+3,which(df$Intensity == keep.intensity)+4,
+                                       which(df$Intensity == keep.intensity)+5,which(df$Intensity == keep.intensity)+6)
       
       remove_contaminant <- df$m.z[remove_contaminant.location]
       
@@ -696,17 +721,17 @@ Tic_explained_Low_Res_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top1
 
 ### AIEIVDQALDR ###
 colnames(FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_FAIMS_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+Tic_explained_FAIMS_AIEIDVQALDR <- tic_explained_function_infusion(AIEIVDQALDR_top10,FAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 colnames(noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_noFAIMS_AIEIDVQALDR <- tic_explained_function(AIEIVDQALDR_top10, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
+Tic_explained_noFAIMS_AIEIDVQALDR <- tic_explained_function_infusion(AIEIVDQALDR_top10, noFAIMS_AIIEIVDALDR_Spectra_RelativeAbundance)
 
 ### ETDIGVTGGGQGK ###
 colnames(FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_FAIMS_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10,FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+Tic_explained_FAIMS_ETDIGVTGGGQGK <- tic_explained_function_infusion(ETDIGVTGGGQGK_top10,FAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 
 colnames(noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
-Tic_explained_noFAIMS_ETDIGVTGGGQGK <- tic_explained_function(ETDIGVTGGGQGK_top10, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
+Tic_explained_noFAIMS_ETDIGVTGGGQGK <- tic_explained_function_infusion(ETDIGVTGGGQGK_top10, noFAIMS_ETDIGVTGGGQGK_Spectra_RelativeAbundance)
 
 
 

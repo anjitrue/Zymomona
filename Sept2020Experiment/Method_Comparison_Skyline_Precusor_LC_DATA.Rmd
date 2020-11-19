@@ -263,6 +263,9 @@ pheatmap(FAIMS_ETDIGVTGGGQGK_MultiPlex[,-c(1:2)],
 pheatmap(FAIMS_heavyETDIGVTGGGQGK_MultiPlex[,-c(1:2)],
          color = scaleRYG,
           labels_row = FAIMS_heavyETDIGVTGGGQGK_MultiPlex$Mass.Feature)
+pheatmap(DIF_AIEIVDQALDR_MultiPlex[,-c(1:2)],
+         color = scaleRYG,
+          labels_row = DIF_AIEIVDQALDR_MultiPlex$Mass.Feature)
 pheatmap(FAIMS_AIEIVDQALDR_MultiPlex[,-c(1:2)],
          color = scaleRYG,
           labels_row = FAIMS_AIEIVDQALDR_MultiPlex$Mass.Feature)
@@ -459,8 +462,9 @@ peptides_DIF_FAIMS_combined <- rbind(FC_AIEIVDQALDR_light_ratio, FC_ETDIGVTGGGQG
 
 p <- ggplot(peptides_DIF_FAIMS_combined, aes(Sample, FC_MarkerIonsSummed), fill = as.factor(Strtain))+
   geom_boxplot()+
+  geom_jitter(aes(y=FC_MarkerIonsSummed), height = 0, width = 0.1)+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79"))+
-  scale_y_continuous(breaks = seq(0,90,10), limit = c(0,90))+
+  scale_y_continuous(breaks = seq(0,40,5), limit = c(0,40))+
   theme_light()+
   facet_grid(~IonMobility, scales = "free", space = "free")
 
@@ -473,6 +477,180 @@ p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fol
 ```
 
 
+```{r, echo = FALSE}
+#LC Data
+aggregate_ETDIGVTGGGQGK <- aggregate_precursor(FC_ETDIGVTGGGQGK)
+aggregate_ETDIGVTGGGQGK$Sample_Type <- paste0(aggregate_ETDIGVTGGGQGK$Sample_Type,"_","ETDIGVTGGGQGK")
+
+aggregate_AIEIVDQALDR <- aggregate_precursor(FC_AIEIVDQALDR)
+aggregate_AIEIVDQALDR$Sample_Type <- paste0(aggregate_AIEIVDQALDR$Sample_Type,"_","AIEIVDQALDR") 
+
+#Infusion Data
+ETDIGVTGGGQGK_light_DIF_FAIMS_summed <- rbind(ETDIGVTGGGQGK_light_summed, ETDIGVTGGGQGK_FAIMS_light_summed)
+
+ETDIGVTGGGQGK_heavy_DIF_FAIMS_summed <- rbind(ETDIGVTGGGQGK_heavy_summed, ETDIGVTGGGQGK_FAIMS_heavy_summed)
+names(ETDIGVTGGGQGK_heavy_DIF_FAIMS_summed) <- names(ETDIGVTGGGQGK_light_DIF_FAIMS_summed)
+
+ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed <- rbind(ETDIGVTGGGQGK_light_DIF_FAIMS_summed, ETDIGVTGGGQGK_heavy_DIF_FAIMS_summed)
+ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed$Sample  <- paste0(ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed$Sample,"_", ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed$IonMobility)
+
+
+AIEIVDQALDR_light_DIF_FAIMS_summed <- rbind(AIEIVDQALDR_light_summed, AIEIVDQALDR_FAIMS_light_summed)
+
+AIEIVDQALDR_heavy_DIF_FAIMS_summed <- rbind(AIEIVDQALDR_heavy_summed, AIEIVDQALDR_FAIMS_heavy_summed)
+names(AIEIVDQALDR_heavy_DIF_FAIMS_summed) <- names(AIEIVDQALDR_light_DIF_FAIMS_summed)
+
+AIEIVDQALDR_light_heavy_DIF_FAIMS_summed <- rbind(AIEIVDQALDR_light_DIF_FAIMS_summed, AIEIVDQALDR_heavy_DIF_FAIMS_summed)
+AIEIVDQALDR_light_heavy_DIF_FAIMS_summed$Sample  <- paste0(AIEIVDQALDR_light_heavy_DIF_FAIMS_summed$Sample,"_", AIEIVDQALDR_light_heavy_DIF_FAIMS_summed$IonMobility)
+
+#Infusion Ratio
+ETDIGVTGGGQGK_DIF_ratio <- ETDIGVTGGGQGK_light_ratio[,1:7]
+ETDIGVTGGGQGK_DIF_ratio$Ratio <- ETDIGVTGGGQGK_heavy_summed$MarkerIonsSummed/ETDIGVTGGGQGK_light_summed$MarkerIonsSummed
+ETDIGVTGGGQGK_DIF_ratio$Sample <- paste0(ETDIGVTGGGQGK_DIF_ratio$Sample,"_",ETDIGVTGGGQGK_DIF_ratio$IonMobility)
+
+ETDIGVTGGGQGK_FAIMS_ratio <- ETDIGVTGGGQGK_FAIMS_light_ratio[,1:7]
+ETDIGVTGGGQGK_FAIMS_ratio$Ratio <- ETDIGVTGGGQGK_FAIMS_heavy_summed$MarkerIonsSummed/ETDIGVTGGGQGK_FAIMS_light_summed$MarkerIonsSummed
+ETDIGVTGGGQGK_FAIMS_ratio$Sample <- paste0(ETDIGVTGGGQGK_FAIMS_ratio$Sample,"_",ETDIGVTGGGQGK_FAIMS_ratio$IonMobility)
+
+AIEIVDQALDR_DIF_ratio <- AIEIVDQALDR_light_ratio[,1:7]
+AIEIVDQALDR_DIF_ratio$Ratio <- AIEIVDQALDR_heavy_summed$MarkerIonsSummed/AIEIVDQALDR_light_summed$MarkerIonsSummed
+AIEIVDQALDR_DIF_ratio$Sample <- paste0(AIEIVDQALDR_DIF_ratio$Sample, "_", AIEIVDQALDR_FAIMS_ratio$IonMobility)
+
+AIEIVDQALDR_FAIMS_ratio <- AIEIVDQALDR_FAIMS_light_ratio[,1:7]
+AIEIVDQALDR_FAIMS_ratio$Ratio <- AIEIVDQALDR_FAIMS_heavy_summed$MarkerIonsSummed/AIEIVDQALDR_FAIMS_light_summed$MarkerIonsSummed
+AIEIVDQALDR_FAIMS_ratio$Sample <- paste0(AIEIVDQALDR_FAIMS_ratio$Sample,"_",AIEIVDQALDR_FAIMS_ratio$IonMobility)
+
+
+#df <- ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed
+aggregate_sums <- function(df){
+  
+  aggregate_sum_ions <- aggregate(df$MarkerIonsSummed,
+                                list(df$Sample), mean)
+  
+  aggregate_sum_ions$stdev <- aggregate(df$MarkerIonsSummed,
+                                list(df$Sample), sd)[[2]]
+  
+  aggregate_sum_ions$log2Average <- log2(aggregate_sum_ions$x)
+  
+  aggregate_sum_ions$log2Stdev <- aggregate(df$MarkerIonsSummed,
+                                list(df$Sample), function(x) sd(log2(x)))[[2]]
+  aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
+  
+  colnames(aggregate_sum_ions) <- c("Sample", "Average_Sum", "Stdev_Sum", "Log2Average_Sum", "Stdev_Log2Sum", "%CV")
+  
+  # ggplot(aggregate_sum_ions, aes(Concentration, Log2Average_Sum))+
+  # geom_point()
+  
+  return(aggregate_sum_ions)
+}
+
+df <- ETDIGVTGGGQGK_DIF_ratio
+aggregate_ratio <- function(df){
+  
+  aggregate_sum_ions <- aggregate(df$Ratio,
+                                list(df$Sample), mean)
+  
+  aggregate_sum_ions$stdev <- aggregate(df$Ratio,
+                                list(df$Sample), sd)[[2]]
+  
+  aggregate_sum_ions$log2Average <- log2(aggregate_sum_ions$x)
+  
+  aggregate_sum_ions$log2Stdev <- aggregate(df$Ratio,
+                                list(df$Sample), function(x) sd(log2(x)))[[2]]
+  aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
+  
+  colnames(aggregate_sum_ions) <- c("Sample", "Average_Sum", "Stdev_Sum", "Log2Average_Sum", "Stdev_Log2Sum", "%CV")
+  
+  # ggplot(aggregate_sum_ions, aes(Concentration, Log2Average_Sum))+
+  # geom_point()
+  
+  return(aggregate_sum_ions)
+}
+
+aggregate_sum_ETDIGVTGGGQGK <- aggregate_sums(ETDIGVTGGGQGK_light_heavy_DIF_FAIMS_summed)
+aggregate_sum_AIEIVDQALDR <- aggregate_sums(AIEIVDQALDR_light_heavy_DIF_FAIMS_summed)
+
+names(aggregate_AIEIVDQALDR) <- names(aggregate_sum_AIEIVDQALDR)
+names(aggregate_ETDIGVTGGGQGK) <- names(aggregate_sum_ETDIGVTGGGQGK)
+
+
+aggregate_ratio_ETDIGVTGGGQGK <- aggregate_ratio(ETDIGVTGGGQGK_DIF_ratio)
+aggregate_ratio_FAIMS_ETDIGVTGGGQGK <- aggregate_ratio(ETDIGVTGGGQGK_FAIMS_ratio)
+
+aggregate_ratio_AIEIVDQALDR <- aggregate_ratio(AIEIVDQALDR_DIF_ratio)
+aggregate_ratio_FAIMS_AIEIVDQALDR <- aggregate_ratio(AIEIVDQALDR_FAIMS_ratio)
+
+CV_LC_Infusion <- rbind(aggregate_ETDIGVTGGGQGK,aggregate_AIEIVDQALDR, aggregate_sum_ETDIGVTGGGQGK, aggregate_sum_AIEIVDQALDR, aggregate_ratio_ETDIGVTGGGQGK, aggregate_ratio_AIEIVDQALDR)
+CV_LC_Infusion <- CV_LC_Infusion[-grep("PRM", CV_LC_Infusion$Sample),]
+
+Ion_mobility_infusion <- sub(".*ETDIGVTGGGQGK_", "", CV_LC_Infusion[grep("FAIMS", CV_LC_Infusion$Sample),1],"_")
+Ion_mobility_infusion <- sub(".*AIEIVDQALDR_", "", Ion_mobility_infusion ,"_")
+
+
+
+Type <-  c(rep("DDA",6), Ion_mobility_infusion)
+Type[grep("ratio", CV_LC_Infusion$Sample)] <- paste0(Type[grep("ratio", CV_LC_Infusion$Sample)],"_","HeavyToLight")
+CV_LC_Infusion$Type <- Type
+
+
+peptide_Type_DDA <- paste0(sub(".*DDA_","", CV_LC_Infusion$Sample[1:6]),"_","DDA")
+peptide_Type_Infusion <- paste0(sub("ISPG_","", CV_LC_Infusion$Sample[-c(1:6)]))
+peptide_Type_Infusion <- paste0(sub("ISPH_","", peptide_Type_Infusion))
+peptide_Type_Infusion <- paste0(sub("WT_","", peptide_Type_Infusion))
+peptide_Type <- c(peptide_Type_DDA, peptide_Type_Infusion)
+CV_LC_Infusion$Peptide_Type <- peptide_Type
+
+CV_LC_Infusion_ratio <- CV_LC_Infusion[grep("ratio", CV_LC_Infusion$Sample),]
+CV_LC_Infusion <- CV_LC_Infusion[-grep("ratio", CV_LC_Infusion$Sample),]
+
+
+CV_LC_Infusion <- CV_LC_Infusion %>% mutate(Type = factor(Type, level = c("DDA", "no_FAIMS", "FAIMS")))
+
+order_peptide_type <- factor(CV_LC_Infusion$Peptide_Type, levels = c("ETDIGVTGGGQGK_DDA","AIEIVDQALDR_DDA", "light_ETDIGVTGGGQGK_no_FAIMS","light_AIEIVDQALDR_no_FAIMS","heavy_ETDIGVTGGGQGK_no_FAIMS","heavy_AIEIVDQALDR_no_FAIMS","light_ETDIGVTGGGQGK_FAIMS","light_AIEIVDQALDR_FAIMS","heavy_ETDIGVTGGGQGK_FAIMS","heavy_AIEIVDQALDR_FAIMS"))
+
+CV_LC_Infusion_ordered <- CV_LC_Infusion %>%
+  mutate(Peptide_Type = factor(Peptide_Type, level = levels(order_peptide_type)))
+
+Peptide <- sub("heavy_","", CV_LC_Infusion_ordered$Peptide_Type)
+Peptide <- sub("light_","", Peptide)
+Peptide <- sub("_DDA", "", Peptide)
+Peptide <- sub("_no_FAIMS","", Peptide)
+Peptide <- sub("_FAIMS", "", Peptide)
+
+CV_LC_Infusion_ordered$Peptide <- factor(Peptide)
+
+CV_LC_Infusion_ratio <- CV_LC_Infusion_ratio %>% mutate(Type = factor(Type, levels = c("no_FAIMS_HeavyToLight", "FAIMS_HeavyToLight")))
+Peptide <- sub("ratio_","",CV_LC_Infusion_ratio$Peptide_Type)
+Peptide <- sub("_no_FAIMS", "", Peptide)
+Peptide <- sub("_FAIMS", "", Peptide)
+CV_LC_Infusion_ratio$Peptide <- Peptide
+
+p <- ggplot(CV_LC_Infusion_ordered, aes(x=Sample, y=`%CV`,size = Log2Average_Sum, fill = Peptide))+
+  # geom_point(color="black",
+  #       fill="#69b3a2",
+  #       shape=22,
+  #       alpha=0.5,
+  #       size=6,
+  #       stroke = 1)+
+  geom_point( alpha=0.6, shape =21, color="black")+
+  scale_size(range = c(5,10),name = "Log2(Average Intensity)")+
+  scale_fill_manual(values = c("#C3DE79","#5ABCB2"))+
+  theme_light()+
+  facet_grid(~Type, scales = "free", space = "free")
+
+p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "%CV across methods", y = "%CV", x= "")
+
+
+p <- ggplot(CV_LC_Infusion_ratio, aes(x=Sample, y=`%CV`, fill = Peptide))+
+  geom_point(size = 6, alpha=0.6, shape =21, color="black")+
+  scale_fill_manual(values = c("#C3DE79","#5ABCB2"))+
+  scale_y_continuous(breaks = seq(0,17,5), limit = c(0,18))+
+  theme_light()+
+  facet_grid(~Type, scales = "free", space = "free")
+p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "%CV for computed ratios (heavy to light)", y = "%CV", x= "")
+
+```
+
 ```{r,echo=FALSE}
 
 select_peptides <- c("AIEIVDQALDR","ETDIGVTGGGQGK")
@@ -481,22 +659,23 @@ FC_specificPeptides_OE_ISPH_ISPG <- FC_allPeptides_OE_ISPH_ISPG[which(FC_allPept
 infusion <- peptides_DIF_FAIMS_combined[,c(6,7,9,11)]
 names(infusion) <- c("Sample", "Analysis_Type", "Summed_ions", "FC")
 LC <- FC_specificPeptides_OE_ISPH_ISPG[,c(4,5,9,10)]
-rownames(LC) <- FC_specificPeptides_OE_ISPH_ISPG$Sample_Names
+LC <- LC[-grep("PRM", LC$Analysis_Type),]
+rownames(LC) <- FC_specificPeptides_OE_ISPH_ISPG$Sample_Names[-grep("PRM", FC_specificPeptides_OE_ISPH_ISPG$Sample_Names)]
 names(LC) <- c("Sample", "Analysis_Type", "Summed_ions", "FC")
 method_comparison_Df <- rbind(LC, infusion)
 
 method_comparison_Df <- method_comparison_Df %>%
-  mutate(Analysis_Type = factor(Analysis_Type, level = c("DDA","PRM", "no_FAIMS", "FAIMS")))
+  mutate(Analysis_Type = factor(Analysis_Type, level = c("DDA", "no_FAIMS", "FAIMS")))
 
-p <- ggplot(method_comparison_Df, aes(Sample, FC), fill = as.factor(Analysis_Type))+
+p <- ggplot(method_comparison_Df, aes(Sample, log2(FC)), fill = as.factor(Analysis_Type))+
   geom_boxplot()+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79"))+
-  scale_y_continuous(breaks = seq(0,90,10), limit = c(0,90))+
+  scale_y_continuous(breaks = seq(0,6,1), limit = c(0,6))+
   theme_light()+
   facet_grid(~Analysis_Type, scales = "free", space = "free")
 
 p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fold Change Over Expressed Strain to Wild Type", 
-                                                                    subtitle = "Comparing four methods",
+                                                                    subtitle = "Comparing methods",
                                                                     y = "Fold Change relative to Wild Type", x= "")
 ```
 
@@ -641,7 +820,7 @@ Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight$RepConcentration <- paste0(Sum
 Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <-  Induction_Summed_precusor(SpikeMatrixLadder_FAIMS_ETDIGVTGGGQGKheavy,c("y7", "y8", "y9"))
 Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$RepConcentration <- paste0(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$Concentration,gsub('.{1}$','',Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$MultiPlexReplicate))
 
-Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight <-  Induction_Summed_precusor(SpikeMatrixLadder_FAIMS_AIEIVDQALDRlight ,c("y7", "y8", "y9"))
+ Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight <-  Induction_Summed_precusor(SpikeMatrixLadder_FAIMS_AIEIVDQALDRlight ,c("y7", "y8", "y9"))
 Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight$RepConcentration <- paste0(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight$Concentration,gsub('.{1}$','',Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight$MultiPlexReplicate))
 
 Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <-  Induction_Summed_precusor(SpikeMatrixLadder_FAIMS_AIEIVDQALDRheavy,c("y7", "y8", "y9"))
@@ -900,18 +1079,32 @@ order_concentration <- factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All
 Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
   mutate(Group.1 = factor(Group.1, level = levels(order_concentration)))
 
+fitlm_ETDIGVTGGGQGK_noFAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$Type),])
+fitlm_ETDIGVTGGGQGK_FAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$Type),])
+
+  
+predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_ETDIGVTGGGQGK_noFAIMS), predict(fitlm_ETDIGVTGGGQGK_FAIMS)), predict_ETDIGVTGGGQK$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
+colnames(predict_ETDIGVTGGGQK) <- c("Predicted", "IonMobility")
+predict_ETDIGVTGGGQK$Predicted <- as.numeric(predict_ETDIGVTGGGQK$Predicted)
+predict_ETDIGVTGGGQK$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
+
+
+
+summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
+
 
 Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility)
 ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered, aes(x= Concentration, y=x, group = IonMobility)) +
-  geom_point(aes(color = IonMobility)) +
+  geom_point(aes(color = IonMobility), size = 4, alpha = 0.5) +
   #geom_line(aes(color = "black")) +
   geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
                 alpha = 0.2,
                 width = 0,
                 size= 10,
                 color= "#6D696F") +
+  geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
   theme_classic()+
-  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
+  #theme(axis.text.x = element_text(angle = 0, hjust = 1))+
   labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - ETDIGVTGGGQGK",
        x = "Concentration (fmol/uL)", y = "heavy to light Ratio")
 
@@ -935,15 +1128,31 @@ order_concentration <- factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All$G
 Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered <- Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All %>%
   mutate(Group.1 = factor(Group.1, level = levels(order_concentration)))
 
+fitlm_AIEIVDQALDR <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered)
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$predlm <- predict(fitlm_AIEIVDQALDR)
+
+summary(lm(fitlm_AIEIVDQALDR))$r.squared
+
+fitlm_AIEIVDQALDR_noFAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility),])
+fitlm_AIEIVDQALDR_FAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility),])
+
+  
+predict_AIEIVDQALDR <- as.data.frame(cbind(c(predict(fitlm_AIEIVDQALDR_noFAIMS), predict(fitlm_AIEIVDQALDR_FAIMS)),c(rep("noFAIMS",6), rep("FAIMS", 6))))
+colnames(predict_AIEIVDQALDR) <- c("Predicted", "IonMobility")
+predict_AIEIVDQALDR$Predicted <- as.numeric(predict_AIEIVDQALDR$Predicted)
+predict_AIEIVDQALDR$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
+
 Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered$IonMobility)
 ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_All_ordered, aes(x= Concentration, y=x, group = IonMobility)) +
-  geom_point(aes(color = IonMobility)) +
+  geom_point(aes(color = IonMobility), size = 4, alpha = 0.5) +
   #geom_line(aes(color = "black")) +
   geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
                 alpha = 0.2,
                 width = 0,
                 size= 10,
                 color= "#6D696F") +
+  #geom_line(aes(y=predlm), size = 1)+
+  #geom_line(data=predict_AIEIVDQALDR, aes(x=Concentration,y=Predicted, color = IonMobility))+
   theme_classic()+
   theme(axis.text.x = element_text(angle = 50, hjust = 1))+
   labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - AIEIVDQALDR",

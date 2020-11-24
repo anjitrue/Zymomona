@@ -690,10 +690,22 @@ FAIMS_Induction_AIEIVDQALDRheavy <- read.csv("P:/EAT_20190926_Zymomona/Zymo_Time
 ```
 
 
-Following block not done yet
+```{r, echo=FALSE}
+Induction_ETDIGVTGGGQGKlight <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFAIMS_infusions/muliplex/CompiledFragmentResults_ETDIGVTGGGQGK_infusion_2020SeptInduction_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+Induction_ETDIGVTGGGQGKheavy <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFAIMS_infusions/muliplex/CompiledFragmentResults_ETDIGVTGGGQGKheavy_infusion_2020SeptInduction_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+Induction_AIEIVDQALDRlight <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFAIMS_infusions/muliplex/CompiledFragmentResults_AIEIVDQALDR_infusion_2020SeptInduction_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+Induction_AIEIVDQALDRheavy <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFAIMS_infusions/muliplex/CompiledFragmentResults_AIEIVDQALDRheavy_infusion_2020SeptInduction_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+```
+
+Induction plotting is done!
 ```{r NOTFINISHED,echo=FALSE}
 library(gtools)
-df <- FAIMS_Induction_ETDIGVTGGGQGKlight
+  df <- Induction_ETDIGVTGGGQGKlight
+df<- FAIMS_Induction_ETDIGVTGGGQGKlight
 Induction_meta <- function(df){
   
   #Extract sample names and reformat
@@ -701,37 +713,54 @@ Induction_meta <- function(df){
   Sample_names <- sub("X20200926_", "", RAW_Sample_names)
   Sample_names <- sub("X20200926","", Sample_names)
   Sample_names <- sub("X2020096_", "", Sample_names)
+  
+  Sample_names <- sub("X20200922_", "", Sample_names)
   Sample_names <- gsub("_", "-", Sample_names)
   
   
   Sample_meta <- as.data.frame(Sample_names) %>% separate(Sample_names, into = paste("V", 1:5, sep = "-"))
   
-  for(i in 1:nrow(Sample_meta)){
-    if(length(grep("half",Sample_meta$`V-5`[i])) !=0){
-        Sample_meta$`V-5`[i] <- Sample_meta$`V-4`[i]
+  if(length(grep("FAIMS",Sample_meta$`V-4`)) != 0){
+        for(i in 1:nrow(Sample_meta)){
+      if(length(grep("half",Sample_meta$`V-5`[i])) !=0){
+          Sample_meta$`V-5`[i] <- Sample_meta$`V-4`[i]
+      }
+        }
+    Sample_meta$RAW.file <- RAW_Sample_names
+    Sample_meta <- Sample_meta[mixedorder(Sample_meta$`V-5`),]
+    Sample_meta$`V-4` <- rep("FAIMS",length(Sample_meta$`V-4`))
+    Sample_meta$Unique <- make.unique(as.character(Sample_meta$`V-5`),sep = "-")
+    Sample_meta$`V-3` <- sub("point.*",".5", Sample_meta$`V-3`)
+    
+    #Sample_meta[which(Sample_meta$`V-3` == "3"),3] <- "30"
+    
+    Sample_Analysis <- paste0(Sample_meta$`V-1`, "-", Sample_meta$`V-4`)
+    Sample_meta$Sample_Analysis <- Sample_Analysis
+    Sample_meta$Sample_Analysis_Timepoint <- paste0(Sample_Analysis,"_",Sample_meta$`V-3`)
+    
+    colnames(Sample_meta) <- c("Strain", "Replicate", "Timepoint", "IonMobility", "Well", "Raw.File","UniqueWell", "Sample_Analysis", "Sample_Analysis_Timepoint")
+  }else{
+    Sample_meta$`V-4` <- rep("no_FAIMS",length(Sample_meta$`V-4`))
+    Sample_meta$`V-3` <- as.numeric(sub("point.*",".5", Sample_meta$`V-3`))
+    Sample_meta$RAW.file <- RAW_Sample_names
+    Sample_Analysis <- paste0(Sample_meta$`V-1`, "-", Sample_meta$`V-4`)
+    Sample_meta$`V-5` <- Sample_Analysis
+    Sample_meta$Sample_Analysis_Timepoint <- paste0(Sample_Analysis,"_",Sample_meta$`V-3`)
+    
+    Sample_meta <- Sample_meta[order(Sample_meta[,1], Sample_meta[,3]),]
+    
+        colnames(Sample_meta) <- c("Strain", "Replicate", "Timepoint", "IonMobility", "Sample_Analysis","Raw.File", "Sample_Analysis_Timepoint")
   }
-  }
+
   
-  Sample_meta$RAW.file <- RAW_Sample_names
-  Sample_meta <- Sample_meta[mixedorder(Sample_meta$`V-5`),]
-  Sample_meta$`V-4` <- rep("FAIMS",length(Sample_meta$`V-4`))
-  Sample_meta$Unique <- make.unique(as.character(Sample_meta$`V-5`),sep = "-")
-  Sample_meta$`V-3` <- sub("point.*",".5", Sample_meta$`V-3`)
-  
-  #Sample_meta[which(Sample_meta$`V-3` == "3"),3] <- "30"
-  
-  Sample_Analysis <- paste0(Sample_meta$`V-1`, "-", Sample_meta$`V-4`)
-  Sample_meta$Sample_Analysis <- Sample_Analysis
-  Sample_meta$Sample_Analysis_Timepoint <- paste0(Sample_Analysis,"_",Sample_meta$`V-3`)
-  
-  colnames(Sample_meta) <- c("Strain", "Replicate", "Timepoint", "IonMobility", "Well", "Raw.File","UniqueWell", "Sample_Analysis", "Sample_Analysis_Timepoint")
+
   return(Sample_meta)
 }
 
 
 
-meta <- FAIMS_Induction_ETDIGVTGGGQGKlight_meta
-df <- FAIMS_Induction_ETDIGVTGGGQGKlight
+meta <- Induction_ETDIGVTGGGQGKlight_meta
+df <- Induction_ETDIGVTGGGQGKlight
 Induction_formating_df <- function(meta,df){
   
   #Extract colmumns with precursor in it
@@ -740,7 +769,13 @@ Induction_formating_df <- function(meta,df){
   colnames(t_df) <- c(df[,1],"Raw.File")
   
   df_merge <- merge(meta, t_df, by.x = "Raw.File", by.y = "Raw.File")
-  df_merge_ordered <- df_merge[mixedorder(df_merge$Well),]
+  
+  if(length(grep("no_FAIMS", meta$IonMobility)) !=0){
+    df_merge_ordered<- df_merge[order(df_merge[,2], df_merge[,4]),]
+  }else{
+      df_merge_ordered <- df_merge[mixedorder(df_merge$Well),]
+  }
+
   
   return(df_merge_ordered)
   
@@ -765,12 +800,18 @@ summed_selectiveIons <- function(df_ordered,selective_ions){
   return(df_meta_Selectiveions)
 }
 
-df_heavy <- FAIMS_Induction_ETDIGVTGGGQGKheavy_ordered_selectiveIons
-df_light <- FAIMS_Induction_ETDIGVTGGGQGKlight_ordered_selectiveIons
+df_heavy <- Induction_ETDIGVTGGGQGKheavy_ordered_selectiveIons
+df_light <- Induction_ETDIGVTGGGQGKlight_ordered_selectiveIons
 ratio_selectiveIons <- function(df_heavy, df_light){
   
-  df_ratio <- df_heavy[,c(1:8)]
+  if(length(grep("no_FAIMS",df_heavy$IonMobility)) != 0){
+          df_ratio <- df_heavy[,c(1:6)]
   df_ratio$Ratio <- df_light$SummedIons/df_heavy$SummedIons
+  }else{
+      df_ratio <- df_heavy[,c(1:8)]
+  df_ratio$Ratio <- df_light$SummedIons/df_heavy$SummedIons
+  }
+
   
   return(df_ratio)
   
@@ -778,7 +819,7 @@ ratio_selectiveIons <- function(df_heavy, df_light){
 
 ```
 
-
+FAIMS Induction
 ```{r,echo=FALSE}
 FAIMS_Induction_ETDIGVTGGGQGKlight_meta <- Induction_meta(FAIMS_Induction_ETDIGVTGGGQGKlight) 
 FAIMS_Induction_ETDIGVTGGGQGKlight_ordered <- Induction_formating_df(FAIMS_Induction_ETDIGVTGGGQGKlight_meta, FAIMS_Induction_ETDIGVTGGGQGKlight)
@@ -798,6 +839,7 @@ FAIMS_Induction_ETDIGVTGGGQGK_ratio <- ratio_selectiveIons(FAIMS_Induction_ETDIG
 
 p <- ggplot(FAIMS_Induction_ETDIGVTGGGQGK_ratio[-grep("-1",FAIMS_Induction_ETDIGVTGGGQGK_ratio$UniqueWell),], aes(x=Timepoint, y=Ratio, color = as.factor(Strain))) +
     geom_jitter(stat = "identity", position = "jitter", size = 2.75, shape = 19, alpha = 0.6)+
+  scale_y_continuous(breaks = seq(0,5,1), limit = c(0,5))+
   scale_color_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 p + labs(title = "Induction over 180 min",subtitle = "ETDIGVTGGGQGK Ratio - light to heavy", y = "light to heavy ratio", x = "time (min)")
@@ -824,7 +866,7 @@ FAIMS_Induction_AIEIVDQALDRheavy_ordered_selectiveIons <- summed_selectiveIons(F
 FAIMS_Induction_AIEIVDQALDR_ratio <- ratio_selectiveIons(FAIMS_Induction_AIEIVDQALDRheavy_ordered_selectiveIons,FAIMS_Induction_AIEIVDQALDRlight_ordered_selectiveIons)
 
 p <- ggplot(FAIMS_Induction_AIEIVDQALDR_ratio[-grep("-1",FAIMS_Induction_AIEIVDQALDR_ratio$UniqueWell),], aes(x=Timepoint, y=Ratio, color = as.factor(Strain))) +
-  scale_y_continuous(breaks = seq(0,4,1), limit = c(0,4))+
+  scale_y_continuous(breaks = seq(0,5,1), limit = c(0,5))+
   geom_jitter(stat = "identity", position = "jitter", size = 2.75, shape = 19, alpha = 0.6)+
   scale_color_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
@@ -832,6 +874,65 @@ p <- ggplot(FAIMS_Induction_AIEIVDQALDR_ratio[-grep("-1",FAIMS_Induction_AIEIVDQ
  p+labs(title = "Induction over 180 min",subtitle = "AIEIVDQALDR Ratio - light to heavy", y = "light to heavy ratio", x = "time (min)")
 
 ```
+
+
+```{r,echo=FALSE}
+Induction_ETDIGVTGGGQGKlight_meta <- Induction_meta(Induction_ETDIGVTGGGQGKlight) 
+Induction_ETDIGVTGGGQGKlight_ordered <- Induction_formating_df(Induction_ETDIGVTGGGQGKlight_meta, Induction_ETDIGVTGGGQGKlight)
+
+Induction_ETDIGVTGGGQGKlight_ordered_selectiveIons <- summed_selectiveIons(Induction_ETDIGVTGGGQGKlight_ordered,c("y7","y8","y9"))
+
+
+ggplot(Induction_ETDIGVTGGGQGKlight_ordered_selectiveIons, aes(x=Timepoint, y=SummedIons, color = Strain)) +
+  geom_jitter(stat = "identity", position = "jitter")
+
+Induction_ETDIGVTGGGQGKheavy_meta <- Induction_meta(Induction_ETDIGVTGGGQGKheavy) 
+Induction_ETDIGVTGGGQGKheavy_ordered <- Induction_formating_df(Induction_ETDIGVTGGGQGKheavy_meta, Induction_ETDIGVTGGGQGKheavy)
+
+Induction_ETDIGVTGGGQGKheavy_ordered_selectiveIons <- summed_selectiveIons(Induction_ETDIGVTGGGQGKheavy_ordered,c("y7","y8","y9"))
+
+
+Induction_ETDIGVTGGGQGK_ratio <- ratio_selectiveIons(Induction_ETDIGVTGGGQGKheavy_ordered_selectiveIons,Induction_ETDIGVTGGGQGKlight_ordered_selectiveIons)
+
+
+p <- ggplot(Induction_ETDIGVTGGGQGK_ratio, aes(x=Timepoint, y=Ratio, color = as.factor(Strain))) +
+    geom_jitter(stat = "identity", position = "jitter", size = 2.75, shape = 19, alpha = 0.6)+
+  scale_y_continuous(breaks = seq(0,5,1), limit = c(0,5))+
+  scale_color_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+p + labs(title = "Induction over 180 min",subtitle = "no FAIMS ETDIGVTGGGQGK Ratio - light to heavy", y = "light to heavy ratio", x = "time (min)")
+
+```
+
+
+```{r,echo=FALSE}
+Induction_AIEIVDQALDRlight_meta <- Induction_meta(Induction_AIEIVDQALDRlight) 
+Induction_AIEIVDQALDRlight_ordered <- Induction_formating_df(Induction_AIEIVDQALDRlight_meta, Induction_AIEIVDQALDRlight)
+
+Induction_AIEIVDQALDRlight_ordered_selectiveIons <- summed_selectiveIons(Induction_AIEIVDQALDRlight_ordered,c("y7","y8","y9"))
+
+
+ggplot(Induction_AIEIVDQALDRlight_ordered_selectiveIons, aes(x=Timepoint, y=SummedIons, color = Strain)) +
+  geom_jitter(stat = "identity", position = "jitter")
+
+Induction_AIEIVDQALDRheavy_meta <- Induction_meta(Induction_AIEIVDQALDRheavy) 
+Induction_AIEIVDQALDRheavy_ordered <- Induction_formating_df(Induction_AIEIVDQALDRheavy_meta, Induction_AIEIVDQALDRheavy)
+
+Induction_AIEIVDQALDRheavy_ordered_selectiveIons <- summed_selectiveIons(Induction_AIEIVDQALDRheavy_ordered,c("y7","y8","y9"))
+
+
+Induction_AIEIVDQALDR_ratio <- ratio_selectiveIons(Induction_AIEIVDQALDRheavy_ordered_selectiveIons,Induction_AIEIVDQALDRlight_ordered_selectiveIons)
+
+
+p <- ggplot(Induction_AIEIVDQALDR_ratio, aes(x=Timepoint, y=Ratio, color = as.factor(Strain))) +
+    geom_jitter(stat = "identity", position = "jitter", size = 2.75, shape = 19, alpha = 0.6)+
+  scale_y_continuous(breaks = seq(0,5,1), limit = c(0,5))+
+  scale_color_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
+  theme_light()
+p + labs(title = "Induction over 180 min",subtitle = "no FAIMS AIEIVDQALDR Ratio - light to heavy", y = "light to heavy ratio", x = "time (min)")
+
+```
+
 
 ```{r LoadSpiked_Matrx, echo=FALSE}
 SpikeMatrixLadder_DIF_ETDIGVTGGGQGKlight <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/SpikedMatrixLadder_DirectInfusion/MultiPlexReplicates/CompiledFragmentResults_ETDIGVTGGGQGK_SpikedMatrix_Replicates_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)

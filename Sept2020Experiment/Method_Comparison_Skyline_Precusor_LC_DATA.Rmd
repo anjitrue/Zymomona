@@ -220,6 +220,7 @@ p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "Fol
 
 ```
 
+### Direct Infusion - Multiplex Data
 
 ```{r Load_DIF_data, echo=FALSE}
 DIF_ETDIGVTGGGQGK_MultiPlex <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/NoFaims_halfdiluted/Diluted_120TimePoint_Multiplex_Eclipse02_DirectInfusion/CompiledFragmentResults_ETDIGVTGGGQGK_IsotopeDifferenceRecalculated.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -624,6 +625,21 @@ Peptide <- sub("ratio_","",CV_LC_Infusion_ratio$Peptide_Type)
 Peptide <- sub("_no_FAIMS", "", Peptide)
 Peptide <- sub("_FAIMS", "", Peptide)
 CV_LC_Infusion_ratio$Peptide <- Peptide
+
+p <- ggplot(CV_LC_Infusion_ordered, aes(x=Sample, y=`%CV`,size = Log2Average_Sum, fill = Peptide))+
+  # geom_point(color="black",
+  #       fill="#69b3a2",
+  #       shape=22,
+  #       alpha=0.5,
+  #       size=6,
+  #       stroke = 1)+
+  geom_point( alpha=0.6, shape =21, color="black")+
+  scale_size(range = c(5,10),name = "Log2(Average Intensity)")+
+  scale_fill_manual(values = c("#C3DE79","#5ABCB2"))+
+  theme_light()+
+  facet_grid(~Type, scales = "free", space = "free")
+
+p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) + labs(title = "%CV across methods", y = "%CV", x= "")
 
 p <- ggplot(CV_LC_Infusion_ordered, aes(x=Sample, y=`%CV`,size = Log2Average_Sum, fill = Peptide))+
   # geom_point(color="black",

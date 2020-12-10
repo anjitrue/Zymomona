@@ -439,7 +439,7 @@ spectra_plotting <- function(df_library, df){
     geom_linerange(data = peptide, 
                    aes(x=m.z, ymax = Relative.Abundance, ymin =0), 
                    position = position_jitter(height = 0L, seed = 1L), color = "red")+
-    xlim(150,1250)+
+    scale_x_continuous(breaks = seq(150,1250,100), limit = c(150,1250))+
     theme_classic()
   
   return <- spectra
@@ -469,6 +469,15 @@ HE <- high_res_ETDIGVTGGGGQGK + labs(title = "High Resolution ETDIGVTGGGGQGK Spe
 low_res_ETDIGVTGGGGQGK <- spectra_plotting(ETDIGVTGGGQGK_top10, Low_Res_IspG_ETDIGVTGGGGQGK_Spectra.RelativeAbundance)
 LE <- low_res_ETDIGVTGGGGQGK + labs(title = "Low Resolution ETDIGVTGGGGQGK Spectra", y = "Relative Abundance", x ="m/z")
 
+##### Zoom in Plots ####
+IspH_FAIMS_AIEIVDALDR_Zoom_Spectra <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse/Infusions/ISPH-2-E8_FAIMS_Multiplex_20201017_AIEpeptide_light_heavy_forR.csv", 
+                                              header = TRUE, sep = ",", stringsAsFactors = FALSE)
+IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance <- IspH_FAIMS_AIEIVDALDR_Zoom_Spectra
+IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance$Relative.Abundance <- IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance$Intensity/(max(IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance$Intensity))
+colnames(IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance) <- c("m.z", "Intensity", "Relative.Abundance")
+
+Zoom_AIEIDVDQDALDR <- spectra_plotting(AIEIVDQALDR_top10, IspH_FAIMS_AIEIVDALDR_Zoom_Spectra.RelativeAbundance)
+ZA <- Zoom_AIEIDVDQDALDR + labs(title = "High Resolution AIEIVDALDR Spectra", y = "Relative Abundance", x ="m/z")
 
 ##### Infusion Comparison to Library ######
 # The following functin infusion_spectra_prep is meant to format the infusion spectra for generating 

@@ -62,6 +62,33 @@ ggplot(x, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
   theme_classic()+
   labs(title = "1 min tryptic digest infusion with FAIMS-PRM" ,subtitle = "Strain over-expressinig IspH", y = "Intensity", x ="Time (min)")
 
+##### 8 peptide infusion ####
+EightPeptide_Infusion <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep3_62_5fmol.csv",
+                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
+EightPeptide_Infusion$Peptide <- as.factor(EightPeptide_Infusion$Peptide)
+
+p <- ggplot(EightPeptide_Infusion, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
+  geom_point(aes(shape=Peptide, color=Peptide), size = 2)+
+  geom_line(aes(color=Peptide), size=1) + 
+  scale_y_continuous(breaks = seq(0,3000000,500000), limit = c(0,3000000), labels = function(x)  format(x, scientific = TRUE)) +
+  xlim(1.0, 2.0)+
+  theme_classic()+
+  labs(title = "8 peptides",x = "Time (min)")
+p
+
+FAIMS_8peptides_ETD_10transitions <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep3_62_5fmol_Transitions_ETDIGVTGGGQGK.csv", 
+                                                 header = TRUE, sep = ",", stringsAsFactors = FALSE)
+colnames(FAIMS_8peptides_ETD_10transitions) <- c("Time","Intensity","Transition")
+x <- FAIMS_8peptides_ETD_10transitions
+x[,3] <- as.factor(x[,3])
+ggplot(x, aes(x=Time, y=Intensity, group = Transition)) +
+  geom_line(aes(color=Transition), size=1) + 
+  scale_y_continuous(breaks = seq(0,700000,100000), limit = c(0,700000), labels = function(x)  format(x, scientific = TRUE)) +
+  xlim(1.0, 2.0)+
+  theme_classic()+
+  labs(title = "ETDIG peptide transitions" , y = "Intensity", x ="Time (min)")
+
+
 #### ISPH_3a_FAIMS_ISPHpeptides_infusion_240K ####
 
 ISPH_FAIMS_240K <- read.csv("I:/EAT_BackUP/Trujillo_34362342_44636349_SN_Data/P2/Complete/Projects/Proteomics/Zymomona/ISPH_3a_FAIMS_ISPHpeptides_infusion_240K.csv", 
@@ -117,8 +144,6 @@ ggplot(x, aes(x=mass.to.charge, y=Intensity)) +
   labs(title = "1 min tryptic digest infusion with FAIMS-PRM" ,subtitle = "Strain over-expressinig IspH", y = "Intensity", x ="Time (min)")
 
 ##### SPIKED Infusion Spectra extraction of AIEVDQALDR #####
-
-
 
 IspH_AIIEIVDALDR_light_heavy <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeavyLight_AIEIVDQALDR_IspHOE_spiked.csv", 
                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)

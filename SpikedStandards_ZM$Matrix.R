@@ -21,8 +21,8 @@ SpikeMatrixLadder_FAIMS_AIEIVDQALDRheavy <- read.csv("P:/EAT_20190926_Zymomona/Z
 
 #### SpikedMatriix_Formatting #####
 
-# df <- SpikeMatrixLadder_FAIMS_ETDIGVTGGGQGKheavy
-# target_ions <- c("y7", "y8", "y9")
+ df <- SpikeMatrixLadder_DIF_AIEIVDQALDRlight
+ target_ions <- c("y7", "y8", "y9")
 
 Induction_Summed_precusor <- function(df, target_ions){
   
@@ -55,8 +55,14 @@ Induction_Summed_precusor <- function(df, target_ions){
   df_totalIons_sum <- data.frame(Sample_meta,apply(df[,-c(1:2)],2,sum),
                                  apply(df[which(df$Mass.Feature %in% target_ions),-c(1:2)],2,sum))
   
+  for(i in 1:length(target_ions)){
+      df_totalIons_sum <- data.frame(df_totalIons_sum, apply(df[which(df$Mass.Feature %in% target_ions[i]), -c(1:2)],2,sum))
+  }
+  
   df_totalIons_sum_ordered <- df_totalIons_sum[order(df_totalIons_sum$Concentration),]
-  colnames(df_totalIons_sum_ordered) <- c(colnames(Sample_meta), "Sum_All_Ions", "Sum_SelectIons")
+  colnames(df_totalIons_sum_ordered) <- c(colnames(Sample_meta), "Sum_All_Ions", "Sum_SelectIons","y7", "y8", "y9")
+  
+  
   
   # df_totalIons_sum_ordered <- df_totalIons_sum %>%
   # mutate(Concentttration = factor(Concentration, level = unique(df_totalIons_sum$Concentration)))
@@ -86,15 +92,14 @@ Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <-  Induction_Summed_precusor(Sp
 Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy$RepConcentration <- paste0(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy$Concentration,gsub('.{1}$','',Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy$MultiPlexReplicate))
 
 
-
-```{r,echo=FALSE}
+#### Aggregate funtions ####
 
 df<- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
-WhichIons <- "Select"
+WhichIons <- "y7"
 
 aggregate_ions <- function(df, WhichIons){
   
-  colnames(df) <- c(colnames(df)[1:3], "All", "Select")
+  colnames(df) <- c(colnames(df)[1:3], "All", "Select","y7", "y8", "y9")
   
   aggregate_sum_ions <- aggregate(df[,which(colnames(df) == WhichIons)],
                                   list(df$Concentration), mean)
@@ -116,8 +121,10 @@ aggregate_ions <- function(df, WhichIons){
   return(aggregate_sum_ions)
 }
 
-df<- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
-WhichIons <- "Select"
+### Function using aggreagate with dataframe that contains more than 3 replicate injections per concentration
+
+# df<- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+# WhichIons <- "Select"
 
 Replicate_injection_aggregate_ions <- function(df, WhichIons){
   
@@ -147,59 +154,117 @@ Replicate_injection_aggregate_ions <- function(df, WhichIons){
   return(aggregate_sum_ions_ordered)
 }
 
-df_all <- All_SpikeMatrixLadder_ETDIGVTGGGQGKlight
-df_select <- Select_SpikeMatrixLadder_ETDIGVTGGGQGKlight
+## Merge dataframes with summation of all ions and select ions
 
-merge_spiked <- function(df_all, df_select){
+# df_all <- All_SpikeMatrixLadder_ETDIGVTGGGQGKlight
+# df_select <- Select_SpikeMatrixLadder_ETDIGVTGGGQGKlight
+
+merge_spiked <- function(df_all, df_select, df_y7, df_y8, df_y9){
   df_all$IonsMerged <- rep("All", nrow(df_all))
   df_select$IonsMerged <- rep("Select", nrow(df_all))
+  df_y7$IonsMerged <- rep("y7", nrow(df_all))
+  df_y8$IonsMerged <- rep("y8", nrow(df_all))
+  df_y9$IonsMerged <- rep("y9", nrow(df_all))
   
-  df_merged <- rbind(df_all, df_select)
+  df_merged <- rbind(df_all, df_select, df_y7, df_y8, df_y9)
 }
 
 
-```
 
+#### Plotting light and heavy peptides separately #####
 
-#### Coefficient of Variation Calculations #####
+x <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+All <- "All"
+Select <- "Select"
+y7 <- "y7"
+y8 <- "y8"
+y9 <- "y9"
 
-All_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "All")
-Select_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "Select")
-Merged_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- merge_spiked(All_SpikeMatrixLadder_ETDIGVTGGGQGKlight, Select_SpikeMatrixLadder_ETDIGVTGGGQGKlight)
+collated_spikedMatrix <- function(x,All, Select, y7, y8, y9){
+  all_x <- aggregate_ions(x, All)
+  select_x <- aggregate_ions(x, Select)
+  y7_x <- aggregate_ions(x, y7)
+  y8_x <- aggregate_ions(x, y8)
+  y9_x <- aggregate_ions(x, y9)
+  
+  merged_spike_Df <- merge_spiked(all_x, select_x, y7_x, y8_x, y9_x)
+  
+  return(merged_spike_Df)
+}
 
+# ETDIGVTGGGQGK native
+Merged_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- collated_spikedMatrix(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight, 
+                                                                     "All", "Select", "y7", "y8", "y9")
 
 type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKlight$IonsMerged))
 ggplot(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKlight, aes(Concentration, Average_Sum, color=IonsMerged)) +
   geom_point()+
   geom_line()+
   theme_light() + 
-  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK light", subtitle = "Average Inttensity Across sample types in triplicate",
+  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK native", subtitle = "Average Intensity Across sample types in triplicate",
        y = "Summed Transitioin Intensity")
 
-
-All_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, "All")
-Select_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- aggregate_ions(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, "Select")
-Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- merge_spiked(All_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, Select_SpikeMatrixLadder_ETDIGVTGGGQGKheavy)
-
+# ETDIGVTGGGQGK  standard
+Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <-collated_spikedMatrix(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, 
+                                                                    "All", "Select", "y7", "y8", "y9")
 type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$IonsMerged))
 ggplot(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(Concentration, Average_Sum, color=IonsMerged)) +
   geom_point()+
   geom_line()+
   theme_light() + 
-  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK heavy", subtitle = "Average Inttensity Across sample types in triplicate",
+  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK standard", subtitle = "Average Intensity Across sample types in triplicate",
        y = "Summed Transitioin Intensity")
 
-All_SpikeMatrixLadder_AIEIVDQALDRlight <- aggregate_ions(Summed_SpikeMatrixLadder_AIEIVDQALDRlight, "All")
-Select_SpikeMatrixLadder_AIEIVDQALDRlight <- aggregate_ions(Summed_SpikeMatrixLadder_AIEIVDQALDRlight, "Select")
+type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$IonsMerged))
+ggplot(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy[-which(Merged_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$IonsMerged == "All"),], aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK standard", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
 
-All_SpikeMatrixLadder_AIEIVDQALDRheavy <- aggregate_ions(Summed_SpikeMatrixLadder_AIEIVDQALDRheavy, "All")
-Select_SpikeMatrixLadder_AIEIVDQALDRheavy <- aggregate_ions(Summed_SpikeMatrixLadder_AIEIVDQALDRheavy, "Select")
+# AIEIVDQALDR  native
+Merged_SpikeMatrixLadder_AIEIVDQALDRlight <- collated_spikedMatrix(Summed_SpikeMatrixLadder_AIEIVDQALDRlight, 
+                                                                   "All", "Select", "y7", "y8", "y9")
 
-#FAIMS
+type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged))
+ggplot(Merged_SpikeMatrixLadder_AIEIVDQALDRlight, aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - AIEIVDQALDR native", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
 
-All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "All")
-Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight, "Select")
-Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- merge_spiked(All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight, Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight)
+type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged))
+ggplot(Merged_SpikeMatrixLadder_AIEIVDQALDRlight[-which(Merged_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged == "All"),], aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - AIEIVDQALDR native", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
+
+# AIEIVDQALDR standard
+Merged_SpikeMatrixLadder_AIEIVDQALDRheavy <- collated_spikedMatrix(Summed_SpikeMatrixLadder_AIEIVDQALDRheavy, 
+                                                                   "All", "Select", "y7", "y8", "y9")
+
+type.colors = as.numeric(factor(Merged_SpikeMatrixLadder_AIEIVDQALDRheavy$IonsMerged))
+ggplot(Merged_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - AIEIVDQALDR standard", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
+
+ggplot(Merged_SpikeMatrixLadder_AIEIVDQALDRheavy[-which(Merged_SpikeMatrixLadder_AIEIVDQALDRheavy$IonsMerged == "All"),], aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - AIEIVDQALDR standard", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
+
+# FAIMS ETDIGVTGGGQGK  native
+Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight <- collated_spikedMatrix(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight, 
+                                                                     "All", "Select", "y7", "y8", "y9")
 
 
 type.colors = as.numeric(factor(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight$IonsMerged))
@@ -207,138 +272,169 @@ ggplot(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight, aes(Concentration, Ave
   geom_point()+
   geom_line()+
   theme_light() + 
-  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK heavy", subtitle = "Average Inttensity Across sample types in triplicate",
+  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK native", subtitle = "Average Intensity Across sample types in triplicate",
        y = "Summed Transitioin Intensity")
 
-All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, "All")
-Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, "Select")
-Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- merge_spiked(All_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy)
+# FAIMS ETDIGVTGGGQGK  standard
 
+Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy <- collated_spikedMatrix(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, 
+                                                                           "All", "Select", "y7", "y8", "y9")
 
 type.colors = as.numeric(factor(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$IonsMerged))
 ggplot(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(Concentration, Average_Sum, color=IonsMerged)) +
   geom_point()+
   geom_line()+
   theme_light() + 
-  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK heavy", subtitle = "Average Inttensity Across sample types in triplicate",
+  labs(title = "Spiked Matrix Curve - FAIMS ETDIGVTGGGQGK standard", subtitle = "Average Intensity Across sample types in triplicate",
        y = "Summed Transitioin Intensity")
 
-ggplot(Select_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy, aes(Concentration, Average_Sum)) +
+ggplot(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy[-which(Merged_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy$IonsMerged == "All"),],
+       aes(Concentration, Average_Sum, color=IonsMerged)) +
   geom_point()+
+  geom_line()+
   theme_light() + 
-  labs(title = "Spiked Matrix Curve - ETDIGVTGGGQGK heavy", subtitle = "Average Inttensity Across sample types in triplicate",
+  labs(title = "Spiked Matrix Curve - FAIMS ETDIGVTGGGQGK standard", subtitle = "Average Intensity Across sample types in triplicate",
        y = "Summed Transitioin Intensity")
 
-All_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight, "All")
-Select_SpikeMatrixLadder_AIEIVDQALDRlight <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight, "Select")
+# FAIMS AIEIVDQALDR  native
+Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight <- collated_spikedMatrix(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight, 
+                                                                         "All", "Select", "y7", "y8", "y9")
 
-All_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, "All")
-Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <- Replicate_injection_aggregate_ions(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, "Select")
+type.colors = as.numeric(factor(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged))
+ggplot(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight, aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - FAIMS AIEIVDQALDR native", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
 
-```
+type.colors = as.numeric(factor(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged))
+ggplot(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight[-which(Merged_SpikeMatrixLadder_AIEIVDQALDRlight$IonsMerged == "All"),], aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - FAIMS AIEIVDQALDR native", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
 
-```{r,echo=FALSE}
+Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <- collated_spikedMatrix(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, 
+                                                                         "All", "Select", "y7", "y8", "y9")
 
-# df_light <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight
-# df_heavy <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+type.colors = as.numeric(factor(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy$IonsMerged))
+ggplot(Merged_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy, aes(Concentration, Average_Sum, color=IonsMerged)) +
+  geom_point()+
+  geom_line()+
+  theme_light() + 
+  labs(title = "Spiked Matrix Curve - FAIMS AIEIVDQALDR standard", subtitle = "Average Inttensity Across sample types in triplicate",
+       y = "Summed Transitioin Intensity")
+
+
+
+
+# df_light <- Summed_SpikeMatrixLadder_AIEIVDQALDRlight
+# df_heavy <- Summed_SpikeMatrixLadder_AIEIVDQALDRheavy
 # WhichIons <- "All"
 
-ratio_aggregate <- function(df_light, df_heavy, WhichIons){
+ratio_aggregate <- function(df_light, df_heavy){
   
-  colnames(df_light) <- c(colnames(df_light[,1:3]), "All", "Select")
-  colnames(df_heavy) <- c(colnames(df_heavy[,1:3]), "All", "Select")
+  colnames(df_light) <- c(colnames(df_light[,1:3]), "All", "Select", "y7", "y8", "y9")
+  colnames(df_heavy) <- c(colnames(df_heavy[,1:3]), "All", "Select", "y7", "y8", "y9")
   
-  ratio <- df_heavy[,which(colnames(df_heavy) == WhichIons)]/df_light[,which(colnames(df_light) == WhichIons)]
+  ratio <- df_heavy[,-c(1:3)]/df_light[,-c(1:3)]
   
   df_ratio <- data.frame(df_light$Concentration, ratio)
   
-  aggregate_sum_ions <- aggregate(df_ratio$ratio,
+  aggregate_sum_ions <- aggregate(df_ratio[,-1],
                                   list(df_ratio$df_light.Concentration), mean)
   
-  aggregate_sum_ions$stdev <- aggregate(df_ratio$ratio,
-                                        list(df_ratio$df_light.Concentration), sd)[[2]]
+  colnames(aggregate_sum_ions) <- c("Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_sum_ions$Aggregate <- rep("Average", nrow(aggregate_sum_ions))
   
-  aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
+  aggregate_std_ions <- aggregate(df_ratio[,-1],
+                                        list(df_ratio$df_light.Concentration), sd)
+  colnames(aggregate_std_ions) <- c("Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_std_ions$Aggregate <- rep("Stdev", nrow(aggregate_std_ions))
   
-  return(aggregate_sum_ions)
+  aggregate_CV_ions <- data.frame(aggregate_std_ions$Concentration ,(aggregate_std_ions[,-c(1,7)]/aggregate_sum_ions[,-c(1,7)])*100)
+  colnames(aggregate_CV_ions) <- c( "Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_CV_ions$Aggregate <- rep("CV", nrow(aggregate_std_ions))
+  
+  aggregate_ratio_ions <- rbind(aggregate_sum_ions, aggregate_std_ions, aggregate_CV_ions)
+  
+  return(aggregate_ratio_ions)
 }
 
 # df_light <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight
 # df_heavy <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
-# WhichIons <- "All"
 
-Repliciate_ratio_aggregate <- function(df_light, df_heavy, WhichIons){
+
+Repliciate_ratio_aggregate <- function(df_light, df_heavy){
   
-  colnames(df_light) <- c(colnames(df_light[,1:3]), "All", "Select", "RepConcentration")
-  colnames(df_heavy) <- c(colnames(df_heavy[,1:3]), "All", "Select", "RepConcentration")
+  colnames(df_light) <- c(colnames(df_light[,1:3]), "All", "Select", "y7", "y8", "y9", "RepConcentration")
+  df_light <- df_light[-grep("reinject", df_light$MultiPlexReplicate),]
+  colnames(df_heavy) <- c(colnames(df_heavy[,1:3]), "All", "Select", "y7", "y8", "y9", "RepConcentration")
+  df_heavy <- df_heavy[-grep("reinject", df_heavy$MultiPlexReplicate),]
   
-  ratio <- df_heavy[,which(colnames(df_heavy) == WhichIons)]/df_light[,which(colnames(df_light) == WhichIons)]
+  ratio <- df_heavy[,-c(1:3,9)]/df_light[,-c(1:3,9)]
   
   df_ratio <- data.frame(df_light$Concentration, ratio)
   
-  aggregate_sum_ions <- aggregate(df_ratio$ratio,
+  aggregate_sum_ions <- aggregate(df_ratio[,-1],
                                   list(df_ratio$df_light.Concentration), mean)
   
-  aggregate_sum_ions$stdev <- aggregate(df_ratio$ratio,
-                                        list(df_ratio$df_light.Concentration), sd)[[2]]
+  colnames(aggregate_sum_ions) <- c("Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_sum_ions$Aggregate <- rep("Average", nrow(aggregate_sum_ions))
   
-  aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
-  aggregate_sum_ions$Concentration <- as.numeric(sub("reinject", "", aggregate_sum_ions$Group.1))
+  aggregate_std_ions <- aggregate(df_ratio[,-1],
+                                  list(df_ratio$df_light.Concentration), sd)
+  colnames(aggregate_std_ions) <- c("Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_std_ions$Aggregate <- rep("Stdev", nrow(aggregate_std_ions))
   
-  aggregate_sum_ions_ordered <- aggregate_sum_ions[order(aggregate_sum_ions$Concentration),]
+  aggregate_CV_ions <- data.frame(aggregate_std_ions$Concentration ,(aggregate_std_ions[,-c(1,7)]/aggregate_sum_ions[,-c(1,7)])*100)
+  colnames(aggregate_CV_ions) <- c( "Concentration", "All", "Select", "y7", "y8", "y9")
+  aggregate_CV_ions$Aggregate <- rep("CV", nrow(aggregate_std_ions))
   
-  return(aggregate_sum_ions_ordered)
+  aggregate_ratio_ions <- rbind(aggregate_sum_ions, aggregate_std_ions, aggregate_CV_ions)
+  
+  return(aggregate_ratio_ions)
 }
 
-```
 
-```{r, echo=FALSE}
+# No FAIMS
+Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK <- ratio_aggregate(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy)
 
-Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- ratio_aggregate(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"All")
+Ratio_SpikeMatrixLadder_AIEIVDQALDR <- ratio_aggregate(Summed_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_SpikeMatrixLadder_AIEIVDQALDRheavy)
 
-Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Select <- ratio_aggregate(Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"Select")
-
-
-Ratio_SpikeMatrixLadder_AIEIVDQALDR_All <- ratio_aggregate(Summed_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_SpikeMatrixLadder_AIEIVDQALDRheavy,"All")
-
-Ratio_SpikeMatrixLadder_AIEIVDQALDR_Select <- ratio_aggregate(Summed_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_SpikeMatrixLadder_AIEIVDQALDRheavy,"Select")
 
 # FAIMS
-Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"All")
+Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy)
 
 Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
   mutate(Group.1 = factor(Group.1, level = Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1))
 
-Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_Select <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"Select")
+
+
+Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy)
 
 
 
-Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy,"All")
 
-Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_Select <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy,"Select")
+#Plot ETDIGVTGGGQGK ratio with and without FAIMMS
+Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$IonMobility <- rep("noFAIMS", nrow(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK))
+Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK$IonMobility <- rep("FAIMS", nrow(Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK))
 
-```
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK <- rbind(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK)
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Concentration <- c(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Group.1,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK$Concentration)
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK[order(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Concentration),]
 
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Type <- paste0(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Concentration, Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$IonMobility)
 
-```{r, echo=FALSE}
-Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility <- rep("noFAIMS", nrow(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All))
-Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility <- rep("FAIMS", nrow(Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All))
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK[grep("Average",
+                                                                                                          Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK$Aggregate),]
 
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- rbind(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All[,-5])
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration <- c(Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1,Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration)
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All[order(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Concentration),]
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long <- melt(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg[,-c(7)], id.vars = c("Concentration", "IonMobility", "Type"))
 
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Type <- paste0(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1, Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$IonMobility)
-
-order_concentration <- factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1, levels = c("15.625", "31.25", "62.5", "125", "125reinject", 
-                                                                                                     "250", "250reinject", "500", "500reinject"))
-
-
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
-  mutate(Group.1 = factor(Group.1, level = levels(order_concentration)))
-
-fitlm_ETDIGVTGGGQGK_noFAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$Type),])
-fitlm_ETDIGVTGGGQGK_FAIMS <- lm(x ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$Type),])
+fitlm_ETDIGVTGGGQGK_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
+fitlm_ETDIGVTGGGQGK_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
 
 
 predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_ETDIGVTGGGQGK_noFAIMS), predict(fitlm_ETDIGVTGGGQGK_FAIMS)), predict_ETDIGVTGGGQK$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
@@ -351,19 +447,62 @@ predict_ETDIGVTGGGQK$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 5
 summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
 
 
-Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered$IonMobility)
-ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered, aes(x= Concentration, y=x, group = IonMobility)) +
-  geom_point(aes(color = IonMobility), size = 4, alpha = 0.5) +
+Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$IonMobility)
+ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
+  geom_point(aes(color = variable, shape = IonMobility), size = 4, alpha = 0.5) +
   #geom_line(aes(color = "black")) +
-  geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
-                alpha = 0.2,
-                width = 0,
-                size= 10,
-                color= "#6D696F") +
-  geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
+  # geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+  #               alpha = 0.2,
+  #               width = 0,
+  #               size= 10,
+  #               color= "#6D696F") +
+  #geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
   theme_classic()+
   #theme(axis.text.x = element_text(angle = 0, hjust = 1))+
   labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - ETDIGVTGGGQGK",
        x = "Concentration (fmol/uL)", y = "heavy to light Ratio")
 
-```
+
+#Plot AIEIVDQALDR ratio with and without FAIMS
+Ratio_SpikeMatrixLadder_AIEIVDQALDR$IonMobility <- rep("noFAIMS", nrow(Ratio_SpikeMatrixLadder_AIEIVDQALDR))
+Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR$IonMobility <- rep("FAIMS", nrow(Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR))
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR <- rbind(Ratio_SpikeMatrixLadder_AIEIVDQALDR,Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR)
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$Concentration <- c(Ratio_SpikeMatrixLadder_AIEIVDQALDR$Group.1,Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR$Concentration)
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR <- Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR[order(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$Concentration),]
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$Type <- paste0(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$Concentration, Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$IonMobility)
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg <- Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR[grep("Average",
+                                                                                                          Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR$Aggregate),]
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long <- melt(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg[,-c(7)], id.vars = c("Concentration", "IonMobility", "Type"))
+
+fitlm_AIEIVDQALDR_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
+fitlm_AIEIVDQALDR_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
+
+
+predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_AIEIVDQALDR_noFAIMS), predict(fitlm_AIEIVDQALDR_FAIMS)), predict_AIEIVDQALDR$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
+colnames(predict_AIEIVDQALDR) <- c("Predicted", "IonMobility")
+predict_AIEIVDQALDR$Predicted <- as.numeric(predict_AIEIVDQALDR$Predicted)
+predict_AIEIVDQALDR$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
+
+
+
+summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
+
+
+Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$IonMobility)
+ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
+  geom_point(aes(color = variable, shape = IonMobility), size = 4, alpha = 0.5) +
+  #geom_line(aes(color = "black")) +
+  # geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
+  #               alpha = 0.2,
+  #               width = 0,
+  #               size= 10,
+  #               color= "#6D696F") +
+  #geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
+  theme_classic()+
+  #theme(axis.text.x = element_text(angle = 0, hjust = 1))+
+  labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - AIEIVDQALDR",
+       x = "Concentration (fmol/uL)", y = "heavy to light Ratio")

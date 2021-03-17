@@ -408,8 +408,8 @@ Ratio_SpikeMatrixLadder_AIEIVDQALDR <- ratio_aggregate(Summed_SpikeMatrixLadder_
 # FAIMS
 Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy)
 
-Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
-  mutate(Group.1 = factor(Group.1, level = Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1))
+#Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All %>%
+#  mutate(Group.1 = factor(Group.1, level = Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1))
 
 
 
@@ -433,14 +433,14 @@ Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg <- Combined_Ratio_SpikeMatrix
 
 Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long <- melt(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg[,-c(7)], id.vars = c("Concentration", "IonMobility", "Type"))
 
-fitlm_ETDIGVTGGGQGK_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
-fitlm_ETDIGVTGGGQGK_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
+#fitlm_ETDIGVTGGGQGK_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
+#fitlm_ETDIGVTGGGQGK_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$Type),])
 
 
-predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_ETDIGVTGGGQGK_noFAIMS), predict(fitlm_ETDIGVTGGGQGK_FAIMS)), predict_ETDIGVTGGGQK$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
-colnames(predict_ETDIGVTGGGQK) <- c("Predicted", "IonMobility")
-predict_ETDIGVTGGGQK$Predicted <- as.numeric(predict_ETDIGVTGGGQK$Predicted)
-predict_ETDIGVTGGGQK$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
+#predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_ETDIGVTGGGQGK_noFAIMS), predict(fitlm_ETDIGVTGGGQGK_FAIMS)), predict_ETDIGVTGGGQK$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
+#colnames(predict_ETDIGVTGGGQK) <- c("Predicted", "IonMobility")
+#predict_ETDIGVTGGGQK$Predicted <- as.numeric(predict_ETDIGVTGGGQK$Predicted)
+#predict_ETDIGVTGGGQK$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
 
 
 
@@ -448,7 +448,7 @@ summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
 
 
 Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long$IonMobility)
-ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
+PE <- ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
   geom_point(aes(color = variable, shape = IonMobility), size = 4, alpha = 0.5) +
   #geom_line(aes(color = "black")) +
   # geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
@@ -458,6 +458,7 @@ ggplot(Combined_Ratio_SpikeMatrixLadder_ETDIGVTGGGQGK_Avg_long, aes(x= Concentra
   #               color= "#6D696F") +
   #geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
   theme_classic()+
+  scale_y_continuous(breaks = seq(0,0.6,0.1), limit = c(0,0.6))+
   #theme(axis.text.x = element_text(angle = 0, hjust = 1))+
   labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - ETDIGVTGGGQGK",
        x = "Concentration (fmol/uL)", y = "heavy to light Ratio")
@@ -478,22 +479,22 @@ Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg <- Combined_Ratio_SpikeMatrixLa
 
 Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long <- melt(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg[,-c(7)], id.vars = c("Concentration", "IonMobility", "Type"))
 
-fitlm_AIEIVDQALDR_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
-fitlm_AIEIVDQALDR_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
+#fitlm_AIEIVDQALDR_noFAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
+#fitlm_AIEIVDQALDR_FAIMS <- lm(value ~ Concentration, data = Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long[-grep("noFAIMS",Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$Type),])
 
 
-predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_AIEIVDQALDR_noFAIMS), predict(fitlm_AIEIVDQALDR_FAIMS)), predict_AIEIVDQALDR$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
-colnames(predict_AIEIVDQALDR) <- c("Predicted", "IonMobility")
-predict_AIEIVDQALDR$Predicted <- as.numeric(predict_AIEIVDQALDR$Predicted)
-predict_AIEIVDQALDR$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
+# predict_ETDIGVTGGGQK <- as.data.frame(cbind(c(predict(fitlm_AIEIVDQALDR_noFAIMS), predict(fitlm_AIEIVDQALDR_FAIMS)), predict_AIEIVDQALDR$IonMobility <- c(rep("noFAIMS",6), rep("FAIMS", 6))))
+# colnames(predict_AIEIVDQALDR) <- c("Predicted", "IonMobility")
+# predict_AIEIVDQALDR$Predicted <- as.numeric(predict_AIEIVDQALDR$Predicted)
+# predict_AIEIVDQALDR$Concentration <- rep(c(15.625,31.250, 62.5, 125.0, 250.0, 500.0),2)
 
 
 
-summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
+#summary(lm(fitlm_ETDIGVTGGGQGK))$r.squared
 
 
 Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$IonMobility <- as.factor(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long$IonMobility)
-ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
+PA <- ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long, aes(x= Concentration, y=value, group = IonMobility)) +
   geom_point(aes(color = variable, shape = IonMobility), size = 4, alpha = 0.5) +
   #geom_line(aes(color = "black")) +
   # geom_errorbar(aes(ymin = x-stdev, ymax = x+stdev),
@@ -502,7 +503,15 @@ ggplot(Combined_Ratio_SpikeMatrixLadder_AIEIVDQALDR_Avg_long, aes(x= Concentrati
   #               size= 10,
   #               color= "#6D696F") +
   #geom_line(data=predict_ETDIGVTGGGQK, aes(x=Concentration,y=Predicted, color = IonMobility))+
+  scale_y_continuous(breaks = seq(0,18,2), limit = c(0,18))+
   theme_classic()+
   #theme(axis.text.x = element_text(angle = 0, hjust = 1))+
   labs(title = "Standard Spiked in Matrix", subtitle = "Heavy to Light Ratio - AIEIVDQALDR",
        x = "Concentration (fmol/uL)", y = "heavy to light Ratio")
+
+PEgrob <- ggplotGrob(PE)
+PAgrob <- ggplotGrob(PA)
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES_IW6.pdf")
+grid.arrange(PEgrob, PAgrob, ncol =2)
+dev.off()

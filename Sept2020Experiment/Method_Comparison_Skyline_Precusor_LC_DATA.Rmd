@@ -1193,9 +1193,9 @@ Select_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy <- Replicate_injection_aggregate
 
 ```{r,echo=FALSE}
 
-df_light <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight
-df_heavy <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
-WhichIons <- "All"
+# df_light <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKlight
+# df_heavy <- Summed_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+# WhichIons <- "All"
 
 ratio_aggregate <- function(df_light, df_heavy, WhichIons){
   
@@ -1217,9 +1217,9 @@ ratio_aggregate <- function(df_light, df_heavy, WhichIons){
   return(aggregate_sum_ions)
 }
 
-df_light <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight
-df_heavy <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
-WhichIons <- "All"
+# df_light <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight
+# df_heavy <- Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy
+# WhichIons <- "All"
 
 Repliciate_ratio_aggregate <- function(df_light, df_heavy, WhichIons){
   
@@ -1264,6 +1264,7 @@ Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All_ordered <- Ratio_FAIMS_SpikeMatr
   mutate(Group.1 = factor(Group.1, level = Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_All$Group.1))
 
 Ratio_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGK_Select <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKlight,Summed_FAIMS_SpikeMatrixLadder_ETDIGVTGGGQGKheavy,"Select")
+
 
 
 Ratio_FAIMS_SpikeMatrixLadder_AIEIVDQALDR_All <- Repliciate_ratio_aggregate(Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRlight,Summed_FAIMS_SpikeMatrixLadder_AIEIVDQALDRheavy,"All")

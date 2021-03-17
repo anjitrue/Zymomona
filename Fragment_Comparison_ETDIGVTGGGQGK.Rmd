@@ -19,62 +19,67 @@ library(pheatmap)
 library(plotly)
 library(reshape2)
 library(RColorBrewer)
+library(viridis)
 library(plyr)
+
 ```
 
 ```{r load_data, echo=FALSE}
 # These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide ETDIGVTGGGQGK 
-CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
+CompiledFragments_0_4_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_4_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
+CompiledFragments_0_4_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_4_Zymo_FAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
+CompiledFragments_0_6_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_6_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
+CompiledFragments_0_6_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_6_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_0_8_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
+CompiledFragments_0_6_FAIMS_20ppm <- read.csv("P:/EAT_20190926_Zymomona/Zymo_FAIMS_Parameters/IW_0_6/CompiledFragmentResults_ETDIGVTGGGQGK_IW_0_6_Zymo_FAIMS_20ppm.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+CompiledFragments_0_8_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_0_8_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
+CompiledFragments_0_8_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_0_8_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw <- rep(0,nrow(CompiledFragments_0_8_FAIMS))
 CompiledFragments_0_8_FAIMS <- cbind(CompiledFragments_0_8_FAIMS[,1:4],X20200126_ZymoFAIMS_IW_0_8_R120K_MI1_AGC1e06_3.raw,CompiledFragments_0_8_FAIMS[,5:ncol(CompiledFragments_0_8_FAIMS)])
 
-CompiledFragments_1_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
+CompiledFragments_1_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
+CompiledFragments_1_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
+CompiledFragments_1_3_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_noFAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_1_3_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
+CompiledFragments_1_3_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_1_3_Zymo_FAIMS.csv", 
                                       header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-CompiledFragments_2_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
+CompiledFragments_2_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_noFAIMS.csv", 
                                           header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
-CompiledFragments_2_FAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
+CompiledFragments_2_FAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/ETDIGVTGGGQGK/CompiledFragmentResults_IW_2_Zymo_FAIMS.csv", 
                                         header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 
 ```
 
 ```{r dataformatting, echo=FALSE}
-# x = CompiledFragments_0_8_FAIMS
+#x = CompiledFragments_0_6_FAIMS_20ppm
 meta_replicates <- function(x){
   samples <- colnames(x[,-c(1:2)])
   samples <- gsub("^.*?_R","R",samples)
@@ -98,19 +103,25 @@ meta_replicates <- function(x){
   meta[,2] <- sub(502, 0.502, meta[,2])
   meta[,2] <- as.factor(as.numeric(meta[,2]))
   
-  meta[,4] <- as.numeric(sub("*.raw",'', meta[,4]))
+  meta[,4] <- sub("*.raw",'', meta[,4])
+  meta[,4] <- as.numeric(sub("_2020.*",'', meta[,4]))
   
   rownames(meta) <- rownames(df_t)
   meta <- meta[order(meta[,1],meta[,2]),]
+  
+  if(length(grep("CORRUPTED",rownames(meta))) != 0){
+    meta <- meta[-grep("CORRUPTED",rownames(meta)),]
+  }
   
   return(meta)
   
 }
 
 
-# x = CompiledFragments_0_4_FAIMS
-# m = meta_0_4_noFAIMS
+# x = CompiledFragments_0_6_FAIMS_20ppm
+# m = meta_0_6_FAIMS_20ppm
 # m = meta
+
 df_fragments_log2 <- function(x,m){
   samples <- colnames(x[,-c(1:2)])
   samples <- gsub("^.*?_R","R",samples)
@@ -118,79 +129,227 @@ df_fragments_log2 <- function(x,m){
   df <- x[,-c(1:2)]
   rownames(df) <- x$Mass.Feature
   colnames(df) <- samples
+  
   df[df == 0] <- NA
+  df <- log2(df)
+  df[is.na(df)] <- 0
   
-  df_log2 <- log2(df)
-  df_log2[is.na(df_log2)] <- 0
+  df <- df[-which(rownames(df)=="b1"),]
+  df <- df[-which(rownames(df)=="y1"),]
   
-  df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
-  df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
+  df <- df[rownames(meta_0_6_FAIMS_20ppm)]
   
-  for(i in 1:ncol(df_log2)){
-    mostIntense = max(df_log2[,i])
+  return(df)
+}
+
+
+
+df_fragments_norm <- function(x,m){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df <- x[,-c(1:2)]
+  rownames(df) <- x$Mass.Feature
+  colnames(df) <- samples
+  
+  df[df == 0] <- NA
+  df <- log2(df)
+  df[is.na(df)] <- 0
+  
+  df <- df[-which(rownames(df)=="b1"),]
+  df <- df[-which(rownames(df)=="y1"),]
+  
+  df_b <- df[grepl("^[b]+[0-9]+$",rownames(df)),]
+  df_y <- df[grepl("^[y]+[0-9]+$",rownames(df)),]
+  
+  df_b_IonNormalized <- norm_df_fragments(df_b,m)
+  df_y_IonNormalized <- norm_df_fragments(df_y,m)
+  
+  
+  df_IonNormalized <- rbind(df_b_IonNormalized, df_y_IonNormalized)
+  
+
+  return(df_IonNormalized)
+  
+}
+
+
+# df_ion <- df_b
+# 
+norm_df_fragments <- function(df_ion,m){
+  
+  df_IonNormalized <- df_ion
+  
+  for(i in 1:ncol(df_ion)){
+    mostIntense = max(df_ion[,i])
     
-    for(j in 1:nrow(df_log2)){
-      df_log2[j,i] <- df_log2[j,i]/mostIntense
+    for(j in 1:nrow(df_ion)){
+      df_IonNormalized[j,i] <- df_ion[j,i]/mostIntense
     }
   }
 
-  df_log2 <- df_log2[rownames(m)]
+  df_IonNormalized <- df_IonNormalized[rownames(m)]
   
-  return(df_log2)
+  return(df_IonNormalized)
+}
+
+
+norm_df_sumTIC <- function(df_ion,m){
+  
+  df_IonNormalized <- df_ion
+  
+  for(i in 1:ncol(df_ion)){
+    sumTIC = sum(df_ion[,i])
+    
+    for(j in 1:nrow(df_ion)){
+      df_IonNormalized[j,i] <- (df_ion[j,i]/sumTIC)
+    }
+  }
+
+  df_IonNormalized <- df_IonNormalized[rownames(m)]
+  
+  return(df_IonNormalized)
+}
+
+
+df_parameter_norm <- function(x,m){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df <- x[,-c(1:2)]
+  rownames(df) <- x$Mass.Feature
+  colnames(df) <- samples
+  
+  df[df == 0] <- NA
+  df <- log2(df)
+  df[is.na(df)] <- 0
+  
+  df <- df[-which(rownames(df)=="b1"),]
+  df <- df[-which(rownames(df)=="y1"),]
+  
+  df_b <- df[grep("b",rownames(df)),]
+  df_y <- df[grep("y",rownames(df)),]
+  
+  df_b_IonNormalized <- norm_df_parameter(df_b,m)
+  df_y_IonNormalized <- norm_df_parameter(df_y,m)
+  
+  df_IonNormalized <- rbind(df_b_IonNormalized, df_y_IonNormalized)
+  
+
+  return(df_IonNormalized)
   
 }
+norm_df_parameter <- function(df_ion,m){
+  
+  df_IonNormalized <- df_ion
+  
+  for(i in 1:nrow(df_ion)){
+    
+    mostIntense = max(df_ion[i,])
+    df_IonNormalized[i,] <- df_ion[i,]/mostIntense
+  }
+
+  df_IonNormalized <- df_IonNormalized[rownames(m)]
+  
+  return(df_IonNormalized)
+}
+
+  # df_log2_IonNormalized_ScaledParameter
+  # 
+  #   for(i in 1:nrow(df_log2_IonNormalized)){
+  #   mostIntense = max(df_log2_IonNormalized[,i])
+  #   
+  #   for(j in 1:nrow(df_log2_IonNormalized)){
+  #     df_log2_IonNormalized[j,i] <- df_log2[j,i]/mostIntense
+  #   }
+  # }
+  
+
 ```
 
-```{r df_log2_meta ,echo=FALSE}
+```{r df_fragments_norm ,echo=FALSE}
 
 meta_0_4_noFAIMS <- meta_replicates(CompiledFragments_0_4_noFAIMS)
-df_0_4_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_4_noFAIMS,meta_0_4_noFAIMS)
+df_0_4_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_0_4_noFAIMS,meta_0_4_noFAIMS)
 
 meta_0_4_FAIMS <- meta_replicates(CompiledFragments_0_4_FAIMS)
-df_0_4_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_4_FAIMS, meta_0_4_FAIMS)
+df_0_4_FAIMS_log2 <- df_fragments_norm(CompiledFragments_0_4_FAIMS, meta_0_4_FAIMS)
 
 
 meta_0_6_noFAIMS <- meta_replicates(CompiledFragments_0_6_noFAIMS)
-df_0_6_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_6_noFAIMS, meta_0_6_noFAIMS)
+df_0_6_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_0_6_noFAIMS, meta_0_6_noFAIMS)
 
 meta_0_6_FAIMS <- meta_replicates(CompiledFragments_0_6_FAIMS)
-df_0_6_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_6_FAIMS, meta_0_6_FAIMS)
+df_0_6_FAIMS_log2 <- df_fragments_norm(CompiledFragments_0_6_FAIMS, meta_0_6_FAIMS)
 
+meta_0_6_FAIMS_20ppm  <- meta_replicates(CompiledFragments_0_6_FAIMS_20ppm)
+df_0_6_FAIMS_log2_20ppm <- df_fragments_log2(CompiledFragments_0_6_FAIMS_20ppm, meta_0_6_FAIMS_20ppm)
 
 meta_0_8_noFAIMS <- meta_replicates(CompiledFragments_0_8_noFAIMS)
-df_0_8_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_0_8_noFAIMS, meta_0_8_noFAIMS)
+df_0_8_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_0_8_noFAIMS, meta_0_8_noFAIMS)
 
 meta_0_8_FAIMS <- meta_replicates(CompiledFragments_0_8_FAIMS)
-df_0_8_FAIMS_log2 <- df_fragments_log2(CompiledFragments_0_8_FAIMS, meta_0_8_FAIMS)
+df_0_8_FAIMS_log2 <- df_fragments_norm(CompiledFragments_0_8_FAIMS, meta_0_8_FAIMS)
 
 
 meta_1_noFAIMS <- meta_replicates(CompiledFragments_1_noFAIMS)
-df_1_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_1_noFAIMS,meta_1_noFAIMS)
+df_1_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_1_noFAIMS,meta_1_noFAIMS)
 
 meta_1_FAIMS <- meta_replicates(CompiledFragments_1_FAIMS)
-df_1_FAIMS_log2 <- df_fragments_log2(CompiledFragments_1_FAIMS, meta_1_FAIMS)
+df_1_FAIMS_log2 <- df_fragments_norm(CompiledFragments_1_FAIMS, meta_1_FAIMS)
 
 
 meta_1_3_noFAIMS <- meta_replicates(CompiledFragments_1_3_noFAIMS)
-df_1_3_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_1_3_noFAIMS, meta_1_3_noFAIMS)
+df_1_3_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_1_3_noFAIMS, meta_1_3_noFAIMS)
 
 meta_1_3_FAIMS <- meta_replicates(CompiledFragments_1_3_FAIMS)
-df_1_3_FAIMS_log2 <- df_fragments_log2(CompiledFragments_1_3_FAIMS, meta_1_3_FAIMS)
+df_1_3_FAIMS_log2 <- df_fragments_norm(CompiledFragments_1_3_FAIMS, meta_1_3_FAIMS)
 
 
 meta_2_noFAIMS <- meta_replicates(CompiledFragments_2_noFAIMS)
-df_2_noFAIMS_log2 <- df_fragments_log2(CompiledFragments_2_noFAIMS, meta_2_noFAIMS)
+df_2_noFAIMS_log2 <- df_fragments_norm(CompiledFragments_2_noFAIMS, meta_2_noFAIMS)
 
 meta_2_FAIMS <- meta_replicates(CompiledFragments_2_FAIMS)
-df_2_FAIMS_log2 <- df_fragments_log2(CompiledFragments_2_FAIMS, meta_2_FAIMS)
+df_2_FAIMS_log2 <- df_fragments_norm(CompiledFragments_2_FAIMS, meta_2_FAIMS)
 ```
 
+```{r df_parameter_norm ,echo=FALSE}
 
+df_0_4_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_4_noFAIMS,meta_0_4_noFAIMS)
+
+df_0_4_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_4_FAIMS, meta_0_4_FAIMS)
+
+df_0_6_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_6_noFAIMS, meta_0_6_noFAIMS)
+
+df_0_6_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_6_FAIMS, meta_0_6_FAIMS)
+
+df_0_8_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_8_noFAIMS, meta_0_8_noFAIMS)
+
+df_0_8_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_0_8_FAIMS, meta_0_8_FAIMS)
+
+df_1_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_1_noFAIMS,meta_1_noFAIMS)
+
+df_1_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_1_FAIMS, meta_1_FAIMS)
+
+df_1_3_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_1_3_noFAIMS, meta_1_3_noFAIMS)
+
+df_1_3_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_1_3_FAIMS, meta_1_3_FAIMS)
+
+df_2_noFAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_2_noFAIMS, meta_2_noFAIMS)
+
+df_2_FAIMS_log2_parameter <- df_parameter_norm(CompiledFragments_2_FAIMS, meta_2_FAIMS)
+```
 
 ```{r Annotations, echo=FALSE}
 #x = df_0_4_noFAIMS_log2
 #m = meta_0_4_noFAIMS
 replicate_annotation <- function(x,m){
+  
+  if(length(grep("CORRUPTED", rownames(m))) > 0){
+    m <- m[-c(grep("CORRUPTED", rownames(m))),]
+  }
+  
+  
   annotation_res = data.frame(Resolution = m$Resolution)
   rownames(annotation_res) <- colnames(x)
   
@@ -211,12 +370,129 @@ annotation_2_noFAIMS <- replicate_annotation(df_2_noFAIMS_log2, meta_2_noFAIMS)
 
 annotation_0_4_FAIMS <- replicate_annotation(df_0_4_FAIMS_log2, meta_0_4_FAIMS)
 annotation_0_6_FAIMS <- replicate_annotation(df_0_6_FAIMS_log2, meta_0_6_FAIMS)
+
+annotation_0_6_FAIMS_20ppm <- replicate_annotation(df_0_6_FAIMS_log2_20ppm, meta_0_6_FAIMS_20ppm)
+
 annotation_0_8_FAIMS <- replicate_annotation(df_0_8_FAIMS_log2, meta_0_8_FAIMS)
 annotation_1_FAIMS <- replicate_annotation(df_1_FAIMS_log2, meta_1_FAIMS)
 annotation_1_3_FAIMS <- replicate_annotation(df_1_3_FAIMS_log2, meta_1_3_FAIMS)
 annotation_2_FAIMS <- replicate_annotation(df_2_FAIMS_log2, meta_2_FAIMS)
 ```
 
+```{r, echo=FALSE}
+theme_set(theme_bw(base_size = 16))
+
+dat <- data.frame(values = as.numeric(as.matrix(df_0_6_FAIMS_log2_20ppm)))
+ggplot(dat, aes(values)) + geom_density(bw = "SJ")
+
+## ----uniform-color-breaks------------------------------------------------
+mat_breaks <- seq(min(df_0_6_FAIMS_log2_20ppm), max(df_0_6_FAIMS_log2_20ppm), length.out = 10)
+cols <- brewer.pal(3, "YlGnBu")
+scaleRYG <- colorRampPalette(cols)(length(mat_breaks) - 1)
+
+
+## ----uniform-color-breaks-detail, fig.height=2, echo=FALSE---------------
+dat_colors <- data.frame(
+  xmin = mat_breaks[1:(length(mat_breaks)-1)],
+  xmax = mat_breaks[2:length(mat_breaks)],
+  ymin = 0,
+  ymax = max(density(mat, bw = "SJ")$y),
+  fill = scaleRYG,#rev(inferno(length(mat_breaks) - 1)),
+  stringsAsFactors = FALSE
+)
+ggplot() +
+  geom_rect(
+    data = dat_colors,
+    mapping = aes(
+      xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill
+    )
+  ) +
+  geom_density(
+    data = dat,
+    mapping = aes(values),
+    bw = "SJ", color = "cyan"
+  ) +
+  scale_fill_manual(values = rev(dat_colors$fill))+
+  theme(legend.position = "none") +
+  labs(title = "Uniform breaks")
+
+## ----uniform-color-breaks-bars, fig.height=3, echo=FALSE-----------------
+dat2 <- as.data.frame(table(cut(
+  as.matrix(df_0_6_FAIMS_log2_20ppm), mat_breaks
+)))
+dat2$fill <- scaleRYG
+ggplot() +
+  geom_bar(
+    data = dat2,
+    mapping = aes(x = Var1, weight = Freq, fill = Var1),
+    color = "black", size = 0.1
+  ) +
+  coord_flip() +
+  scale_fill_manual(values = dat2$fill) +
+  theme(legend.position = "none") +
+  labs(y = "data points", x = "breaks",
+       title = "Number of data points per color")
+
+```
+```{r, echo=FALSE}
+
+## ----quantile-color-breaks-----------------------------------------------
+quantile_breaks <- function(xs, n = 10) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n))
+  breaks[!duplicated(breaks)]
+}
+
+mat_breaks <- quantile_breaks(as.matrix(df_0_6_FAIMS_log2_20ppm), n = 10)
+scaleRYG <- colorRampPalette(cols)(length(mat_breaks) - 1)
+
+
+## ----quantile-color-breaks-detail, fig.height=2, echo=FALSE--------------
+
+dat_colors <- data.frame(
+  xmin = mat_breaks[1:(length(mat_breaks)-1)],
+  xmax = mat_breaks[2:length(mat_breaks)],
+  ymin = 0,
+  ymax = max(density(mat, bw = "SJ")$y),
+  fill = scaleRYG,
+  stringsAsFactors = FALSE
+)
+ggplot() +
+  geom_rect(
+    data = dat_colors,
+    mapping = aes(
+      xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill
+    )
+  ) +
+  geom_density(
+    data = dat,
+    mapping = aes(values),
+    bw = "SJ", color = "cyan"
+  ) +
+  scale_fill_manual(values = rev(dat_colors$fill)) +
+  theme(legend.position = "none") +
+  labs(title = "Quantile breaks")
+
+
+
+## ----quantile-color-breaks-bars, fig.height=3, echo=FALSE----------------
+dat2 <- as.data.frame(table(cut(
+  as.matrix(df_0_6_FAIMS_log2_20ppm), mat_breaks
+)))
+dat2$fill <- scaleRYG
+ggplot() +
+  geom_bar(
+    data = dat2,
+    mapping = aes(x = Var1, weight = Freq, fill = Var1),
+    color = "black", size = 0.1
+  ) +
+  coord_flip() +
+  scale_fill_manual(values = dat2$fill) +
+  theme(legend.position = "none") +
+  labs(y = "data points", x = "breaks",
+       title = "Number of data points per color")
+
+
+```
 
 
 ```{r,echo=FALSE}
@@ -232,9 +508,7 @@ my_colour = list(
   #Resolution = c(`120K` = "#E2C044", `240K` = "#DB7C26", `500K` = "#DB5A42")
 )
 
-cols <- brewer.pal(3, "YlGnBu")
-scaleRYG <- colorRampPalette(cols)(20)
-#scaleRYG <- colorRampPalette(c("#F5F5F5","#E6F598","#78A073"))(20)
+
 
 
 pheatmap(df_0_4_noFAIMS_log2,
@@ -242,55 +516,37 @@ pheatmap(df_0_4_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = annotation_0_4_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,0.000272, 0.0052, 0.0317, 0.0607, 0.356),
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.4 Da - Parameter Comparisons Infusions")
-
-pheatmap(df_0_4_FAIMS_log2,
-         #annotation = annotation_res,
-         annotation_colors = my_colour,
-         annotation_col = annotation_0_4_FAIMS,
-         color = scaleRYG,
-         cluster_rows = FALSE,
-         cluster_cols = FALSE,
-         gaps_col =c(9,18,27),
-         gaps_row = c(1),
-         show_colnames = F,
-         main = "IW of 0.4 Da with FAIMS") 
 
 pheatmap(df_0_6_noFAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_0_6_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.6 Da - Parameter Comparisons Infusions")
-
-pheatmap(df_0_6_FAIMS_log2,
-         #annotation = annotation_res,
-         annotation_colors = my_colour,
-         annotation_col = annotation_0_6_FAIMS,
-         color = scaleRYG,
-         cluster_rows = FALSE,
-         cluster_cols = FALSE,
-         gaps_col =c(9,18,27),
-         gaps_row = c(1),
-         show_colnames = F,
-         main = "IW of 0.6 Da with FAIMS") 
-
 
 pheatmap(df_0_8_noFAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_0_8_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
@@ -298,25 +554,13 @@ pheatmap(df_0_8_noFAIMS_log2,
          show_colnames = F,
          main = "IW of 0.8 Da - Parameter Comparisons Infusions")
 
-pheatmap(df_0_8_FAIMS_log2,
-         #annotation = annotation_res,
-         annotation_colors = my_colour,
-         annotation_col = annotation_0_8_FAIMS,
-         color = scaleRYG,
-         cluster_rows = FALSE,
-         cluster_cols = FALSE,
-         gaps_col =c(9,18,27),
-         #gaps_col =c(8,17,26),
-         gaps_row = c(1),
-         show_colnames = F,
-         main = "IW of 0.8 Da with FAIMS") 
-
-
 pheatmap(df_1_noFAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_1_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
@@ -324,23 +568,13 @@ pheatmap(df_1_noFAIMS_log2,
          show_colnames = F,
          main = "IW of 1 Da - Parameter Comparisons Infusions")
 
-pheatmap(df_1_FAIMS_log2,
-         #annotation = annotation_res,
-         annotation_colors = my_colour,
-         annotation_col = annotation_1_FAIMS,
-         color = scaleRYG,
-         cluster_rows = FALSE,
-         cluster_cols = FALSE,
-         gaps_col =c(9,18,27),
-         gaps_row = c(1),
-         show_colnames = F,
-         main = "IW of 1 Da with FAIMS") 
-
 pheatmap(df_1_3_noFAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_1_3_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
@@ -348,39 +582,213 @@ pheatmap(df_1_3_noFAIMS_log2,
          show_colnames = F,
          main = "IW of 1.3 Da - Parameter Comparisons Infusions")
 
-pheatmap(df_1_3_FAIMS_log2,
-         #annotation = annotation_res,
-         annotation_colors = my_colour,
-         annotation_col = annotation_1_3_FAIMS,
-         color = scaleRYG,
-         cluster_rows = FALSE,
-         cluster_cols = FALSE,
-         gaps_col =c(9,17,26),
-         gaps_row = c(1),
-         show_colnames = F,
-         main = "IW of 1.3 Da with FAIMS") 
-
 pheatmap(df_2_noFAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_2_noFAIMS,
          color = scaleRYG,
+         #breaks = c(0,2.24, 45.6, 123, 354, 1000),
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
-         gaps_col =c(10,19,28),
-         gaps_row = c(1),
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 2 Da - Parameter Comparisons Infusions")
+```
+
+```{r parameter_heatmaps ,echo=FALSE}
+
+parameter_color <- c("#7FCDBB", "#B6E2B5","#EDF8B1","#55A6B9","#2C7FB8")
+pheatmap(df_0_4_noFAIMS_log2_parameter,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_4_noFAIMS,
+         color = parameter_color,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.4 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_0_6_noFAIMS_log2_parameter,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_6_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.6 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_0_8_noFAIMS_log2_parameter,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_8_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1),
+         show_colnames = F,
+         main = "IW of 0.8 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_1_noFAIMS_log2_parameter,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_noFAIMS,
+         color = parameter_color,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1),
+         show_colnames = F,
+         main = "IW of 1 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_1_3_noFAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_3_noFAIMS,
+         color = parameter_color,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1),
+         show_colnames = F,
+         main = "IW of 1.3 Da - Parameter Comparisons Infusions")
+
+pheatmap(df_2_noFAIMS_log2_parameter,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_2_noFAIMS,
+         color = parameter_color,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 2 Da - Parameter Comparisons Infusions")
+```
+
+```{r, echo=FALSE}
+pheatmap(df_0_4_FAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_4_FAIMS,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.4 Da with FAIMS") 
+
+
+
+pheatmap(df_0_6_FAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_6_FAIMS,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.6 Da with FAIMS") 
+
+pheatmap(df_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,7,9,11,14,16,18,19, 20,21),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1,12),
+         show_colnames = F,
+         main = "IW of 0.6 Da with FAIMS 20ppm") 
+
+pheatmap(df, cluster_cols = FALSE, cluster_rows = FALSE, color = scaleRYG, breaks = c(0,10,11,12,14,15,16,17))
+
+pheatmap(df_0_8_FAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_8_FAIMS,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         #gaps_col =c(8,17,26),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.8 Da with FAIMS") 
+
+
+pheatmap(df_1_FAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_FAIMS,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1 Da with FAIMS") 
+
+
+
+pheatmap(df_1_3_FAIMS_log2,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_3_FAIMS,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,17,26),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1.3 Da with FAIMS") 
 
 pheatmap(df_2_FAIMS_log2,
          #annotation = annotation_res,
          annotation_colors = my_colour,
          annotation_col = annotation_2_FAIMS,
          color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(9,18,27),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 2 Da with FAIMS") 
 ```
@@ -398,128 +806,98 @@ for(i in 1:length(Experiment_meta$IsolationWidth)){
 }
 Experiment_meta$FAIMS <- IW_sample_FAIMS
 
-#x <- CompiledFragments_2_noFAIMS
-#x=CompiledFragments_0_8_FAIMS
-averagedIntensity <- function(x){
+# x <- df_0_6_FAIMS_log2_20ppm
+# meta <- meta_0_6_FAIMS_20ppm
+averagedIntensity <- function(x,meta){
   
-  samples <- colnames(x[,-c(1:2)])
-  samples <- gsub("^.*?_R","R",samples)
-  samples <- gsub("_AGC.*","", samples)
-  
-  df_t <- as.data.frame(t(x[,-c(1,2)]))
-  colnames(df_t) <- x$Mass.Feature
-  
-  df_t[df_t == 0] <- NA
-  
-  df_t <- df_t[,-which(colnames(df_t)=="b1")]
-  df_t <- df_t[,-which(colnames(df_t)=="y1")]
-  
-  df_t <- as.data.frame(cbind(samples, df_t))
-  
-  if(length(grep("CORRUPTED",rownames(df_t))) != 0){
-    df_t <- df_t[-grep("CORRUPTED",rownames(df_t)),]
-  }
-  
-  for(i in 1:26){
-    #print(i)
-    #print(rowSums(is.na(df_t[i,])) == length(df_t[i,-1]))
-    if(rowSums(is.na(df_t[i,])) == length(df_t[i,-1])){
-      df_t <- df_t[-c(i),]
-    }
-  }
-  
-  df_t_averaged <- aggregate(df_t[,-1], by = list(df_t$samples), mean)
-  #rownames(df_t_averaged) <- df_t_averaged$Group.1
+  meta$Res_MI <- paste0(meta$Resolution, "_", meta$MaxInjection)
+  meta$Raw <- rownames(meta)
   
   
-  meta_unique <- as.data.frame(stringr::str_split_fixed(df_t_averaged$Group.1,"_",2))
+  df_t <- as.data.frame(t(x))
+  
+  df_t$Raw <- rownames(df_t)
+  
+  df_t_meta <- merge(meta, df_t, by = "Raw")
+
+  df_t_averaged <- aggregate(df_t_meta[,-c(1:6)], by = list(df_t_meta$Res_MI), mean)
+  colnames(df_t_averaged) <- c("Unique", colnames(df_t_averaged[,-1]))
+  
+  
+  meta_unique <- as.data.frame(stringr::str_split_fixed(df_t_averaged$Unique,"_",2))
   colnames(meta_unique) <- c("Resolution", "MaxInjection")
   
-  meta_unique[,1] <- sub('R','', meta_unique[,1])
+  #meta_unique[,1] <- sub('R','', meta_unique[,1])
   
-  meta_unique[,2] <- sub('MI', '', meta_unique[,2])
-  meta_unique[,2] <- sub(502, 0.502, meta_unique[,2])
-  meta_unique[,2] <- as.factor(as.numeric(meta_unique[,2]))
+  #meta_unique[,2] <- sub('MI', '', meta_unique[,2])
+  meta_unique$Unique <- paste0(meta_unique$Resolution, "_", meta_unique$MaxInjection)
   
-  meta_unique <- meta_unique[order(meta_unique[,1],meta_unique[,2]),]
-  
-  #rownames(df_t_averaged) <- as.character(seq(from = 1, to = length(rownames(df_t_averaged)), by =1))
-  df_t_averaged_ordered <- log2(df_t_averaged[rownames(meta_unique),-1])
-  #rownames(df_t_averaged) <- 
-  rownames(df_t_averaged_ordered) <- df_t_averaged$Group.1[as.numeric(rownames(df_t_averaged_ordered))]
-  
-  df_t_averaged_ordered[is.na(df_t_averaged_ordered)] <- 0
-  df_averaged_ordered <- t(df_t_averaged_ordered)
-  
-      for(i in 1:ncol(df_averaged_ordered)){
-        
-        mostIntense = max(df_averaged_ordered[,i])
-        
-        if(mostIntense == 0){
-          
-        }else{
-            for(j in 1:nrow(df_averaged_ordered)){
-            df_averaged_ordered[j,i] <- df_averaged_ordered[j,i]/mostIntense
-          }
-        }
-        
-
-    }
+  df_averaged_merge <- merge(meta_unique, df_t_averaged, by = "Unique")
+  unique_row_names <- paste0("R",meta_unique$Resolution,"_","MI",meta_unique$MaxInjection)
+  unique_row_names <- sub("0.502", "502", unique_row_names)
+  rownames(df_averaged_merge) <- unique_row_names
+  df_averaged_ordered <- t(df_averaged_merge[,-c(1:3)])
   
   return(df_averaged_ordered)
 
 }
 
-#x = annotation_0_4_FAIMS
+#x = annotation_0_6_FAIMS
 unique_annotation <- function(x){
   x$sample.names <- sub('_AGC.*', '',rownames(x))
+  #x$sample.names <- sub('502', '0.502',rownames(x))
   x <- x[!duplicated(x$sample.names),]
   rownames(x) <- x$sample.names
   
   return(x[,-3])
 }
+
 ```
 
-```{r,echo=FALSE}
+```{r average_ion_normalized ,echo=FALSE}
 unique_annotation_0_4_noFAIMS <- unique_annotation(annotation_0_4_noFAIMS)
-averaged_0_4_noFAIMS_log2 <- averagedIntensity(CompiledFragments_0_4_noFAIMS)
+averaged_0_4_noFAIMS_log2 <- averagedIntensity(df_0_4_noFAIMS_log2, meta_0_4_noFAIMS)
 
 unique_annotation_0_4_FAIMS <- unique_annotation(annotation_0_4_FAIMS)
-averaged_0_4_FAIMS_log2 <- averagedIntensity(CompiledFragments_0_4_FAIMS)
+averaged_0_4_FAIMS_log2 <- averagedIntensity(df_0_4_FAIMS_log2, meta_0_4_FAIMS)
 
 unique_annotation_0_6_noFAIMS <- unique_annotation(annotation_0_6_noFAIMS)
-averaged_0_6_noFAIMS_log2 <- averagedIntensity(CompiledFragments_0_6_noFAIMS)
+averaged_0_6_noFAIMS_log2 <- averagedIntensity(df_0_6_noFAIMS_log2, meta_0_6_noFAIMS)
 
 unique_annotation_0_6_FAIMS <- unique_annotation(annotation_0_6_FAIMS)
-averaged_0_6_FAIMS_log2 <- averagedIntensity(CompiledFragments_0_6_FAIMS)
+averaged_0_6_FAIMS_log2 <- averagedIntensity(df_0_6_FAIMS_log2, meta_0_6_FAIMS)
+
+averaged_0_6_FAIMS_log2_20ppm <- averagedIntensity(df_0_6_FAIMS_log2_20ppm, meta_0_6_FAIMS_20ppm)
 
 unique_annotation_0_8_noFAIMS <- unique_annotation(annotation_0_8_noFAIMS)
-averaged_0_8_noFAIMS_log2 <- averagedIntensity(CompiledFragments_0_8_noFAIMS)
+averaged_0_8_noFAIMS_log2 <- averagedIntensity(df_0_8_noFAIMS_log2, meta_0_8_noFAIMS)
 
 unique_annotation_0_8_FAIMS <- unique_annotation(annotation_0_8_FAIMS)
-averaged_0_8_FAIMS_log2 <- averagedIntensity(CompiledFragments_0_8_FAIMS)
+averaged_0_8_FAIMS_log2 <- averagedIntensity(df_0_8_FAIMS_log2, meta_0_8_FAIMS)
 
 unique_annotation_1_noFAIMS <- unique_annotation(annotation_1_noFAIMS)
-averaged_1_noFAIMS_log2 <- averagedIntensity(CompiledFragments_1_noFAIMS)
+averaged_1_noFAIMS_log2 <- averagedIntensity(df_1_noFAIMS_log2, meta_1_noFAIMS)
 
 unique_annotation_1_FAIMS <- unique_annotation(annotation_1_FAIMS)
-averaged_1_FAIMS_log2 <- averagedIntensity(CompiledFragments_1_FAIMS)
+averaged_1_FAIMS_log2 <- averagedIntensity(df_1_FAIMS_log2, meta_1_FAIMS)
 
 unique_annotation_1_3_noFAIMS <- unique_annotation(annotation_1_3_noFAIMS)
-averaged_1_3_noFAIMS_log2 <- averagedIntensity(CompiledFragments_1_3_noFAIMS)
+averaged_1_3_noFAIMS_log2 <- averagedIntensity(df_1_3_noFAIMS_log2, meta_1_3_noFAIMS)
 
 unique_annotation_1_3_FAIMS <- unique_annotation(annotation_1_3_FAIMS)
-averaged_1_3_FAIMS_log2 <- averagedIntensity(CompiledFragments_1_3_FAIMS)
+averaged_1_3_FAIMS_log2 <- averagedIntensity(df_1_3_FAIMS_log2, meta_1_3_FAIMS)
 
 unique_annotation_2_noFAIMS <- unique_annotation(annotation_2_noFAIMS)
-averaged_2_noFAIMS_log2 <- averagedIntensity(CompiledFragments_2_noFAIMS)
+averaged_2_noFAIMS_log2 <- averagedIntensity(df_2_noFAIMS_log2, meta_2_noFAIMS)
 
 unique_annotation_2_FAIMS <- unique_annotation(annotation_2_FAIMS)
-averaged_2_FAIMS_log2 <- averagedIntensity(CompiledFragments_2_FAIMS)
+averaged_2_FAIMS_log2 <- averagedIntensity(df_2_FAIMS_log2, meta_2_FAIMS)
 
 ```
 
-```{r}
+
+
+```{r averaged_pheatmaps_ionNormalized, echo=FALSE}
 my_colour = list(
   #MaxInjection = c(`0.502` = "#CEE3DD", `1` = "#A7C2A4", `5` = "#73A08A"),
   MaxInjection = c(`0.502` = "#F7F7F7", `1` = "#D0D3CA", `5` = "#A3A79D"),
@@ -527,29 +905,30 @@ my_colour = list(
   #Resolution = c(`120K` = "#E2C044", `240K` = "#DB7C26", `500K` = "#DB5A42")
 )
 
-cols <- brewer.pal(3, "YlGnBu")
-scaleRYG <- colorRampPalette(cols)(20)
-#scaleRYG <- colorRampPalette(c("#F5F5F5","#E6F598","#78A073"))(20)
 
 pheatmap(averaged_0_4_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_4_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.4 Da")
+
+
 
 pheatmap(averaged_0_4_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_4_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.4 Da with FAIMS")
 
@@ -557,10 +936,11 @@ pheatmap(averaged_0_6_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_6_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.6 Da")
 
@@ -568,10 +948,23 @@ pheatmap(averaged_0_6_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_6_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.6 Da with FAIMS")
+
+pheatmap(averaged_0_6_FAIMS_log2_20ppm,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_6_FAIMS,
+         color = scaleRYG,
+         breaks = c(0,7,9,11,14,16,18,19, 20,21),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.6 Da with FAIMS")
 
@@ -579,10 +972,11 @@ pheatmap(averaged_0_8_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_8_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.8 Da")
 
@@ -590,10 +984,11 @@ pheatmap(averaged_0_8_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_8_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 0.8 Da with FAIMS")
 
@@ -601,10 +996,11 @@ pheatmap(averaged_1_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 1 Da")
 
@@ -612,10 +1008,11 @@ pheatmap(averaged_1_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 1 Da with FAIMS")
 
@@ -623,10 +1020,11 @@ pheatmap(averaged_1_3_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_3_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 1.3 Da")
 
@@ -634,10 +1032,11 @@ pheatmap(averaged_1_3_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_3_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 1.3 Da with FAIMS")
 
@@ -645,10 +1044,11 @@ pheatmap(averaged_2_noFAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_2_noFAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 2 Da")
 
@@ -656,14 +1056,472 @@ pheatmap(averaged_2_FAIMS_log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_2_FAIMS,
          color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
          cluster_rows = FALSE,
          cluster_cols = FALSE,
          gaps_col =c(3,6,9),
-         gaps_row = c(1),
+         gaps_row = c(11),
          show_colnames = F,
          main = "IW of 2 Da with FAIMS")
 
 ```
+
+```{r average_parameter_normalized,echo=FALSE}
+unique_annotation_0_4_noFAIMS <- unique_annotation(annotation_0_4_noFAIMS)
+averaged_0_4_noFAIMS_log2_parameter <- averagedIntensity(df_0_4_noFAIMS_log2_parameter, meta_0_4_noFAIMS)
+
+unique_annotation_0_4_FAIMS <- unique_annotation(annotation_0_4_FAIMS)
+averaged_0_4_FAIMS_log2_parameter <- averagedIntensity(df_0_4_FAIMS_log2_parameter, meta_0_4_FAIMS)
+
+unique_annotation_0_6_noFAIMS <- unique_annotation(annotation_0_6_noFAIMS)
+averaged_0_6_noFAIMS_log2_parameter <- averagedIntensity(df_0_6_noFAIMS_log2_parameter, meta_0_6_noFAIMS)
+
+unique_annotation_0_6_FAIMS <- unique_annotation(annotation_0_6_FAIMS)
+averaged_0_6_FAIMS_log2_parameter <- averagedIntensity(df_0_6_FAIMS_log2_parameter, meta_0_6_FAIMS)
+
+unique_annotation_0_6_FAIMS <- unique_annotation(annotation_0_6_FAIMS)
+averaged_0_6_FAIMS_log2_parameter <- averagedIntensity(df_0_6_FAIMS_log2_parameter, meta_0_6_FAIMS)
+
+
+unique_annotation_0_8_noFAIMS <- unique_annotation(annotation_0_8_noFAIMS)
+averaged_0_8_noFAIMS_log2_parameter <- averagedIntensity(df_0_8_noFAIMS_log2_parameter, meta_0_8_noFAIMS)
+
+unique_annotation_0_8_FAIMS <- unique_annotation(annotation_0_8_FAIMS)
+averaged_0_8_FAIMS_log2_parameter <- averagedIntensity(df_0_8_FAIMS_log2_parameter, meta_0_8_FAIMS)
+
+unique_annotation_1_noFAIMS <- unique_annotation(annotation_1_noFAIMS)
+averaged_1_noFAIMS_log2_parameter <- averagedIntensity(df_1_noFAIMS_log2_parameter, meta_1_noFAIMS)
+
+unique_annotation_1_FAIMS <- unique_annotation(annotation_1_FAIMS)
+averaged_1_FAIMS_log2_parameter <- averagedIntensity(df_1_FAIMS_log2_parameter, meta_1_FAIMS)
+
+unique_annotation_1_3_noFAIMS <- unique_annotation(annotation_1_3_noFAIMS)
+averaged_1_3_noFAIMS_log2_parameter <- averagedIntensity(df_1_3_noFAIMS_log2_parameter, meta_1_3_noFAIMS)
+
+unique_annotation_1_3_FAIMS <- unique_annotation(annotation_1_3_FAIMS)
+averaged_1_3_FAIMS_log2_parameter <- averagedIntensity(df_1_3_FAIMS_log2_parameter, meta_1_3_FAIMS)
+
+unique_annotation_2_noFAIMS <- unique_annotation(annotation_2_noFAIMS)
+averaged_2_noFAIMS_log2_parameter <- averagedIntensity(df_2_noFAIMS_log2_parameter, meta_2_noFAIMS)
+
+unique_annotation_2_FAIMS <- unique_annotation(annotation_2_FAIMS)
+averaged_2_FAIMS_log2_parameter <- averagedIntensity(df_2_FAIMS_log2_parameter, meta_2_FAIMS)
+
+```
+
+```{r averaged_pheatmaps_ParameterNormalized, echo=FALSE}
+my_colour = list(
+  #MaxInjection = c(`0.502` = "#CEE3DD", `1` = "#A7C2A4", `5` = "#73A08A"),
+  MaxInjection = c(`0.502` = "#F7F7F7", `1` = "#D0D3CA", `5` = "#A3A79D"),
+  Resolution = c(`120K` = "#FFEC77", `240K` = "#FFBE5E", `500K` = "#DB664F")
+  #Resolution = c(`120K` = "#E2C044", `240K` = "#DB7C26", `500K` = "#DB5A42")
+)
+
+
+pheatmap(averaged_0_4_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_4_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.4 Da")
+
+
+
+pheatmap(averaged_0_4_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_4_FAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.4 Da with FAIMS")
+
+pheatmap(averaged_0_6_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_6_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.6 Da")
+
+pheatmap(averaged_0_6_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_6_FAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.6 Da with FAIMS")
+
+pheatmap(averaged_0_8_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_8_noFAIMS,
+         color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.8 Da")
+
+pheatmap(averaged_0_8_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_0_8_FAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 0.8 Da with FAIMS")
+
+pheatmap(averaged_1_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_1_noFAIMS,
+         color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1 Da")
+
+pheatmap(averaged_1_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_1_FAIMS,
+         color = scaleRYG,
+         breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1 Da with FAIMS")
+
+pheatmap(averaged_1_3_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_1_3_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1.3 Da")
+
+pheatmap(averaged_1_3_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_1_3_FAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 1.3 Da with FAIMS")
+
+pheatmap(averaged_2_noFAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_2_noFAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 2 Da")
+
+pheatmap(averaged_2_FAIMS_log2_parameter,
+         annotation_colors = my_colour,
+         annotation_col = unique_annotation_2_FAIMS,
+         color = parameter_color,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(11),
+         show_colnames = F,
+         main = "IW of 2 Da with FAIMS")
+
+```
+
+
+```{r, echo=FALSE}
+
+# x = CompiledFragments_0_4_FAIMS
+  # m = meta_0_4_FAIMS
+
+df_y7y8y9_norm <- function(x){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df_y7 <- x[grep("y7",x$Mass.Feature),]
+  df_y8 <- x[grep("y8",x$Mass.Feature),]
+  df_y9 <- x[grep("y9",x$Mass.Feature),]
+  
+  df_y7_y8_y9 <- rbind(df_y7, df_y8, df_y9)
+  df <- df_y7_y8_y9[, -c(1:2)]
+  
+  colnames(df) <- samples
+  rownames(df) <- c("y7", "y8", "y9")
+  
+  t_df <- as.data.frame(t(df))
+  t_df$Raw <- rownames(t_df)
+  
+  meta <- as.data.frame(stringr::str_split_fixed(rownames(t_df),"_",4))
+  colnames(meta) <- c("Resolution", "MaxInjection", "AGC", "Replicate")
+  
+  meta$Resolution <- sub('R','', meta$Resolution)
+  
+  meta$MaxInjection <- sub('MI', '', meta$MaxInjection)
+  meta$MaxInjection <- sub(502, 0.502, meta$MaxInjection)
+  meta$MaxInjection <- as.factor(as.numeric(meta$MaxInjection))
+  
+  meta$Replicate <- as.numeric(sub("*.raw",'', meta$Replicate))
+  meta$Unique <- paste0(meta$Resolution,"_", meta$MaxInjection)
+  
+  
+  rownames(meta) <- rownames(t_df)
+  meta$Raw <- rownames(meta)
+  
+  
+  
+  
+  t_df_meta <- merge(meta, t_df, by = "Raw")
+  t_df_meta <- t_df_meta[order(t_df_meta[,2],t_df_meta[,3]),]
+  
+
+  return(t_df_meta)
+  
+}
+
+
+# df <- y7y8y9_0_4_FAIMS
+# WhichIons <- c("y7", "y8", "y9")
+aggregate_ions <- function(df, WhichIons){
+  
+  aggregate_average_ions <- aggregate(df[,which(colnames(df) == WhichIons)],
+                                  list(df$Unique), mean)
+  
+  aggregate_stdev_ions <- aggregate(df[,which(colnames(df) == WhichIons)],
+                                        list(df$Unique), sd)
+  
+  #aggregate_log2Average_ions <- log2(aggregate_average_ions[,-1])
+  
+  #aggregate_log2Stdev_ions <- aggregate(df[,which(colnames(df) == WhichIons)],list(df$Concentration), function(x) sd(log2(x)))
+  
+  #aggregate_sum_ions$CV <- aggregate_sum_ions$stdev/aggregate_sum_ions$x*100
+
+  aggregate_sum_ions <- merge(aggregate_average_ions, aggregate_stdev_ions, by = "Group.1")
+  
+  colnames(aggregate_sum_ions) <- c("Unique", "y7_Average", "y8_Average", "y9_Average", "y7_Stdev", "y8_Stdev", "y9_Stdev")
+  
+  meta_aggregate <- df[which(df$Replicate == 1),1:6]
+  
+  aggregate_sum_ions_meta <- merge(meta_aggregate, aggregate_sum_ions, by = "Unique")
+  aggregate_sum_ions_meta <- aggregate_sum_ions_meta[,-c(2,5,6)]
+  
+  return(aggregate_sum_ions_meta)
+}
+
+#df <- y7y8y9_0_4_FAIMS_aggregate
+long_aggregate <- function(df){
+  long_y7y8y9_aggregate <- melt(df, id.vars = c("Unique", "Resolution", "MaxInjection"),
+                                        variable.name = "Ion",
+                                        value.name = "Intensity")
+  
+  to_split <- as.character(long_y7y8y9_aggregate$Ion)
+  Stat = sub(".*_","", to_split)
+  long_y7y8y9_aggregate$Ion <- sub("_.*","", to_split)
+  long_y7y8y9_aggregate$Stat <- Stat
+  
+  return(long_y7y8y9_aggregate)
+  
+}
+
+
+
+y7y8y9_0_4_FAIMS <- df_y7y8y9_norm(CompiledFragments_0_4_FAIMS)
+y7y8y9_0_6_FAIMS <- df_y7y8y9_norm(CompiledFragments_0_6_FAIMS)
+y7y8y9_1_FAIMS <- df_y7y8y9_norm(CompiledFragments_1_FAIMS)
+y7y8y9_1_3_FAIMS <- df_y7y8y9_norm(CompiledFragments_1_3_FAIMS)
+y7y8y9_2_FAIMS <- df_y7y8y9_norm(CompiledFragments_2_FAIMS)
+
+
+y7y8y9_0_4_noFAIMS <- df_y7y8y9_norm(CompiledFragments_0_4_noFAIMS)
+y7y8y9_0_6_noFAIMS <- df_y7y8y9_norm(CompiledFragments_0_6_noFAIMS)
+
+y7y8y9_0_4_FAIMS_aggregate <- aggregate_ions(y7y8y9_0_4_FAIMS, c("y7", "y8", "y9"))
+long_y7y8y9_0_4_FAIMS_aggregate <- long_aggregate(y7y8y9_0_4_FAIMS_aggregate)
+long_y7y8y9_0_4_FAIMS_aggregate_average <- long_y7y8y9_0_4_FAIMS_aggregate[ which(long_y7y8y9_0_4_FAIMS_aggregate$Stat == "Average"),]
+
+
+
+ggplot(y7y8y9_0_4_FAIMS_aggregate, aes(x=Resolution, y= y7_Average, ymin = y7_Average-y7_Stdev, ymax = y7_Average+y7_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y7_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.4 Isolation Width with FAIMS" ,subtitle = "transition y7", y = "Intensity \n[abr. units]", x ="Resolution")
+
+ggplot(y7y8y9_0_4_FAIMS_aggregate, aes(x=Resolution, y= y8_Average, ymin = y8_Average-y8_Stdev, ymax = y8_Average+y8_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y8_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.4 Isolation Width with FAIMS" ,subtitle = "transition y8", y = "Intensity \n[abr. units]", x ="Resolution")
+
+ggplot(y7y8y9_0_4_FAIMS_aggregate, aes(x=Resolution, y= y9_Average, ymin = y9_Average-y9_Stdev, ymax = y9_Average+y9_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y9_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.4 Isolation Width with FAIMS" ,subtitle = "transition y9", y = "Intensity \n[abr. units]", x ="Resolution")
+
+
+y7y8y9_0_6_FAIMS_aggregate <- aggregate_ions(y7y8y9_0_6_FAIMS, c("y7", "y8", "y9"))
+
+ggplot(y7y8y9_0_6_FAIMS_aggregate, aes(x=Resolution, y= y7_Average, ymin = y7_Average-y7_Stdev, ymax = y7_Average+y7_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y7_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.6 Isolation Width with FAIMS" ,subtitle = "transition y7", y = "Intensity \n[abr. units]", x ="Resolution")
+
+ggplot(y7y8y9_0_6_FAIMS_aggregate, aes(x=Resolution, y= y8_Average, ymin = y8_Average-y8_Stdev, ymax = y8_Average+y8_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y8_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.6 Isolation Width with FAIMS" ,subtitle = "transition y8", y = "Intensity \n[abr. units]", x ="Resolution")
+
+ggplot(y7y8y9_0_6_FAIMS_aggregate, aes(x=Resolution, y= y9_Average, ymin = y9_Average-y9_Stdev, ymax = y9_Average+y9_Stdev, fill = factor(MaxInjection))) + 
+  geom_bar(aes(y=y9_Average),stat = "identity", alpha = 0.6, position = position_dodge())+
+  #scale_y_continuous(breaks = seq(0,36,2), limit = c(0,36))+
+  geom_errorbar(width = 0.2, color= "#6D696F", position = position_dodge(width = 0.9)) +
+  theme_light()+
+  labs(title = "ETDIGVTGGGQGK 0.6 Isolation Width with FAIMS" ,subtitle = "transition y9", y = "Intensity \n[abr. units]", x ="Resolution")
+
+
+# y7y8y9_0_4_FAIMS[y7y8y9_0_4_FAIMS == 0] <- NA
+# y7y8y9_0_4_FAIMS_log2 <- log2(y7y8y9_0_4_FAIMS)
+# y7y8y9_0_4_FAIMS_log2[is.na(y7y8y9_0_4_FAIMS_log2)] <- 0
+# 
+# 
+# y7y8y9_0_4_FAIMS_row_norm <- y7y8y9_0_4_FAIMS
+# for (i in 1:nrow(y7y8y9_0_4_FAIMS)) {
+#   max_ion <- max(y7y8y9_0_4_FAIMS[i,])
+#   
+#   y7y8y9_0_4_FAIMS_row_norm[i,] <- y7y8y9_0_4_FAIMS[i,]/max_ion
+  
+#}
+
+
+```
+
+
+```{r, echo=FALSE}
+
+pheatmap(y7y8y9_0_4_FAIMS,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_4_FAIMS,
+         color = scaleRYG,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #gaps_col =c(3,6,9),
+         #gaps_row = c(11),
+         show_colnames = T,
+         main = "IW of 0.4 Da")
+
+pheatmap(y7y8y9_0_6_FAIMS,
+         annotation_colors = my_colour,
+         annotation_col = annotation_0_6_FAIMS,
+         color = scaleRYG,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #gaps_col =c(3,6,9),
+         #gaps_row = c(11),
+         show_colnames = T,
+         main = "IW of 0.6 Da")
+
+pheatmap(y7y8y9_1_FAIMS,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_FAIMS,
+         color = scaleRYG,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #gaps_col =c(3,6,9),
+         #gaps_row = c(11),
+         show_colnames = T,
+         main = "IW of 1 Da")
+
+pheatmap(y7y8y9_1_3_FAIMS,
+         annotation_colors = my_colour,
+         annotation_col = annotation_1_3_FAIMS,
+         color = scaleRYG,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #gaps_col =c(3,6,9),
+         #gaps_row = c(11),
+         show_colnames = T,
+         main = "IW of 1.3 Da")
+
+pheatmap(y7y8y9_2_FAIMS,
+         annotation_colors = my_colour,
+         annotation_col = annotation_2_FAIMS,
+         color = scaleRYG,
+         scale = "row",
+         #breaks = c(0,0.464, 0.732, 0.833, 0.91, 1),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #gaps_col =c(3,6,9),
+         #gaps_row = c(11),
+         show_colnames = T,
+         main = "IW of 2 Da")
+
+
+```
+
+
+
 
 ```{r}
 # To combine noFaims and FAIMs samples into one heatmap
@@ -685,7 +1543,9 @@ format_df <- function(x){
   df_log2 <- df_log2[-which(rownames(df_log2)=="b1"),]
   df_log2 <- df_log2[-which(rownames(df_log2)=="y1"),]
   
-  rownames(df_log2)[1] <- "precursor"
+  
+  
+  #rownames(df_log2)[1] <- "precursor"
   
     if(length(grep("CORRUPTED",colnames(df_log2))) != 0){
     df_log2 <- df_log2[,-grep("CORRUPTED",colnames(df_log2))]
@@ -867,7 +1727,7 @@ Combined_1_Log2 <- combined_Log2(Combined_1_rep_Log2)
 Combined_1_3_Log2 <- combined_Log2(Combined_1_3_rep_Log2)
 Combined_2_Log2 <- combined_Log2(Combined_2_rep_Log2)
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_0_4_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_0_4_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_0_4_noFAIMS,
@@ -907,7 +1767,7 @@ pheatmap(Combined_0_8_Log2,
          show_colnames = F,
          main = "IW of 0.8 Da")
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_1_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_1_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_1_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_1_noFAIMS,
@@ -935,7 +1795,7 @@ pheatmap(Combined_1_3_Log2,
          show_colnames = F,
          main = "IW of 1.3 Da")
 
-pdf("H:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_2_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/ETDIGVTGGGQGK_combined_2_log2_heatmap.pdf", width = 3, height = 7,useDingbats = FALSE)
 pheatmap(Combined_2_Log2,
          annotation_colors = my_colour,
          annotation_col = unique_annotation_2_noFAIMS,

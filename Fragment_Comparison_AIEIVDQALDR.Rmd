@@ -26,7 +26,7 @@ library(plyr)
 
 ```{r load_data, echo=FALSE}
 # These are dataframes for infusions samples monitoring the summed intensity for 10 b and y fragment in the peptide AIEIVDQALDR 
-CompiledFragments_0_4_noFAIMS <- read.csv("H:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
+CompiledFragments_0_4_noFAIMS <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/SummedIntensity_Infusions/AIEIVDQALDR/CompiledFragmentResults_IW_0_4_Zymo_noFAIMS.csv", 
                                             header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 

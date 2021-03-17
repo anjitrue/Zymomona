@@ -2,6 +2,8 @@ library(ggplot2)
 library(plotly)
 library(pheatmap)
 library(grid)
+library(gridExtra)
+library(lattice)
 
 #### WT_3c_FAIMS_ISPHpeptides_infusion_20191112 ####
 
@@ -63,31 +65,55 @@ ggplot(x, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
   labs(title = "1 min tryptic digest infusion with FAIMS-PRM" ,subtitle = "Strain over-expressinig IspH", y = "Intensity", x ="Time (min)")
 
 ##### 8 peptide infusion ####
-EightPeptide_Infusion <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep3_62_5fmol.csv",
-                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
-EightPeptide_Infusion$Peptide <- as.factor(EightPeptide_Infusion$Peptide)
 
-p <- ggplot(EightPeptide_Infusion, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
+EightPeptide_3rep_Infusion <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep123_62_5fmol_edit.csv",
+                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
+EightPeptide_3rep_Infusion$Peptide <- as.factor(EightPeptide_Infusion$Peptide)
+EightPeptide_3rep_Infusion$Replicate <- as.factor(EightPeptide_3rep_Infusion$Replicate)
+
+
+
+ggplot(EightPeptide_3rep_Infusion, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
+  geom_point(aes(shape=Peptide, color=Replicate), size = 2)+
+  #geom_line(aes(color=Peptide), size=1) + 
+  scale_y_continuous(breaks = seq(0,3000000,500000), limit = c(0,3000000), labels = function(x)  format(x, scientific = TRUE)) +
+  xlim(1.0, 2.0)+
+  theme_classic()+
+  labs(title = "8 peptides",x = "Time (min)")
+
+
+
+EightPeptide_Infusion <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep3_62_5fmol_edit.csv",
+                            header = TRUE, sep = ",", stringsAsFactors = FALSE)
+ EightPeptide_Infusion$Peptide <- as.factor(EightPeptide_Infusion$Peptide)
+
+p_8infusions <- ggplot(EightPeptide_Infusion, aes(x=Retention.Time, y=Intensity, group = Peptide)) +
   geom_point(aes(shape=Peptide, color=Peptide), size = 2)+
   geom_line(aes(color=Peptide), size=1) + 
   scale_y_continuous(breaks = seq(0,3000000,500000), limit = c(0,3000000), labels = function(x)  format(x, scientific = TRUE)) +
   xlim(1.0, 2.0)+
   theme_classic()+
   labs(title = "8 peptides",x = "Time (min)")
-p
+p_8infusions
 
 FAIMS_8peptides_ETD_10transitions <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/FAIMS_8peptides_SpikedMatrix_Rep3_62_5fmol_Transitions_ETDIGVTGGGQGK.csv", 
                                                  header = TRUE, sep = ",", stringsAsFactors = FALSE)
 colnames(FAIMS_8peptides_ETD_10transitions) <- c("Time","Intensity","Transition")
 x <- FAIMS_8peptides_ETD_10transitions
 x[,3] <- as.factor(x[,3])
-ggplot(x, aes(x=Time, y=Intensity, group = Transition)) +
+p_ETD_transitions  <- ggplot(x, aes(x=Time, y=Intensity, group = Transition)) +
   geom_line(aes(color=Transition), size=1) + 
-  scale_y_continuous(breaks = seq(0,700000,100000), limit = c(0,700000), labels = function(x)  format(x, scientific = TRUE)) +
+  scale_y_continuous(breaks = seq(0,7050000,150000), limit = c(0,750000), labels = function(x)  format(x, scientific = TRUE)) +
   xlim(1.0, 2.0)+
   theme_classic()+
   labs(title = "ETDIG peptide transitions" , y = "Intensity", x ="Time (min)")
 
+p_8infusions_grob <- ggplotGrob(p_8infusions)
+p_ETD_transitions_grob <- ggplotGrob(p_ETD_transitions)
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/SpectraComparisons_PROSIT_HIGHRES_LOWRES_IW6.pdf")
+grid.draw(rbind(p_8infusions_grob, p_ETD_transitions_grob, size = "last"))
+dev.off()
 
 #### ISPH_3a_FAIMS_ISPHpeptides_infusion_240K ####
 

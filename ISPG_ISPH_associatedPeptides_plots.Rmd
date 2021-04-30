@@ -146,6 +146,7 @@ Fold Change of ISPG protein across strain. Boxplot contains triplicate analysis.
 type.colors = as.numeric(factor(ISPG_lfq$Type))
 q <- ggplot(ISPG_lfq, aes(x=Type, y=FC, fill=Type)) +
   geom_boxplot()+
+  scale_y_continuous(breaks = seq(0,30,5), limit = c(0,30))+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG protein", 
@@ -381,6 +382,40 @@ q <- ggplot(long_ISPG_Lfq[37:72,], aes(x=variable, y=log2(value), fill=Type)) +
 q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change across strains", 
                                                                     subtitle = "ISPG and associted peptides in Over Expression (OE) Strain",
                                                                     y = "Log2(Fold Change relative to WT)", x = "")
+
+
+```
+
+```{r CV, echo=FALSE}
+IspG_percentCV <- ISPG_peptides_abundance[,2:4]
+
+IspG_percentCV$Average <- apply(IspG_percentCV, 1, mean)
+IspG_percentCV$Stdev <- apply(IspG_percentCV, 1, sd)
+IspG_percentCV$CV <- (IspG_percentCV$Stdev)/(IspG_percentCV$Average)*100
+IspG_percentCV$Peptide <- rownames(IspG_percentCV)
+
+CV_IspG <- ggplot(IspG_percentCV, aes(x=Peptide, y=CV)) +
+  geom_point()+
+  geom_point(size = 3)+
+  scale_y_continuous(breaks = seq(0,160,20), limit = c(0,160))+
+  geom_hline(yintercept = median(IspG_percentCV$CV), color = "red")+
+  theme_light()+
+  labs(title = "IspG %CV for pepitdes", y= "%CV", x="IspG peptides")
+
+CV_IspH <- ggplot(IspH_percentCV, aes(x=Peptide, y=CV)) +
+  geom_point(size = 3)+
+  scale_y_continuous(breaks = seq(0,60,10), limit = c(0,60))+
+  geom_hline(yintercept = median(IspH_percentCV$CV), color = "red")+
+  theme_light()+
+  labs(title = "IspH %CV for pepitdes", y= "%CV", x="IspH peptides")
+
+CV_IspG_grob <- ggplotGrob(CV_IspG)
+CV_IspH_grob <- ggplotGrob(CV_IspH)
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FoldChange/IspG_IspH_PercentCV_OEStrains.pdf", width = 20, height = 15,useDingbats = FALSE)
+grid.arrange(CV_IspG_grob, CV_IspH_grob)
+dev.off()
+
 
 
 ```

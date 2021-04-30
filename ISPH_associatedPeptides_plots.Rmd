@@ -169,9 +169,16 @@ q <- ggplot(ISPG_ISPH_lfq[c(1:3,13:14),], aes(x=Type, y=FC, fill=Type)) +
   scale_y_continuous(limits = c(0,30), breaks = seq(0,30, by = 5))+
   scale_fill_manual(values = c("#5ABCB2", "#C3DE79","#A394DD"))+
   theme_light()
-q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG and ISPH protein", 
+IspG_IspH <- q + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Fold Change ISPG and ISPH protein", 
                                                                     subtitle = "Over Expression (OE) Strain",
                                                                     y = "Fold Change (OE/WT)")
+IspG_IspH_grp <- ggplotGrob(IspG_IspH)
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FoldChange/IspG_IspH_FoldChange_OEStrains.pdf", width = 20, height = 25,useDingbats = FALSE)
+
+IspG_IspH
+
+dev.off()
 
 ```
 
@@ -352,10 +359,10 @@ ISPH_IntensityPlot_Bars
 
 
 
-gridExtra::grid.arrange(egg::set_panel_size(p=ISPH_IntensityPlot_Bars, width=unit(10, "cm"), height=unit(9, "cm")))
+gridExtra::grid.arrange(egg::set_panel_size(p=ISPH_IntensityPlot_Bars, width=unit(25, "cm"), height=unit(9, "cm")))
 ggsave(filename = "F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FoldChange/DynamicRange_Protein_Peptide_Bar_variability_IspH.pdf", plot = egg::set_panel_size(p=ISPH_IntensityPlot_Bars, width=unit(10, "cm"), height=unit(9, "cm")))
 
-gridExtra::grid.arrange(egg::set_panel_size(p=ISPG_IntensityPlot_Bars, width=unit(10, "cm"), height=unit(9, "cm")))
+gridExtra::grid.arrange(egg::set_panel_size(p=ISPG_IntensityPlot_Bars, width=unit(25, "cm"), height=unit(9, "cm")))
 ggsave(filename = "F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/FoldChange/DynamicRange_Protein_Peptide_Bar_variability_IspG.pdf", plot = egg::set_panel_size(p=ISPG_IntensityPlot_Bars, width=unit(10, "cm"), height=unit(9, "cm")))
 
 IspGgrob <- ggplotGrob(ISPG_IntensityPlot_Bars)
@@ -451,6 +458,24 @@ ggplot(FoldChange_IspG_ETD, aes(x= Type, y= FoldChange)) +
   theme_light()+
   labs(title = "Transition Fold Changes - FAIMS" ,subtitle = "ETDIGVTGGGQGK peptide ", y = "Fold Change", x ="Transition")
 ```
+
+```{r CV, echo=FALSE}
+IspH_percentCV <- ISPH_peptides_abundance[,2:4]
+
+IspH_percentCV$Average <- apply(IspH_percentCV, 1, mean)
+IspH_percentCV$Stdev <- apply(IspH_percentCV, 1, sd)
+IspH_percentCV$CV <- (IspH_percentCV$Stdev)/(IspH_percentCV$Average)*100
+IspH_percentCV$Peptide <- rownames(IspH_percentCV)
+
+ggplot(IspH_percentCV, aes(x=Peptide, y=CV)) +
+  geom_point(size = 3)+
+  scale_y_continuous(breaks = seq(0,60,10), limit = c(0,60))+
+  geom_hline(yintercept = median(IspH_percentCV$CV), color = "red")+
+  theme_light()+
+  labs(title = "IspH %CV for pepitdes", y= "%CV", x="IspH peptides")
+
+```
+
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

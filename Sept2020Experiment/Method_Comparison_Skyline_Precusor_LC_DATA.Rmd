@@ -330,9 +330,9 @@ Formatting_DFI_Summed_df <- function(df,peptide_Type, peptide,target_ions,Ion_mo
   return(df_totalIons_sum)
 }
 
-df <- ETDIGVTGGGQGK_FAIMS_light_summed
-df_heavy <- ETDIGVTGGGQGK_FAIMS_heavy_summed
-target_ions <- ETDIGVTGGGQGK_target_ions
+ df <- AIEIVDQALDR_light_summed 
+ df_heavy <- AIEIVDQALDR_heavy_summed
+ target_ions <- AIEIVDQALDR_target_ions
 
 # Fold change funtion that uses FC_DIF_within to calculate the FC and the df_FC puts together the dataframe with the right bells and whistles. 
 FoldChange_DFI <- function(df, df_heavy, target_ions){
@@ -360,8 +360,8 @@ FoldChange_DFI <- function(df, df_heavy, target_ions){
   return(df_meta_precursor_FC)
 }
 
- df <- ETDIGVTGGGQGK_FAIMS_light_summed
- df_sum <- ETDIGVTGGGQGK_FAIMS_light_summed[,grep("Summed", colnames(ETDIGVTGGGQGK_FAIMS_light_summed))]
+  df <- AIEIVDQALDR_light_summed
+  df_sum <- df[,grep("Summed", colnames(df))]
 
 FC_DIF_within <- function(df,df_sum){
   v = data.frame()
@@ -369,11 +369,13 @@ FC_DIF_within <- function(df,df_sum){
     
     for (j in 1:nrow(df_sum)){
       
-        if(length(grep("120", rownames(df_sum)[i])) != 0){
+        if(length(grep("120", rownames(df_sum)[j])) != 0){
+          print(paste0("j=",j, " ", rownames(df_sum)[j]))
           
           for(i in 1:3){
            if(length(grep(paste0(i,".120"), rownames(df_sum)[j])) != 0){
               v <- rbind(v,df_sum[j,]/WT[i,])
+              print(paste0("j=",j, " ", rownames(df_sum)[j],"/",rownames(WT[i,])))
            }
           }
         }else{
@@ -515,7 +517,7 @@ ETDIGVTGGGQGK_FAIMS_ratio$Sample <- paste0(ETDIGVTGGGQGK_FAIMS_ratio$Sample,"_",
 
 AIEIVDQALDR_DIF_ratio <- AIEIVDQALDR_light_ratio[,1:7]
 AIEIVDQALDR_DIF_ratio$Ratio <- AIEIVDQALDR_heavy_summed$MarkerIonsSummed/AIEIVDQALDR_light_summed$MarkerIonsSummed
-AIEIVDQALDR_DIF_ratio$Sample <- paste0(AIEIVDQALDR_DIF_ratio$Sample, "_", AIEIVDQALDR_FAIMS_ratio$IonMobility)
+AIEIVDQALDR_DIF_ratio$Sample <- paste0(AIEIVDQALDR_DIF_ratio$Sample, "_", AIEIVDQALDR_DIF_ratio$IonMobility)
 
 AIEIVDQALDR_FAIMS_ratio <- AIEIVDQALDR_FAIMS_light_ratio[,1:7]
 AIEIVDQALDR_FAIMS_ratio$Ratio <- AIEIVDQALDR_FAIMS_heavy_summed$MarkerIonsSummed/AIEIVDQALDR_FAIMS_light_summed$MarkerIonsSummed
@@ -720,8 +722,8 @@ Induction_AIEIVDQALDRheavy <- read.csv("P:/EAT_20190926_Zymomona/Zymo_TimeCourse
 Induction plotting is done!
 ```{r NOTFINISHED,echo=FALSE}
 library(gtools)
-  df <- Induction_ETDIGVTGGGQGKlight
-df<- FAIMS_Induction_ETDIGVTGGGQGKlight
+  #df <- Induction_ETDIGVTGGGQGKlight
+#df<- FAIMS_Induction_ETDIGVTGGGQGKlight
 Induction_meta <- function(df){
   
   #Extract sample names and reformat
@@ -775,8 +777,8 @@ Induction_meta <- function(df){
 
 
 
-meta <- Induction_ETDIGVTGGGQGKlight_meta
-df <- Induction_ETDIGVTGGGQGKlight
+# meta <- Induction_ETDIGVTGGGQGKlight_meta
+# df <- Induction_ETDIGVTGGGQGKlight
 Induction_formating_df <- function(meta,df){
   
   #Extract colmumns with precursor in it

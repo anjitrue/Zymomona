@@ -583,7 +583,7 @@ aggregate_ratio_FAIMS_ETDIGVTGGGQGK <- aggregate_ratio(ETDIGVTGGGQGK_FAIMS_ratio
 aggregate_ratio_AIEIVDQALDR <- aggregate_ratio(AIEIVDQALDR_DIF_ratio)
 aggregate_ratio_FAIMS_AIEIVDQALDR <- aggregate_ratio(AIEIVDQALDR_FAIMS_ratio)
 
-CV_LC_Infusion <- rbind(aggregate_ETDIGVTGGGQGK,aggregate_AIEIVDQALDR, aggregate_sum_ETDIGVTGGGQGK, aggregate_sum_AIEIVDQALDR, aggregate_ratio_ETDIGVTGGGQGK, aggregate_ratio_AIEIVDQALDR)
+CV_LC_Infusion <- rbind(aggregate_ETDIGVTGGGQGK,aggregate_AIEIVDQALDR, aggregate_sum_ETDIGVTGGGQGK, aggregate_sum_AIEIVDQALDR, aggregate_ratio_ETDIGVTGGGQGK, aggregate_ratio_FAIMS_ETDIGVTGGGQGK, aggregate_ratio_AIEIVDQALDR,aggregate_ratio_FAIMS_AIEIVDQALDR)
 CV_LC_Infusion <- CV_LC_Infusion[-grep("PRM", CV_LC_Infusion$Sample),]
 
 Ion_mobility_infusion <- sub(".*ETDIGVTGGGQGK_", "", CV_LC_Infusion[grep("FAIMS", CV_LC_Infusion$Sample),1],"_")
@@ -592,8 +592,9 @@ Ion_mobility_infusion <- sub(".*AIEIVDQALDR_", "", Ion_mobility_infusion ,"_")
 
 
 Type <-  c(rep("DDA",6), Ion_mobility_infusion)
-Type[grep("ratio", CV_LC_Infusion$Sample)] <- paste0(Type[grep("ratio", CV_LC_Infusion$Sample)],"_","HeavyToLight")
 CV_LC_Infusion$Type <- Type
+CV_LC_Infusion$Type[grep("ratio", CV_LC_Infusion$Sample)] <- paste0(CV_LC_Infusion$Type[grep("ratio", CV_LC_Infusion$Sample)],"_","HeavyToLight")
+
 
 
 peptide_Type_DDA <- paste0(sub(".*DDA_","", CV_LC_Infusion$Sample[1:6]),"_","DDA")
@@ -603,6 +604,7 @@ peptide_Type_Infusion <- paste0(sub("WT_","", peptide_Type_Infusion))
 peptide_Type <- c(peptide_Type_DDA, peptide_Type_Infusion)
 CV_LC_Infusion$Peptide_Type <- peptide_Type
 
+#Separate dataframes with ratio calculation
 CV_LC_Infusion_ratio <- CV_LC_Infusion[grep("ratio", CV_LC_Infusion$Sample),]
 CV_LC_Infusion <- CV_LC_Infusion[-grep("ratio", CV_LC_Infusion$Sample),]
 

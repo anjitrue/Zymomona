@@ -1,0 +1,425 @@
+---
+title: "SupplemenalFigure_0_6_IW_RemaininPeptides_20ppm"
+author: "Anji"
+date: "April 30, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+require(knitr)
+opts_knit$set(root.dir = "F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/")
+knitr::opts_chunk$set(root.dir = "F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeatMaps/", warning = FALSE, message = FALSE)
+```
+
+```{r install_packages, echo=FALSE}
+library(pcaMethods)
+library(ggplot2)
+library(pheatmap)
+library(plotly)
+library(reshape2)
+library(RColorBrewer)
+library(viridis)
+library(plyr)
+library(gridExtra)
+library(grid)
+
+```
+
+## R Markdown
+
+
+```{r load_data_FAIMS, echo=FALSE}
+GLPVVDATCPLVNK_CompiledFragments_0_6_FAIMS_20ppm <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeatMaps/CompiledFragmentResults_GLPVVDATCPLVNK_IW_0_6_Zymo_FAIMS_20ppm.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+
+FTDVIGPDTSDICYATQNR_CompiledFragments_0_6_FAIMS_20ppm <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeatMaps/CompiledFragmentResults_FTDVIGPDTSDICYATQNR_IW_0_6_Zymo_FAIMS_20ppm.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+VSLSADPEQEVR_CompiledFragments_0_6_FAIMS_20ppm <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeatMaps/CompiledFragmentResults_VSLSADPEQEVR_IW_0_6_Zymo_FAIMS_20ppm.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+AVDCPLHLGITEAGGLIGGTVK_CompiledFragments_0_6_FAIMS_20ppm <- read.csv("F:/Projects/Proteomics/Zymomona/FAIMS/DataAnalysis/HeatMaps/CompiledFragmentResults_AVDCPLHLGITEAGGLIGGTVK_IW_0_6_Zymo_FAIMS_20ppm.csv", 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+```
+
+
+```{r dataformatting_replicates, echo=FALSE}
+#x = AVDCPLHLGITEAGGLIGGTVK_CompiledFragments_0_6_FAIMS_20ppm
+meta_replicates <- function(x){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df <- x[,-c(1:2)]
+  rownames(df) <- make.names(x$Mass.Feature, unique = TRUE)
+  
+  if(length(grep("\\.1", rownames(df)))!=0){
+    df = df[c(1,grep("\\.1", rownames(df))),]
+  }
+  colnames(df) <- samples
+  df[df == 0] <- NA
+  
+  df <- df[-which(rownames(df)=="b1"),]
+  df <- df[-which(rownames(df)=="y1"),]
+  
+  df_t <- t(df)
+  
+  meta <- as.data.frame(stringr::str_split_fixed(rownames(df_t),"_",4))
+  colnames(meta) <- c("Resolution", "MaxInjection", "AGC", "Replicate")
+  
+  meta[,1] <- sub('R','', meta[,1])
+  
+  meta[,2] <- sub('MI', '', meta[,2])
+  meta[,2] <- sub(502, 0.502, meta[,2])
+  meta[,2] <- as.factor(as.numeric(meta[,2]))
+  
+  meta[,4] <- sub("*.raw",'', meta[,4])
+  meta[,4] <- as.numeric(sub("_2020.*",'', meta[,4]))
+  
+  rownames(meta) <- rownames(df_t)
+  meta <- meta[order(meta[,1],meta[,2]),]
+  
+  if(length(grep("CORRUPTED",rownames(meta))) != 0){
+    meta <- meta[-grep("CORRUPTED",rownames(meta)),]
+  }
+  
+  return(meta)
+  
+}
+
+# x = AVDCPLHLGITEAGGLIGGTVK_CompiledFragments_0_6_FAIMS_20ppm
+# m = meta_0_6_FAIMS_20ppm
+# m = meta
+
+df_fragments_log2 <- function(x,m){
+  samples <- colnames(x[,-c(1:2)])
+  samples <- gsub("^.*?_R","R",samples)
+  
+  df <- x[,-c(1:2)]
+    rownames(df) <- make.names(x$Mass.Feature, unique = TRUE)
+  
+  if(length(grep("\\.1", rownames(df)))!=0){
+    df = df[c(1,grep("\\.1", rownames(df))),]
+  }
+  
+  print(rownames(df))
+  
+  if(length(grep("\\.1", rownames(df)))!=0){
+    rownames(df) <- sub("\\.1", "", rownames(df))
+  }
+  colnames(df) <- samples
+  
+  df[df == 0] <- NA
+  df <- log2(df)
+  df[is.na(df)] <- 0
+  
+  df <- df[-which(rownames(df)=="b1"),]
+  df <- df[-which(rownames(df)=="y1"),]
+  
+  df <- df[rownames(m)]
+  
+  return(df)
+  
+}
+
+replicate_annotation <- function(x,m){
+  
+  if(length(grep("CORRUPTED", rownames(m))) > 0){
+    m <- m[-c(grep("CORRUPTED", rownames(m))),]
+  }
+  
+  
+  annotation_res = data.frame(Resolution = m$Resolution)
+  rownames(annotation_res) <- colnames(x)
+  
+  annotation_MI = data.frame(MaxInjection = m$MaxInjection)
+  rownames(annotation_MI) <- colnames(x)
+  
+  annotation = cbind(annotation_res, annotation_MI)
+  
+  return(annotation)
+}
+
+```
+
+
+```{r dataformatting_unique, echo=FALSE}
+# x <- df_0_6_FAIMS_log2_20ppm
+# meta <- meta_0_6_FAIMS_20ppm
+averagedIntensity <- function(x,meta){
+  
+  meta$Res_MI <- paste0(meta$Resolution, "_", meta$MaxInjection)
+  meta$Raw <- rownames(meta)
+  
+  
+  df_t <- as.data.frame(t(x))
+  
+  df_t$Raw <- rownames(df_t)
+  
+  df_t_meta <- merge(meta, df_t, by = "Raw")
+
+  df_t_averaged <- aggregate(df_t_meta[,-c(1:6)], by = list(df_t_meta$Res_MI), mean)
+  colnames(df_t_averaged) <- c("Unique", colnames(df_t_averaged[,-1]))
+  
+  
+  meta_unique <- as.data.frame(stringr::str_split_fixed(df_t_averaged$Unique,"_",2))
+  colnames(meta_unique) <- c("Resolution", "MaxInjection")
+  
+  #meta_unique[,1] <- sub('R','', meta_unique[,1])
+  
+  #meta_unique[,2] <- sub('MI', '', meta_unique[,2])
+  meta_unique$Unique <- paste0(meta_unique$Resolution, "_", meta_unique$MaxInjection)
+  
+  df_averaged_merge <- merge(meta_unique, df_t_averaged, by = "Unique")
+  unique_row_names <- paste0("R",meta_unique$Resolution,"_","MI",meta_unique$MaxInjection)
+  unique_row_names <- sub("0.502", "502", unique_row_names)
+  rownames(df_averaged_merge) <- unique_row_names
+  df_averaged_ordered <- t(df_averaged_merge[,-c(1:3)])
+  
+  return(df_averaged_ordered)
+
+}
+
+#x = annotation_0_6_FAIMS
+unique_annotation <- function(x){
+  x$sample.names <- sub('_AGC.*', '',rownames(x))
+  #x$sample.names <- sub('502', '0.502',rownames(x))
+  x <- x[!duplicated(x$sample.names),]
+  rownames(x) <- x$sample.names
+  
+  return(x[,-3])
+}
+```
+
+```{r log2_replicates_AIEIVDQALDR, echo=FALSE}
+##GLPVVDATCPLVNK
+GLPVVDATCPLVNK_meta_0_6_FAIMS_20ppm  <- meta_replicates(GLPVVDATCPLVNK_CompiledFragments_0_6_FAIMS_20ppm)
+GLPVVDATCPLVNK_df_0_6_FAIMS_log2_20ppm <- df_fragments_log2(GLPVVDATCPLVNK_CompiledFragments_0_6_FAIMS_20ppm, GLPVVDATCPLVNK_meta_0_6_FAIMS_20ppm)
+
+GLPVVDATCPLVNK_annotation_0_6_FAIMS_20ppm <- replicate_annotation(GLPVVDATCPLVNK_df_0_6_FAIMS_log2_20ppm, GLPVVDATCPLVNK_meta_0_6_FAIMS_20ppm)
+
+
+##FTDVIGPDTSDICYATQNR
+FTDVIGPDTSDICYATQNR_meta_0_6_FAIMS_20ppm  <- meta_replicates(FTDVIGPDTSDICYATQNR_CompiledFragments_0_6_FAIMS_20ppm)
+FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm <- df_fragments_log2(FTDVIGPDTSDICYATQNR_CompiledFragments_0_6_FAIMS_20ppm, FTDVIGPDTSDICYATQNR_meta_0_6_FAIMS_20ppm)
+FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm <- FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm[-c(11:18,28:37),]
+
+FTDVIGPDTSDICYATQNR_annotation_0_6_FAIMS_20ppm <- replicate_annotation(FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm, FTDVIGPDTSDICYATQNR_meta_0_6_FAIMS_20ppm)
+
+##VSLSADPEQEVR
+VSLSADPEQEVR_meta_0_6_FAIMS_20ppm  <- meta_replicates(VSLSADPEQEVR_CompiledFragments_0_6_FAIMS_20ppm)
+VSLSADPEQEVR_df_0_6_FAIMS_log2_20ppm <- df_fragments_log2(VSLSADPEQEVR_CompiledFragments_0_6_FAIMS_20ppm, VSLSADPEQEVR_meta_0_6_FAIMS_20ppm)
+
+VSLSADPEQEVR_annotation_0_6_FAIMS_20ppm <- replicate_annotation(VSLSADPEQEVR_df_0_6_FAIMS_log2_20ppm, VSLSADPEQEVR_meta_0_6_FAIMS_20ppm)
+
+##AVDCPLHLGITEAGGLIGGTVK
+AVDCPLHLGITEAGGLIGGTVK_meta_0_6_FAIMS_20ppm  <- meta_replicates(AVDCPLHLGITEAGGLIGGTVK_CompiledFragments_0_6_FAIMS_20ppm)
+AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm <- df_fragments_log2(AVDCPLHLGITEAGGLIGGTVK_CompiledFragments_0_6_FAIMS_20ppm, AVDCPLHLGITEAGGLIGGTVK_meta_0_6_FAIMS_20ppm)
+AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm <- AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm[-c(12:21,34:41),]
+
+AVDCPLHLGITEAGGLIGGTVK_annotation_0_6_FAIMS_20ppm <- replicate_annotation(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm, AVDCPLHLGITEAGGLIGGTVK_meta_0_6_FAIMS_20ppm)
+```
+
+```{r heatmap_prep, echo=FALSE}
+theme_set(theme_bw(base_size = 16))
+
+dat <- data.frame(values = as.numeric(as.matrix(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm)))
+ggplot(dat, aes(values)) + geom_density(bw = "SJ")
+
+## ----uniform-color-breaks------------------------------------------------
+mat_breaks <- seq(min(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm), max(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm), length.out = 10)
+cols <- brewer.pal(3, "YlGnBu")
+scaleRYG <- colorRampPalette(cols)(length(mat_breaks) - 1)
+
+
+## ----uniform-color-breaks-detail, fig.height=2, echo=FALSE---------------
+dat_colors <- data.frame(
+  xmin = mat_breaks[1:(length(mat_breaks)-1)],
+  xmax = mat_breaks[2:length(mat_breaks)],
+  ymin = 0,
+  ymax = max(density(mat, bw = "SJ")$y),
+  fill = scaleRYG,#rev(inferno(length(mat_breaks) - 1)),
+  stringsAsFactors = FALSE
+)
+ggplot() +
+  geom_rect(
+    data = dat_colors,
+    mapping = aes(
+      xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill
+    )
+  ) +
+  geom_density(
+    data = dat,
+    mapping = aes(values),
+    bw = "SJ", color = "cyan"
+  ) +
+  scale_fill_manual(values = rev(dat_colors$fill))+
+  theme(legend.position = "none") +
+  labs(title = "Uniform breaks")
+
+## ----uniform-color-breaks-bars, fig.height=3, echo=FALSE-----------------
+dat2 <- as.data.frame(table(cut(
+  as.matrix(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm), mat_breaks
+)))
+dat2$fill <- scaleRYG
+ggplot() +
+  geom_bar(
+    data = dat2,
+    mapping = aes(x = Var1, weight = Freq, fill = Var1),
+    color = "black", size = 0.1
+  ) +
+  coord_flip() +
+  scale_fill_manual(values = dat2$fill) +
+  theme(legend.position = "none") +
+  labs(y = "data points", x = "breaks",
+       title = "Number of data points per color")
+
+```
+
+
+```{r heatmaps_replicate,echo=FALSE}
+pheatmap(GLPVVDATCPLVNK_df_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = GLPVVDATCPLVNK_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,6,7,9,12,14,15,16,17,18),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1,12),
+         show_colnames = F,
+         main = "GLPVVDATCPLVNK IW of 0.6 m/z with FAIMS 20ppm")
+
+pheatmap(FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = FTDVIGPDTSDICYATQNR_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,6,8,10,11,12,14,16,17,19),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1,12),
+         show_colnames = F,
+         main = "FTDVIGPDTSDICYATQNR IW of 0.6 m/z with FAIMS 20ppm")
+
+pheatmap(VSLSADPEQEVR_df_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = VSLSADPEQEVR_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,7,10,14,16,17,18,19,21,22),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1,12),
+         show_colnames = F,
+         main = "VSLSADPEQEVR IW of 0.6 m/z with FAIMS 20ppm")
+
+pheatmap(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = AVDCPLHLGITEAGGLIGGTVK_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,8,11,13,14,15,16,17,18,19),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(9,18,27),
+         gaps_row = c(1,12),
+         show_colnames = F,
+         main = "AVDCPLHLGITEAGGLIGGTVK IW of 0.6 m/z with FAIMS 20ppm")
+```
+
+```{r log2_unique, echo=FALSE}
+##GLPVVDATCPLVNK
+GLPVVDATCPLVNK_unique_annotation_0_6_FAIMS_20ppm <- unique_annotation(GLPVVDATCPLVNK_annotation_0_6_FAIMS_20ppm)
+GLPVVDATCPLVNK_averaged_0_6_FAIMS_log2_20ppm <- averagedIntensity(GLPVVDATCPLVNK_df_0_6_FAIMS_log2_20ppm, GLPVVDATCPLVNK_meta_0_6_FAIMS_20ppm)
+GLPVVDATCPLVNK_averaged_0_6_FAIMS_log2_20ppm <- GLPVVDATCPLVNK_averaged_0_6_FAIMS_log2_20ppm[-c(24,25),]
+
+####FTDVIGPDTSDICYATQNR
+FTDVIGPDTSDICYATQNR_unique_annotation_0_6_FAIMS_20ppm <- unique_annotation(FTDVIGPDTSDICYATQNR_annotation_0_6_FAIMS_20ppm)
+FTDVIGPDTSDICYATQNR_averaged_1_0_6_FAIMS_log2_20ppm <- averagedIntensity(FTDVIGPDTSDICYATQNR_df_0_6_FAIMS_log2_20ppm, FTDVIGPDTSDICYATQNR_meta_0_6_FAIMS_20ppm)
+
+##VSLSADPEQEVR
+VSLSADPEQEVR_unique_annotation_0_6_FAIMS_20ppm <- unique_annotation(VSLSADPEQEVR_annotation_0_6_FAIMS_20ppm)
+VSLSADPEQEVR_averaged_1_0_6_FAIMS_log2_20ppm <- averagedIntensity(VSLSADPEQEVR_df_0_6_FAIMS_log2_20ppm, VSLSADPEQEVR_meta_0_6_FAIMS_20ppm)
+
+##AVDCPLHLGITEAGGLIGGTVK
+AVDCPLHLGITEAGGLIGGTVK_unique_annotation_0_6_FAIMS_20ppm <- unique_annotation(AVDCPLHLGITEAGGLIGGTVK_annotation_0_6_FAIMS_20ppm)
+AVDCPLHLGITEAGGLIGGTVK_averaged_1_0_6_FAIMS_log2_20ppm <- averagedIntensity(AVDCPLHLGITEAGGLIGGTVK_df_0_6_FAIMS_log2_20ppm, AVDCPLHLGITEAGGLIGGTVK_meta_0_6_FAIMS_20ppm)
+
+```
+
+
+```{r heatmap_unique, echo=FALSE}
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Parameter_Comparisono_HeatMaps/20ppm/GLPVVDATCPLVNK_averaged_0_6_FAIMS_log2_20ppm_heatmap.pdf", width = 15, height = 20,useDingbats = FALSE)
+pheatmap(GLPVVDATCPLVNK_averaged_0_6_FAIMS_log2_20ppm,
+         annotation_colors = my_colour,
+         annotation_col = GLPVVDATCPLVNK_unique_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         breaks = c(0,6,7,9,12,14,15,16,17,18),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(1,13),
+         show_colnames = F,
+         width = 7,
+         height = 11,
+         main = "GLPVVDATCPLVNK IW of 0.6 m/z with FAIMS")
+dev.off()
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Parameter_Comparisono_HeatMaps/20ppm/FTDVIGPDTSDICYATQNR_averaged_0_6_FAIMS_log2_20ppm_heatmap.pdf", width = 15, height = 20,useDingbats = FALSE)
+pheatmap(FTDVIGPDTSDICYATQNR_averaged_1_0_6_FAIMS_log2_20ppm ,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = FTDVIGPDTSDICYATQNR_unique_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,6,8,10,11,12,14,16,17,19),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(1,10),
+         show_colnames = F,
+         main = "FTDVIGPDTSDICYATQNR IW of 0.6 m/z with FAIMS 20ppm")
+dev.off()
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Parameter_Comparisono_HeatMaps/20ppm/VSLSADPEQEVR_averaged_0_6_FAIMS_log2_20ppm_heatmap.pdf", width = 15, height = 20,useDingbats = FALSE)
+pheatmap(VSLSADPEQEVR_averaged_1_0_6_FAIMS_log2_20ppm,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = VSLSADPEQEVR_unique_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,7,10,14,16,17,18,19,21,22),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(1,11),
+         show_colnames = F,
+         main = "VSLSADPEQEVR IW of 0.6 m/z with FAIMS 20ppm")
+dev.off()
+
+pdf("F:/Projects/Proteomics/Zymomona/FAIMS/Figures/FromR/Parameter_Comparisono_HeatMaps/20ppm/AVDCPLHLGITEAGGLIGGTVK_averaged_0_6_FAIMS_log2_20ppm_heatmap.pdf", width = 15, height = 20,useDingbats = FALSE)
+pheatmap(AVDCPLHLGITEAGGLIGGTVK_averaged_1_0_6_FAIMS_log2_20ppm ,
+         #annotation = annotation_res,
+         annotation_colors = my_colour,
+         annotation_col = AVDCPLHLGITEAGGLIGGTVK_unique_annotation_0_6_FAIMS_20ppm,
+         color = scaleRYG,
+         #scale = "row",
+         breaks = c(0,8,11,13,14,15,16,17,18,19),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         gaps_col =c(3,6,9),
+         gaps_row = c(1,11),
+         show_colnames = F,
+         main = "AVDCPLHLGITEAGGLIGGTVK IW of 0.6 m/z with FAIMS 20ppm")
+dev.off()
+```
